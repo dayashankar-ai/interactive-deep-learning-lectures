@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deep Learning Mastery Course - Dr. Daya Shankar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .instructor-banner {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .instructor-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .instructor-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .instructor-name {
+            font-size: 2.2em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .instructor-title {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .instructor-bio {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .instructor-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .course-info {
+            font-size: 1.4em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .header .description {
+            font-size: 1.1em;
+            opacity: 0.8;
+            max-width: 900px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .course-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-number {
+            font-size: 2.8em;
+            font-weight: 700;
+            display: block;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .modules-container {
+            margin: 50px 0;
+        }
+
+        .module-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px 0;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .module-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .module-header h2 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .module-subtitle {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .module-header p {
+            color: #666;
+            font-size: 1.1em;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .lecture-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid;
+        }
+
+        .lecture-card.available {
+            border-top-color: #28a745;
+        }
+
+        .lecture-card.coming-soon {
+            border-top-color: #ffc107;
+            opacity: 0.9;
+        }
+
+        .lecture-card.planned {
+            border-top-color: #6c757d;
+            opacity: 0.7;
+        }
+
+        .lecture-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .lecture-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-coming-soon {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-planned {
+            background: #f8f9fa;
+            color: #6c757d;
+        }
+
+        .lecture-number {
+            font-size: 0.95em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .lecture-title {
+            font-size: 1.25em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .lecture-description {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            font-size: 0.9em;
+        }
+
+        .lecture-topics {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+        }
+
+        .topics-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .topic-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.75em;
+            border: 1px solid #dee2e6;
+        }
+
+        .lecture-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .lecture-duration {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .launch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 18px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .launch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .launch-btn.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .launch-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .module-progress {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #dee2e6;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s ease;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-top: 60px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .instructor-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .instructor-photo {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5em;
+            }
+            
+            .instructor-name {
+                font-size: 1.8em;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .lectures-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .course-stats {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Instructor Banner -->
+        <div class="instructor-banner">
+            <div class="instructor-photo">👨‍⚕️</div>
+            <div class="instructor-info">
+                <div class="instructor-name">Dr. Daya Shankar</div>
+                <div class="instructor-title">Dean, Woxsen University | Founder, VaidyaAI | Applying AI to Solve Clinical Challenges in Diagnostics & Documentation | HealthTech Innovator</div>
+                <div class="instructor-bio">
+                    Leading expert in AI applications for healthcare, with extensive experience in deep learning, 
+                    clinical diagnostics, and educational innovation. Passionate about bridging the gap between 
+                    cutting-edge AI research and practical healthcare solutions.
+                </div>
+                <div class="instructor-links">
+                    <a href="https://www.dayashankar.com" class="link-btn" target="_blank">🌐 Personal Website</a>
+                    <a href="https://vaidyaai.com" class="link-btn" target="_blank">🏥 VaidyaAI</a>
+                    <a href="https://woxsen.edu.in" class="link-btn" target="_blank">🎓 Woxsen University</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="header">
+            <h1>🧠 Deep Learning Mastery</h1>
+            <div class="course-info">Comprehensive 45-Lecture Interactive Course</div>
+            <div class="description">
+                Master deep neural networks from fundamental concepts to cutting-edge applications. 
+                This comprehensive course covers theory, implementation, and real-world applications 
+                with hands-on interactive lectures designed for undergraduate and graduate students.
+            </div>
+            
+            <div class="course-stats">
+                <div class="stat-item">
+                    <span class="stat-number">45</span>
+                    <div class="stat-label">Interactive Lectures</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">45+</span>
+                    <div class="stat-label">Hours Content</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">12</span>
+                    <div class="stat-label">Lab Experiments</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">4</span>
+                    <div class="stat-label">Credits</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">100+</span>
+                    <div class="stat-label">Interactive Demos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modules-container">
+            <!-- Module I: Foundations (12 Lectures) -->
+            <div class="module-section">
+                <div class="module-header">
+                    <h2>📚 Module I: Deep Learning Foundations</h2>
+                    <div class="module-subtitle">12 Lectures • 12 Hours</div>
+                    <p>Master the fundamental concepts, mathematics, and core techniques that form the backbone of deep learning</p>
+                </div>
+                
+                <div class="module-progress">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>Progress:</strong> 7/12 lectures available</span>
+                        <span><strong>58% Complete</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 58%;"></div>
+                    </div>
+                </div>
+                
+                <div class="lectures-grid">
+                    <a href="lecture1-history-foundations.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 1</div>
+                        <div class="lecture-title">🏛️ History & Evolution of AI</div>
+                        <div class="lecture-description">Journey through AI history from early concepts to modern breakthroughs. Understand key milestones and the evolution of neural networks.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">AI Timeline</span>
+                                <span class="topic-tag">Neural Network History</span>
+                                <span class="topic-tag">Key Breakthroughs</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Start Journey</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture2-mathematical-foundations.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 2</div>
+                        <div class="lecture-title">📐 Mathematical Foundations</div>
+                        <div class="lecture-description">Essential mathematics for deep learning: linear algebra, calculus, probability, and statistics with interactive visualizations.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Linear Algebra</span>
+                                <span class="topic-tag">Calculus</span>
+                                <span class="topic-tag">Probability</span>
+                                <span class="topic-tag">Statistics</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Learn Math</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture3-perceptron-basics.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 3</div>
+                        <div class="lecture-title">🧮 Perceptron & Neural Basics</div>
+                        <div class="lecture-description">Understanding the building blocks: perceptrons, neurons, weights, biases, and basic neural network architecture.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Perceptron</span>
+                                <span class="topic-tag">Weights & Biases</span>
+                                <span class="topic-tag">Activation Functions</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Build Neurons</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture4-forward-propagation.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 4</div>
+                        <div class="lecture-title">➡️ Forward Propagation</div>
+                        <div class="lecture-description">Deep dive into how neural networks process information through layers with step-by-step matrix operations.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Matrix Operations</span>
+                                <span class="topic-tag">Layer Computation</span>
+                                <span class="topic-tag">Information Flow</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Process Forward</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture5-backward-propagation.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 5</div>
+                        <div class="lecture-title">⬅️ Backward Propagation</div>
+                        <div class="lecture-description">Master the heart of learning: gradient computation, chain rule, and how networks learn from mistakes.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Chain Rule</span>
+                                <span class="topic-tag">Gradients</span>
+                                <span class="topic-tag">Weight Updates</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Learn Backprop</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture6-gradient-descent.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 6</div>
+                        <div class="lecture-title">⬇️ Gradient Descent Fundamentals</div>
+                        <div class="lecture-description">Understand optimization basics: vanilla gradient descent, learning rates, and convergence properties.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Optimization</span>
+                                <span class="topic-tag">Learning Rate</span>
+                                <span class="topic-tag">Convergence</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Optimize</div>
+                        </div>
+                    </a>
+
+                    <a href="lecture7-minibatch-sgd.html" class="lecture-card available">
+                        <div class="lecture-status status-available">✅ Available</div>
+                        <div class="lecture-number">Lecture 7</div>
+                        <div class="lecture-title">⚡ Mini-batch & Stochastic GD</div>
+                        <div class="lecture-description">Efficient training with mini-batch gradient descent and stochastic optimization techniques.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Mini-batch</span>
+                                <span class="topic-tag">SGD</span>
+                                <span class="topic-tag">Efficiency</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn">🚀 Batch Process</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card coming-soon">
+                        <div class="lecture-status status-coming-soon">🚧 Coming Soon</div>
+                        <div class="lecture-number">Lecture 8</div>
+                        <div class="lecture-title">🚀 Advanced Optimizers</div>
+                        <div class="lecture-description">Modern optimization algorithms: Momentum, RMSprop, Adam, and adaptive learning rate methods.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Momentum</span>
+                                <span class="topic-tag">Adam</span>
+                                <span class="topic-tag">RMSprop</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">🔒 In Development</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card coming-soon">
+                        <div class="lecture-status status-coming-soon">🚧 Coming Soon</div>
+                        <div class="lecture-number">Lecture 9</div>
+                        <div class="lecture-title">🎯 Hyperparameter Tuning</div>
+                        <div class="lecture-description">Systematic approaches to configure networks: learning rates, architectures, and optimization strategies.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Parameter Tuning</span>
+                                <span class="topic-tag">Grid Search</span>
+                                <span class="topic-tag">Validation</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">🔒 In Development</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card coming-soon">
+                        <div class="lecture-status status-coming-soon">🚧 Coming Soon</div>
+                        <div class="lecture-number">Lecture 10</div>
+                        <div class="lecture-title">🛡️ Regularization Techniques</div>
+                        <div class="lecture-description">Prevent overfitting with dropout, L1/L2 regularization, early stopping, and data augmentation.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Dropout</span>
+                                <span class="topic-tag">L1/L2</span>
+                                <span class="topic-tag">Early Stopping</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">🔒 In Development</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 11</div>
+                        <div class="lecture-title">📊 Batch Normalization</div>
+                        <div class="lecture-description">Accelerate training and improve stability with normalization techniques and advanced training methods.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">BatchNorm</span>
+                                <span class="topic-tag">LayerNorm</span>
+                                <span class="topic-tag">Stability</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 12</div>
+                        <div class="lecture-title">🎲 Loss Functions & Metrics</div>
+                        <div class="lecture-description">Comprehensive guide to loss functions, evaluation metrics, and performance assessment techniques.</div>
+                        <div class="lecture-topics">
+                            <div class="topics-list">
+                                <span class="topic-tag">Loss Functions</span>
+                                <span class="topic-tag">Metrics</span>
+                                <span class="topic-tag">Evaluation</span>
+                            </div>
+                        </div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module II: CNNs (12 Lectures) -->
+            <div class="module-section">
+                <div class="module-header">
+                    <h2>🖼️ Module II: Convolutional Neural Networks</h2>
+                    <div class="module-subtitle">12 Lectures • 12 Hours</div>
+                    <p>Master computer vision with CNNs, from basic convolutions to state-of-the-art architectures</p>
+                </div>
+                
+                <div class="module-progress">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>Progress:</strong> 0/12 lectures available</span>
+                        <span><strong>0% Complete</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="lectures-grid">
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 13</div>
+                        <div class="lecture-title">🔍 Introduction to Computer Vision</div>
+                        <div class="lecture-description">Foundations of computer vision: image representation, pixels, channels, and basic image processing.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 14</div>
+                        <div class="lecture-title">🌊 Convolution Operations</div>
+                        <div class="lecture-description">Deep dive into convolution: kernels, filters, feature maps, and convolution mathematics.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 15</div>
+                        <div class="lecture-title">🏊 Pooling & Subsampling</div>
+                        <div class="lecture-description">Reduce spatial dimensions with pooling layers: max pooling, average pooling, and modern alternatives.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 16</div>
+                        <div class="lecture-title">🏗️ CNN Architecture Design</div>
+                        <div class="lecture-description">Building complete CNN architectures: layer stacking, feature hierarchies, and architectural principles.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 17</div>
+                        <div class="lecture-title">🚀 LeNet & AlexNet</div>
+                        <div class="lecture-description">Historical CNN architectures: LeNet-5 and the revolutionary AlexNet that started the deep learning boom.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 18</div>
+                        <div class="lecture-title">📈 VGG & Network Depth</div>
+                        <div class="lecture-description">Going deeper with VGG networks: understanding the impact of network depth and small filter design.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 19</div>
+                        <div class="lecture-title">💎 ResNet & Skip Connections</div>
+                        <div class="lecture-description">Revolutionary residual connections: solving vanishing gradients and enabling ultra-deep networks.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 20</div>
+                        <div class="lecture-title">🌟 Inception Networks</div>
+                        <div class="lecture-description">Multi-scale feature extraction with Inception modules and efficient network design principles.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 21</div>
+                        <div class="lecture-title">🎯 Object Detection Basics</div>
+                        <div class="lecture-description">From classification to detection: bounding boxes, IoU, and object localization fundamentals.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 22</div>
+                        <div class="lecture-title">📦 R-CNN Family</div>
+                        <div class="lecture-description">Region-based detection: R-CNN, Fast R-CNN, and Faster R-CNN architectures and improvements.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 23</div>
+                        <div class="lecture-title">⚡ YOLO & Real-time Detection</div>
+                        <div class="lecture-description">You Only Look Once: real-time object detection with single-shot detection methods.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 24</div>
+                        <div class="lecture-title">🖼️ Semantic Segmentation</div>
+                        <div class="lecture-description">Pixel-level understanding: FCN, U-Net, and semantic segmentation architectures.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module III: RNNs & Sequences (11 Lectures) -->
+            <div class="module-section">
+                <div class="module-header">
+                    <h2>🔄 Module III: Recurrent Networks & Sequences</h2>
+                    <div class="module-subtitle">11 Lectures • 11 Hours</div>
+                    <p>Master sequential data processing with RNNs, LSTMs, GRUs, and modern attention mechanisms</p>
+                </div>
+                
+                <div class="module-progress">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>Progress:</strong> 0/11 lectures available</span>
+                        <span><strong>0% Complete</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="lectures-grid">
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 25</div>
+                        <div class="lecture-title">📝 Introduction to Sequential Data</div>
+                        <div class="lecture-description">Understanding time series, text, speech, and sequential patterns in data.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 26</div>
+                        <div class="lecture-title">🔄 Vanilla RNN Fundamentals</div>
+                        <div class="lecture-description">Basic recurrent neural networks: hidden states, unfolding, and simple sequence modeling.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 27</div>
+                        <div class="lecture-title">⚡ RNN Training & Challenges</div>
+                        <div class="lecture-description">Backpropagation through time, vanishing/exploding gradients, and training difficulties.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 28</div>
+                        <div class="lecture-title">🧠 LSTM Architecture</div>
+                        <div class="lecture-description">Long Short-Term Memory: gates, cell states, and solving long-term dependencies.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 29</div>
+                        <div class="lecture-title">🎛️ GRU & Modern RNNs</div>
+                        <div class="lecture-description">Gated Recurrent Units: simplified gating mechanisms and modern RNN variants.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 30</div>
+                        <div class="lecture-title">🔀 Bidirectional RNNs</div>
+                        <div class="lecture-description">Processing sequences in both directions: bidirectional architectures and applications.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 31</div>
+                        <div class="lecture-title">🎯 Attention Mechanisms</div>
+                        <div class="lecture-description">Revolutionary attention: focusing on relevant parts of sequences and solving alignment problems.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 32</div>
+                        <div class="lecture-title">🔮 Transformer Architecture</div>
+                        <div class="lecture-description">Self-attention and transformers: the architecture that revolutionized NLP and beyond.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 33</div>
+                        <div class="lecture-title">📚 BERT & Language Models</div>
+                        <div class="lecture-description">Bidirectional transformers: BERT, pre-training, fine-tuning, and modern language understanding.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 34</div>
+                        <div class="lecture-title">🗨️ Text Generation & GPT</div>
+                        <div class="lecture-description">Generative language models: GPT architecture, autoregressive generation, and large language models.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 35</div>
+                        <div class="lecture-title">📈 Sequence-to-Sequence Applications</div>
+                        <div class="lecture-description">Real-world applications: machine translation, summarization, question answering, and chatbots.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Module IV: Advanced Deep Learning (10 Lectures) -->
+            <div class="module-section">
+                <div class="module-header">
+                    <h2>🚀 Module IV: Advanced Deep Learning</h2>
+                    <div class="module-subtitle">10 Lectures • 10 Hours</div>
+                    <p>Explore cutting-edge topics: GANs, Transfer Learning, Reinforcement Learning, PINNs, and emerging architectures</p>
+                </div>
+                
+                <div class="module-progress">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span><strong>Progress:</strong> 0/10 lectures available</span>
+                        <span><strong>0% Complete</strong></span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <div class="lectures-grid">
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 36</div>
+                        <div class="lecture-title">🔄 Transfer Learning & Fine-tuning</div>
+                        <div class="lecture-description">Leveraging pre-trained models: transfer learning strategies, fine-tuning, and domain adaptation.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 37</div>
+                        <div class="lecture-title">🧬 Autoencoders & Representation Learning</div>
+                        <div class="lecture-description">Unsupervised learning: encoders, decoders, dimensionality reduction, and feature learning.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 38</div>
+                        <div class="lecture-title">🎭 Generative Adversarial Networks</div>
+                        <div class="lecture-description">GANs fundamentals: generator-discriminator dynamics, training challenges, and basic GAN architectures.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 39</div>
+                        <div class="lecture-title">🎨 Advanced GANs & Applications</div>
+                        <div class="lecture-description">StyleGAN, DCGAN, conditional GANs, and creative applications of generative models.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 40</div>
+                        <div class="lecture-title">🎮 Deep Reinforcement Learning</div>
+                        <div class="lecture-description">RL fundamentals: Q-learning, policy gradients, and deep Q-networks for intelligent agents.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 41</div>
+                        <div class="lecture-title">🏆 Advanced RL Algorithms</div>
+                        <div class="lecture-description">Actor-critic methods, PPO, A3C, and modern reinforcement learning algorithms.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 42</div>
+                        <div class="lecture-title">⚗️ Physics-Informed Neural Networks</div>
+                        <div class="lecture-description">Cutting-edge fusion of physics and AI: solving PDEs, enforcing physical constraints, and scientific computing.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 43</div>
+                        <div class="lecture-title">👁️ Vision Transformers & Modern Architectures</div>
+                        <div class="lecture-description">Transformers for vision: ViT, DETR, and the latest architectural innovations across domains.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 44</div>
+                        <div class="lecture-title">🩺 AI in Healthcare Applications</div>
+                        <div class="lecture-description">Deep learning for medical imaging, diagnostics, drug discovery, and clinical decision support systems.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+
+                    <a href="#" class="lecture-card planned">
+                        <div class="lecture-status status-planned">📋 Planned</div>
+                        <div class="lecture-number">Lecture 45</div>
+                        <div class="lecture-title">🌐 Future of Deep Learning</div>
+                        <div class="lecture-description">Emerging trends, ethical considerations, interpretability, and the future landscape of AI research.</div>
+                        <div class="lecture-meta">
+                            <div class="lecture-duration">⏱️ 60 minutes</div>
+                            <div class="launch-btn disabled">📅 Future</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>🎓 <strong>Created by Dr. Daya Shankar</strong></p>
+            <p>📚 Comprehensive 45-lecture course covering theoretical foundations and practical implementations</p>
+            <br>
+            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p><strong>📖 Reference Materials:</strong></p>
+                <p style="font-size: 0.9em; margin-top: 10px; line-height: 1.6;">
+                    • Ian Goodfellow et al. - Deep Learning (MIT Press)<br>
+                    • Michael Nielsen - Neural Networks and Deep Learning<br>
+                    • Josh Patterson & Adam Gibson - Deep Learning: A Practitioner's Approach<br>
+                    • Additional resources: GeeksforGeeks, NPTEL Lectures, Latest Research Papers
+                </p>
+            </div>
+            <p style="font-size: 0.9em; opacity: 0.7; margin-top: 20px;">
+                Interactive lectures designed for comprehensive deep learning education.
+                <br>Suitable for undergraduate and graduate students in Computer Science, AI & Data Science.
+                <br><strong>Copyright © 2024 Dr. Daya Shankar. All rights reserved.</strong>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for internal links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add entrance animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe lecture cards for animations
+        document.querySelectorAll('.lecture-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // External link handling
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                // Allow external links to open normally
+                console.log('Opening external link:', this.href);
+            });
+        });
+    </script>
+</body>
+</html>
