@@ -185,9 +185,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Updates:** Watch this repository for course updates
 
 ### Instructor Contact
-- **Email:** Available through [personal website](https://www.dayashankar.com)
-- **Professional:** Connect via [LinkedIn](https://linkedin.com/in/dayashankar-ai)
-- **Institution:** [Woxsen University Contact](https://woxsen.edu.in/contact)
+- **Email:** Available through [personal website](https://www.drdayashankar.in/)
+- **Professional:** Connect via [LinkedIn](https://www.linkedin.com/in/daya-shankar-tiwary/)
+- **Institution:** [Woxsen University Contact](https://woxsen.edu.in/Faculty/)
 
 ## 🌟 Acknowledgments
 
