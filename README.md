@@ -14,7 +14,7 @@
 *Dean, School of Sciences, Woxsen University | Founder, VaidyaAI*  
 *Applying AI to Solve Clinical Challenges in Diagnostics & Documentation | HealthTech Innovator*
 
-- 🌐 **Website:** [www.dayashankar.com](https://www.drdayashankar.in)
+- 🌐 **Website:** [Dr. Daya Shankar](https://www.drdayashankar.in)
 - 🏥 **VaidyaAI:** [vaidyaai.com](https://vaidyaai.com)
 - 🎓 **Institution:** [Woxsen University](https://woxsen.edu.in)
 - 💼 **LinkedIn:** [Connect with Dr. Daya Shankar](https://www.linkedin.com/in/daya-shankar-tiwary)
