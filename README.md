@@ -208,6 +208,27 @@ Special thanks to:
 
 *Empowering the next generation of AI practitioners through interactive education*
 
+# 🚨 IMPORTANT: EDUCATIONAL ACCESS ONLY
+
+## 📖 How to Use This Repository
+This repository contains premium educational content created with significant effort and expertise.
+
+### ✅ PERMITTED USAGE:
+- 📚 **Study Online**: Browse and read all content on GitHub
+- 💡 **Learn Concepts**: Understand the implementations and explanations
+- 🔗 **Use Code Snippets**: Copy individual functions/examples for learning
+- 📝 **Academic Reference**: Cite in your research/assignments
+
+### ❌ PROHIBITED USAGE:
+- 🚫 **No Cloning**: Do not clone or download the entire repository
+- 🚫 **No Forking**: Do not create copies or forks
+- 🚫 **No Redistribution**: Do not share or repost content
+- 🚫 **No Commercial Use**: Not for business/commercial purposes
+
+### 🎓 Respect the Creator's Work
+This content represents months of careful preparation. Please use responsibly!
+
+---
 **Created with ❤️ by [Dr. Daya Shankar](https://www.dayashankar.com)**
 
 </div>
