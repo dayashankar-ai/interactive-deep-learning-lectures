@@ -1,1 +1,1198 @@
-Place holder 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 7: Mini-batch & Stochastic Gradient Descent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .lecture-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+
+        .concept-box {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .analogy-box {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+
+        .equation-box {
+            background: #f8f9ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .equation {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .equation-explanation {
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .example-box {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #17a2b8;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .pros, .cons {
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .pros {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+        }
+
+        .cons {
+            background: linear-gradient(45deg, #ff6b6b, #ffa8a8);
+        }
+
+        .highlight {
+            background: yellow;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .lecture-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .math-notation {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>⚡ Lecture 7: Mini-batch & Stochastic Gradient Descent</h1>
+            <p class="subtitle">Efficient Training with Smart Batch Processing</p>
+            <div class="lecture-info">
+                <div class="info-item">⏱️ 60 Minutes</div>
+                <div class="info-item">🎯 Beginner to Expert</div>
+                <div class="info-item">🚀 Batch Processing</div>
+                <div class="info-item">📊 Optimization</div>
+            </div>
+        </div>
+
+        <!-- Learning Objectives -->
+        <div class="section">
+            <h2 class="section-title">🎯 Learning Objectives</h2>
+            <p>By the end of this lecture, you will:</p>
+            <ul style="margin: 20px 0; padding-left: 30px;">
+                <li>Understand what mini-batch and stochastic gradient descent are</li>
+                <li>Know when and why to use each method</li>
+                <li>Master the mathematical concepts with simple examples</li>
+                <li>Implement these techniques in real scenarios</li>
+                <li>Compare efficiency and performance trade-offs</li>
+            </ul>
+        </div>
+
+        <!-- Introduction: The Restaurant Analogy -->
+        <div class="section">
+            <h2 class="section-title">🍽️ Introduction: The Restaurant Kitchen Analogy</h2>
+            
+            <div class="analogy-box">
+                <h3>🏪 Imagine You Own a Restaurant</h3>
+                <p><strong>The Problem:</strong> You need to improve your recipes based on customer feedback, but you have three different approaches:</p>
+                
+                <div style="margin: 20px 0;">
+                    <p><strong>🍽️ Batch Gradient Descent (Traditional Method):</strong></p>
+                    <p>Wait for ALL customers of the day to finish eating, collect ALL feedback, then improve your recipe once at the end of the day.</p>
+                    
+                    <p><strong>⚡ Stochastic Gradient Descent (Quick Method):</strong></p>
+                    <p>After EACH customer finishes, immediately adjust your recipe based on their feedback alone.</p>
+                    
+                    <p><strong>🎯 Mini-batch Gradient Descent (Smart Method):</strong></p>
+                    <p>Wait for a SMALL GROUP of customers (say 10) to finish, collect their feedback, then improve your recipe. Repeat this throughout the day.</p>
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>🧠 The Core Concept</h3>
+                <p>In machine learning, instead of recipes and customers, we have:</p>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><strong>Recipe = Model Parameters (weights & biases)</strong></li>
+                    <li><strong>Customer Feedback = Training Data</strong></li>
+                    <li><strong>Recipe Improvement = Gradient Descent Update</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Understanding Gradient Descent Types -->
+        <div class="section">
+            <h2 class="section-title">📊 Understanding the Three Types</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Data Used Per Update</th>
+                        <th>Speed</th>
+                        <th>Memory Usage</th>
+                        <th>Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Batch GD</strong></td>
+                        <td>All data (entire dataset)</td>
+                        <td>Slow (few updates)</td>
+                        <td>High</td>
+                        <td>Very Accurate</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stochastic GD</strong></td>
+                        <td>Single data point</td>
+                        <td>Fast (many updates)</td>
+                        <td>Low</td>
+                        <td>Noisy but gets there</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Mini-batch GD</strong></td>
+                        <td>Small batch (32, 64, 128...)</td>
+                        <td>Balanced</td>
+                        <td>Medium</td>
+                        <td>Good balance</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mathematical Foundation -->
+        <div class="section">
+            <h2 class="section-title">🔢 Mathematical Foundation Made Simple</h2>
+            
+            <div class="concept-box">
+                <h3>🎓 The Basic Gradient Descent Formula</h3>
+                <p>Think of this as: <strong>"New Recipe = Old Recipe - Learning Rate × Feedback"</strong></p>
+            </div>
+
+            <div class="equation-box">
+                <div class="equation">
+                    θ<sub>new</sub> = θ<sub>old</sub> - α × ∇J(θ)
+                </div>
+                <div class="equation-explanation">
+                    Where:<br>
+                    • θ (theta) = Model parameters (the recipe)<br>
+                    • α (alpha) = Learning rate (how much to change)<br>
+                    • ∇J(θ) = Gradient (the feedback direction)
+                </div>
+            </div>
+
+            <h3>📝 Now Let's See Each Type:</h3>
+
+            <!-- Batch Gradient Descent -->
+            <div class="example-box">
+                <h4>🍽️ Batch Gradient Descent</h4>
+                <div class="equation-box">
+                    <div class="equation">
+                        ∇J(θ) = (1/m) × Σ<sub>i=1</sub><sup>m</sup> ∇J<sub>i</sub>(θ)
+                    </div>
+                    <div class="equation-explanation">
+                        Translation: "Average ALL customer feedback before making changes"<br>
+                        • m = total number of training examples<br>
+                        • We calculate gradient for EVERY data point, then average
+                    </div>
+                </div>
+                
+                <p><strong>Example:</strong> If you have 1000 customers, you wait for all 1000 feedbacks, average them, then update your recipe once.</p>
+            </div>
+
+            <!-- Stochastic Gradient Descent -->
+            <div class="example-box">
+                <h4>⚡ Stochastic Gradient Descent (SGD)</h4>
+                <div class="equation-box">
+                    <div class="equation">
+                        ∇J(θ) = ∇J<sub>i</sub>(θ)
+                    </div>
+                    <div class="equation-explanation">
+                        Translation: "Use ONE customer's feedback immediately"<br>
+                        • Update parameters after each single training example<br>
+                        • Much faster but more "jumpy"
+                    </div>
+                </div>
+                
+                <p><strong>Example:</strong> After each customer leaves, immediately adjust your recipe based on their feedback alone.</p>
+            </div>
+
+            <!-- Mini-batch Gradient Descent -->
+            <div class="example-box">
+                <h4>🎯 Mini-batch Gradient Descent</h4>
+                <div class="equation-box">
+                    <div class="equation">
+                        ∇J(θ) = (1/b) × Σ<sub>i=1</sub><sup>b</sup> ∇J<sub>i</sub>(θ)
+                    </div>
+                    <div class="equation-explanation">
+                        Translation: "Use a SMALL GROUP's average feedback"<br>
+                        • b = batch size (typically 32, 64, 128, 256)<br>
+                        • Best of both worlds: stable + efficient
+                    </div>
+                </div>
+                
+                <p><strong>Example:</strong> Wait for 10 customers to finish, average their feedback, update recipe, then repeat with next 10 customers.</p>
+            </div>
+        </div>
+
+        <!-- Detailed Mathematical Example -->
+        <div class="section">
+            <h2 class="section-title">🧮 Step-by-Step Mathematical Example</h2>
+            
+            <div class="concept-box">
+                <h3>📚 Scenario: Predicting House Prices</h3>
+                <p>Let's say we want to predict house prices using: <strong>Price = w × Size + b</strong></p>
+                <p>We have training data: 4 houses with sizes [1000, 1500, 2000, 2500] sq ft and prices [200k, 300k, 400k, 500k]</p>
+            </div>
+
+            <div class="example-box">
+                <h4>🏠 Current Model Parameters:</h4>
+                <ul>
+                    <li>w (weight) = 0.15 (initially)</li>
+                    <li>b (bias) = 50 (initially)</li>
+                    <li>Learning rate α = 0.01</li>
+                </ul>
+            </div>
+
+            <h3>Method 1: Batch Gradient Descent</h3>
+            <div class="equation-box">
+                <p><strong>Step 1:</strong> Calculate error for ALL houses</p>
+                <div class="code-block">
+House 1: Predicted = 0.15 × 1000 + 50 = 200k, Actual = 200k, Error = 0
+House 2: Predicted = 0.15 × 1500 + 50 = 275k, Actual = 300k, Error = -25k
+House 3: Predicted = 0.15 × 2000 + 50 = 350k, Actual = 400k, Error = -50k
+House 4: Predicted = 0.15 × 2500 + 50 = 425k, Actual = 500k, Error = -75k
+                </div>
+                
+                <p><strong>Step 2:</strong> Calculate average gradient and update</p>
+                <div class="code-block">
+Average gradient for w = (-25×1000 + -50×1500 + -75×2000) / 4 = -68,750
+Average gradient for b = (-25 + -50 + -75) / 4 = -37.5
+
+New w = 0.15 - 0.01 × (-68.75) = 0.15 + 0.6875 = 0.8375
+New b = 50 - 0.01 × (-37.5) = 50 + 0.375 = 50.375
+                </div>
+            </div>
+
+            <h3>Method 2: Stochastic Gradient Descent</h3>
+            <div class="equation-box">
+                <p><strong>Update after EACH house:</strong></p>
+                <div class="code-block">
+After House 1: No change (error = 0)
+After House 2: w becomes 0.15 + 0.01×25×1500/4 = 0.24375
+After House 3: w becomes 0.24375 + 0.01×50×2000/4 = 0.49375
+After House 4: w becomes 0.49375 + 0.01×75×2500/4 = 0.96250
+                </div>
+            </div>
+
+            <h3>Method 3: Mini-batch Gradient Descent (batch size = 2)</h3>
+            <div class="equation-box">
+                <p><strong>Update after every 2 houses:</strong></p>
+                <div class="code-block">
+Batch 1 (Houses 1,2): Average error = -12.5, Update parameters
+Batch 2 (Houses 3,4): Average error = -62.5, Update parameters
+                </div>
+            </div>
+        </div>
+
+        <!-- Advantages and Disadvantages -->
+        <div class="section">
+            <h2 class="section-title">⚖️ Pros and Cons Comparison</h2>
+            
+            <h3>🍽️ Batch Gradient Descent</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Advantages</h4>
+                    <ul>
+                        <li>Very stable convergence</li>
+                        <li>True gradient direction</li>
+                        <li>Guaranteed to reach minimum</li>
+                        <li>Good for small datasets</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Disadvantages</h4>
+                    <ul>
+                        <li>Very slow for large datasets</li>
+                        <li>High memory requirement</li>
+                        <li>Can get stuck in local minima</li>
+                        <li>No online learning capability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>⚡ Stochastic Gradient Descent</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Advantages</h4>
+                    <ul>
+                        <li>Very fast updates</li>
+                        <li>Low memory usage</li>
+                        <li>Can escape local minima</li>
+                        <li>Good for online learning</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Disadvantages</h4>
+                    <ul>
+                        <li>Noisy convergence path</li>
+                        <li>May never truly converge</li>
+                        <li>Harder to parallelize</li>
+                        <li>Requires careful tuning</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>🎯 Mini-batch Gradient Descent</h3>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Advantages</h4>
+                    <ul>
+                        <li>Best of both worlds</li>
+                        <li>Efficient and stable</li>
+                        <li>Hardware optimized</li>
+                        <li>Parallelizable</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Disadvantages</h4>
+                    <ul>
+                        <li>Need to choose batch size</li>
+                        <li>Still some noise</li>
+                        <li>Memory vs speed trade-off</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Choosing Batch Size -->
+        <div class="section">
+            <h2 class="section-title">🎯 How to Choose the Right Batch Size</h2>
+            
+            <div class="concept-box">
+                <h3>🧠 The Goldilocks Principle</h3>
+                <p>Like Goldilocks and the three bears, we want batch size that's "just right" - not too big, not too small!</p>
+            </div>
+
+            <div class="example-box">
+                <h4>🔢 Common Batch Sizes and When to Use Them:</h4>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Batch Size</th>
+                            <th>When to Use</th>
+                            <th>Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>32</strong></td>
+                            <td>Small datasets, limited memory</td>
+                            <td>Fast, noisy, good for experimentation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>64</strong></td>
+                            <td>Most common choice</td>
+                            <td>Good balance for most problems</td>
+                        </tr>
+                        <tr>
+                            <td><strong>128</strong></td>
+                            <td>Medium to large datasets</td>
+                            <td>More stable, still efficient</td>
+                        </tr>
+                        <tr>
+                            <td><strong>256+</strong></td>
+                            <td>Large datasets, powerful hardware</td>
+                            <td>Very stable, requires more memory</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="analogy-box">
+                <h4>🏃‍♂️ The Running Analogy</h4>
+                <p><strong>Batch Size = 1 (SGD):</strong> Like sprinting - very fast but exhausting, lots of direction changes</p>
+                <p><strong>Batch Size = All Data:</strong> Like planning the entire marathon route before starting - slow to start but steady</p>
+                <p><strong>Mini-batch:</strong> Like jogging with regular checkpoints - sustainable pace with course corrections</p>
+            </div>
+        </div>
+
+        <!-- Real-world Implementation -->
+        <div class="section">
+            <h2 class="section-title">💻 Real-world Implementation Tips</h2>
+            
+            <div class="example-box">
+                <h4>🔧 Practical Guidelines:</h4>
+                
+                <h5>1. Start with These Defaults:</h5>
+                <div class="code-block">
+# For most problems, start with:
+batch_size = 64
+learning_rate = 0.001
+                </div>
+
+                <h5>2. Adjust Based on Your Situation:</h5>
+                <ul style="margin: 15px 0; padding-left: 25px;">
+                    <li><strong>Small dataset (&lt;1000 samples):</strong> Use batch size 16-32</li>
+                    <li><strong>Medium dataset (1K-100K):</strong> Use batch size 32-128</li>
+                    <li><strong>Large dataset (&gt;100K):</strong> Use batch size 128-512</li>
+                </ul>
+
+                <h5>3. Hardware Considerations:</h5>
+                <ul style="margin: 15px 0; padding-left: 25px;">
+                    <li><strong>Limited GPU memory:</strong> Smaller batch sizes</li>
+                    <li><strong>Powerful hardware:</strong> Larger batch sizes for efficiency</li>
+                    <li><strong>Multiple GPUs:</strong> Scale batch size proportionally</li>
+                </ul>
+            </div>
+
+            <div class="concept-box">
+                <h3>⚡ Performance Optimization Tricks</h3>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Powers of 2:</strong> Use batch sizes like 32, 64, 128 (GPU friendly)</li>
+                    <li><strong>Gradient Accumulation:</strong> Simulate larger batches with limited memory</li>
+                    <li><strong>Learning Rate Scaling:</strong> Increase learning rate with batch size</li>
+                    <li><strong>Warm-up:</strong> Start with smaller learning rate, gradually increase</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Interactive Demo Section -->
+        <div class="section">
+            <h2 class="section-title">🎮 Interactive Understanding</h2>
+            
+            <div class="interactive-demo">
+                <h3>🎯 Visualization Exercise</h3>
+                <p>Imagine you're training a model to recognize cats vs dogs with 1000 images:</p>
+                
+                <div style="margin: 30px 0;">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <h4>📚 Batch GD (batch size = 1000)</h4>
+                            <p>Look at ALL 1000 images → Calculate average error → Update model ONCE</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 20%;"></div>
+                            </div>
+                            <p><small>1 update per epoch, very slow but stable</small></p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4>⚡ SGD (batch size = 1)</h4>
+                            <p>Look at 1 image → Update model → Look at next image → Update again...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%;"></div>
+                            </div>
+                            <p><small>1000 updates per epoch, fast but jumpy</small></p>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <h4>🎯 Mini-batch GD (batch size = 50)</h4>
+                            <p>Look at 50 images → Calculate average error → Update model → Repeat...</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                            <p><small>20 updates per epoch, balanced approach</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Concepts -->
+        <div class="section">
+            <h2 class="section-title">🚀 Advanced Concepts</h2>
+            
+            <div class="concept-box">
+                <h3>🧠 Why Mini-batch is Usually Best</h3>
+                <p>Mini-batch gradient descent combines the advantages of both batch and stochastic methods:</p>
+            </div>
+
+            <div class="example-box">
+                <h4>📊 Convergence Behavior:</h4>
+                
+                <div style="margin: 20px 0;">
+                    <p><strong>🎯 Batch GD Path:</strong> Smooth, straight line to minimum (like a train on tracks)</p>
+                    <p><strong>⚡ SGD Path:</strong> Zigzag, noisy path that eventually reaches minimum (like a drunk person walking home)</p>
+                    <p><strong>🎯 Mini-batch Path:</strong> Slightly curved but mostly straight path (like a careful driver navigating to destination)</p>
+                </div>
+            </div>
+
+            <div class="equation-box">
+                <h4>🔬 The Mathematics of Convergence</h4>
+                <div class="equation">
+                    Variance of gradient estimate ∝ 1/batch_size
+                </div>
+                <div class="equation-explanation">
+                    Translation: "Larger batch size = more stable gradient estimate"<br>
+                    This is why mini-batch finds the sweet spot between speed and stability
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <h4>🎪 The Circus Performer Analogy</h4>
+                <p><strong>Batch GD:</strong> Like a tightrope walker who studies the entire rope before taking any step - safe but slow</p>
+                <p><strong>SGD:</strong> Like a juggler who adjusts after each ball throw - quick reactions but chaotic</p>
+                <p><strong>Mini-batch:</strong> Like a trapeze artist who coordinates with a small team - balanced precision and speed</p>
+            </div>
+        </div>
+
+        <!-- Modern Optimization Techniques -->
+        <div class="section">
+            <h2 class="section-title">🔬 Modern Optimization Enhancements</h2>
+            
+            <div class="concept-box">
+                <h3>🚀 Beyond Basic Mini-batch: Advanced Techniques</h3>
+                <p>Modern deep learning uses enhanced versions of mini-batch SGD:</p>
+            </div>
+
+            <div class="example-box">
+                <h4>1. 📈 Momentum (The Snowball Effect)</h4>
+                <div class="equation-box">
+                    <div class="equation">
+                        v<sub>t</sub> = βv<sub>t-1</sub> + α∇J(θ)<br>
+                        θ<sub>t+1</sub> = θ<sub>t</sub> - v<sub>t</sub>
+                    </div>
+                    <div class="equation-explanation">
+                        Like a snowball rolling downhill - it gains momentum and moves faster in consistent directions
+                    </div>
+                </div>
+                <p><strong>Simple Explanation:</strong> Remember previous updates and use them to build momentum, making convergence faster and more stable.</p>
+            </div>
+
+            <div class="example-box">
+                <h4>2. 🎯 Adam Optimizer (The Smart Assistant)</h4>
+                <div class="equation-box">
+                    <div class="equation">
+                        m<sub>t</sub> = β<sub>1</sub>m<sub>t-1</sub> + (1-β<sub>1</sub>)∇J(θ)<br>
+                        v<sub>t</sub> = β<sub>2</sub>v<sub>t-1</sub> + (1-β<sub>2</sub>)(∇J(θ))²
+                    </div>
+                    <div class="equation-explanation">
+                        Combines momentum with adaptive learning rates - like having a smart GPS that adjusts speed based on road conditions
+                    </div>
+                </div>
+                <p><strong>Simple Explanation:</strong> Automatically adjusts learning rate for each parameter individually, making training more robust.</p>
+            </div>
+
+            <div class="example-box">
+                <h4>3. 📊 Learning Rate Scheduling</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Step Decay:</strong> Reduce learning rate by half every few epochs</li>
+                    <li><strong>Exponential Decay:</strong> Gradually decrease learning rate over time</li>
+                    <li><strong>Cosine Annealing:</strong> Learning rate follows a cosine curve</li>
+                </ul>
+                <p><strong>Analogy:</strong> Like driving - start fast on highway, slow down in city, crawl in parking lot</p>
+            </div>
+        </div>
+
+        <!-- Practical Implementation Guide -->
+        <div class="section">
+            <h2 class="section-title">🛠️ Practical Implementation Guide</h2>
+            
+            <div class="example-box">
+                <h4>📝 Step-by-Step Implementation Checklist</h4>
+                
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h5>Step 1: Choose Your Batch Size</h5>
+                        <div class="code-block">
+# Rule of thumb:
+if dataset_size < 1000:
+    batch_size = 16
+elif dataset_size < 100000:
+    batch_size = 64
+else:
+    batch_size = 128
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h5>Step 2: Set Learning Rate</h5>
+                        <div class="code-block">
+# Start with these defaults:
+learning_rate = 0.001  # For Adam optimizer
+learning_rate = 0.01   # For SGD with momentum
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h5>Step 3: Implement the Training Loop</h5>
+                        <div class="code-block">
+for epoch in range(num_epochs):
+    for batch in data_loader:
+        # Forward pass
+        predictions = model(batch.inputs)
+        loss = loss_function(predictions, batch.targets)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h5>Step 4: Monitor and Adjust</h5>
+                        <ul style="padding-left: 20px;">
+                            <li>Watch training loss - should decrease smoothly</li>
+                            <li>Check validation accuracy - should improve</li>
+                            <li>If loss oscillates wildly → reduce learning rate</li>
+                            <li>If convergence is too slow → increase batch size or learning rate</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Common Pitfalls and Solutions -->
+        <div class="section">
+            <h2 class="section-title">⚠️ Common Pitfalls and Solutions</h2>
+            
+            <div class="example-box">
+                <h4>🚫 Problem 1: Training Loss Not Decreasing</h4>
+                <div class="pros-cons">
+                    <div class="cons">
+                        <h5>Possible Causes:</h5>
+                        <ul>
+                            <li>Learning rate too high</li>
+                            <li>Batch size too small</li>
+                            <li>Poor data preprocessing</li>
+                            <li>Wrong optimizer choice</li>
+                        </ul>
+                    </div>
+                    <div class="pros">
+                        <h5>Solutions:</h5>
+                        <ul>
+                            <li>Reduce learning rate by 10x</li>
+                            <li>Increase batch size to 64-128</li>
+                            <li>Normalize your input data</li>
+                            <li>Try Adam optimizer</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>🚫 Problem 2: Training Very Slow</h4>
+                <div class="pros-cons">
+                    <div class="cons">
+                        <h5>Possible Causes:</h5>
+                        <ul>
+                            <li>Batch size too large</li>
+                            <li>Learning rate too small</li>
+                            <li>No momentum/acceleration</li>
+                            <li>Poor hardware utilization</li>
+                        </ul>
+                    </div>
+                    <div class="pros">
+                        <h5>Solutions:</h5>
+                        <ul>
+                            <li>Reduce batch size to 32-64</li>
+                            <li>Increase learning rate</li>
+                            <li>Add momentum (β=0.9)</li>
+                            <li>Use GPU and parallel processing</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>🚫 Problem 3: Loss Oscillating Wildly</h4>
+                <div class="pros-cons">
+                    <div class="cons">
+                        <h5>Possible Causes:</h5>
+                        <ul>
+                            <li>Learning rate too high</li>
+                            <li>Batch size too small</li>
+                            <li>No learning rate decay</li>
+                            <li>Poor data shuffling</li>
+                        </ul>
+                    </div>
+                    <div class="pros">
+                        <h5>Solutions:</h5>
+                        <ul>
+                            <li>Reduce learning rate</li>
+                            <li>Increase batch size</li>
+                            <li>Use learning rate scheduling</li>
+                            <li>Ensure proper data shuffling</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-world Examples -->
+        <div class="section">
+            <h2 class="section-title">🌍 Real-world Examples</h2>
+            
+            <div class="concept-box">
+                <h3>🏭 Industry Applications</h3>
+                <p>Let's see how different companies use these techniques:</p>
+            </div>
+
+            <div class="example-box">
+                <h4>📱 Image Recognition (Instagram, Google Photos)</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Dataset:</strong> Millions of images</li>
+                    <li><strong>Method:</strong> Mini-batch SGD with batch size 256-512</li>
+                    <li><strong>Why:</strong> Need to process massive datasets efficiently</li>
+                    <li><strong>Optimizer:</strong> Adam with learning rate scheduling</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h4>🛒 Recommendation Systems (Amazon, Netflix)</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Dataset:</strong> Billions of user interactions</li>
+                    <li><strong>Method:</strong> Stochastic SGD for online learning</li>
+                    <li><strong>Why:</strong> Need real-time updates as users interact</li>
+                    <li><strong>Batch Size:</strong> 1-32 for immediate adaptation</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h4>💬 Language Models (ChatGPT, Gemini)</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Dataset:</strong> Trillions of text tokens</li>
+                    <li><strong>Method:</strong> Large mini-batch SGD (batch size 1000+)</li>
+                    <li><strong>Why:</strong> Stable training for complex models</li>
+                    <li><strong>Hardware:</strong> Thousands of GPUs working together</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Performance Benchmarks -->
+        <div class="section">
+            <h2 class="section-title">📊 Performance Comparison</h2>
+            
+            <div class="example-box">
+                <h4>🏃‍♂️ Speed Comparison (Training 1 Million Images)</h4>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Time per Epoch</th>
+                            <th>Memory Usage</th>
+                            <th>Final Accuracy</th>
+                            <th>Convergence Speed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Batch GD</strong></td>
+                            <td>10 minutes</td>
+                            <td>16 GB</td>
+                            <td>95.2%</td>
+                            <td>50 epochs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SGD (batch=1)</strong></td>
+                            <td>45 minutes</td>
+                            <td>2 GB</td>
+                            <td>94.8%</td>
+                            <td>100 epochs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mini-batch (64)</strong></td>
+                            <td>8 minutes</td>
+                            <td>4 GB</td>
+                            <td>95.1%</td>
+                            <td>30 epochs</td>
+                        </tr>
+                        <tr style="background-color: #e8f5e8;">
+                            <td><strong>Mini-batch (128)</strong></td>
+                            <td>6 minutes</td>
+                            <td>6 GB</td>
+                            <td>95.3%</td>
+                            <td>25 epochs</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p><strong>Winner:</strong> <span class="gradient-text">Mini-batch with size 128</span> - best balance of speed, memory, and accuracy!</p>
+            </div>
+        </div>
+
+        <!-- Summary and Key Takeaways -->
+        <div class="section">
+            <h2 class="section-title">🎯 Summary and Key Takeaways</h2>
+            
+            <div class="concept-box">
+                <h3>🧠 What We Learned Today</h3>
+                <p>You now understand the three main approaches to gradient descent and when to use each!</p>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 Key Concepts Mastered:</h4>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Batch GD:</strong> Use all data → slow but stable (like planning entire trip)</li>
+                    <li><strong>Stochastic GD:</strong> Use one data point → fast but noisy (like improvising)</li>
+                    <li><strong>Mini-batch GD:</strong> Use small groups → balanced approach (like checkpoints)</li>
+                    <li><strong>Batch Size Selection:</strong> Start with 64, adjust based on dataset size and hardware</li>
+                    <li><strong>Modern Optimizers:</strong> Adam is usually best for beginners</li>
+                </ul>
+            </div>
+
+            <div class="analogy-box">
+                <h4>🎓 The Final Restaurant Wisdom</h4>
+                <p>Remember our restaurant analogy: <strong>Mini-batch is like having a smart chef who collects feedback from small groups of customers throughout the day, making gradual improvements that keep everyone happy!</strong></p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🚀 Ready to Practice?</h3>
+                <p>Next steps for becoming an expert:</p>
+                <ol style="text-align: left; margin: 20px auto; max-width: 600px;">
+                    <li>Try implementing mini-batch SGD on a simple dataset</li>
+                    <li>Experiment with different batch sizes (16, 32, 64, 128)</li>
+                    <li>Compare convergence speed and final accuracy</li>
+                    <li>Test different optimizers (SGD, Adam, RMSprop)</li>
+                    <li>Apply to your own machine learning projects</li>
+                </ol>
+                <button class="btn" onclick="alert('Great! Start with a simple project and experiment with different batch sizes!')">🎯 Start Practicing!</button>
+            </div>
+        </div>
+
+        <!-- Quick Reference Card -->
+        <div class="section">
+            <h2 class="section-title">📋 Quick Reference Card</h2>
+            
+            <div class="example-box">
+                <h4>🔧 Practical Decision Tree</h4>
+                
+                <div class="code-block">
+if dataset_size < 1000:
+    use batch_size = 16-32
+    use learning_rate = 0.01
+    
+elif dataset_size < 100000:
+    use batch_size = 64-128  
+    use learning_rate = 0.001
+    
+else:  # Large dataset
+    use batch_size = 128-256
+    use learning_rate = 0.001
+    use learning_rate_scheduler = True
+
+# Always start with Adam optimizer
+# Monitor training loss and validation accuracy
+# Adjust if training is too slow or unstable
+                </div>
+            </div>
+
+            <div class="concept-box">
+                <h3>🎯 Remember the Golden Rules</h3>
+                <ul style="padding-left: 20px;">
+                    <li><strong>Rule 1:</strong> Mini-batch SGD is usually your best friend</li>
+                    <li><strong>Rule 2:</strong> Start with batch size 64 and learning rate 0.001</li>
+                    <li><strong>Rule 3:</strong> Use powers of 2 for batch sizes (GPU efficiency)</li>
+                    <li><strong>Rule 4:</strong> Monitor your training curves and adjust accordingly</li>
+                    <li><strong>Rule 5:</strong> When in doubt, use Adam optimizer</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="section" style="text-align: center; background: linear-gradient(45deg, #667eea, #764ba2); color: white;">
+            <h2>🎉 Congratulations!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">You've mastered Mini-batch & Stochastic Gradient Descent!</p>
+            <p>You can now optimize neural networks efficiently and understand the trade-offs between speed, memory, and accuracy.</p>
+            
+            <div style="margin: 30px 0;">
+                <h3>🔗 Connect with the Course</h3>
+                <p>GitHub Repository: <a href="https://github.com/dayashankar-ai/interactive-deep-learning-lectures" style="color: #FFD700;">Interactive Deep Learning Lectures</a></p>
+                <p>Next Lecture: <strong>Lecture 8 - Advanced Optimization Techniques</strong></p>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.9em; opacity: 0.8;">
+                <p>Created by Prof. Daya Shankar | School of Sciences | Woxsen University</p>
+                <p>Making Deep Learning Accessible to Everyone 🚀</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for better user experience
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Add click effects to concept boxes
+            document.querySelectorAll('.concept-box, .example-box, .analogy-box').forEach(box => {
+                box.style.cursor = 'pointer';
+                box.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+                });
+            });
+
+            // Progressive disclosure for mathematical equations
+            document.querySelectorAll('.equation-box').forEach(box => {
+                box.addEventListener('click', function() {
+                    const explanation = this.querySelector('.equation-explanation');
+                    if (explanation.style.display === 'none') {
+                        explanation.style.display = 'block';
+                        explanation.style.animation = 'fadeIn 0.5s';
+                    } else {
+                        explanation.style.display = 'none';
+                    }
+                });
+            });
+
+            // Add fade-in animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                
+                .section {
+                    animation: fadeIn 0.6s ease-out;
+                }
+                
+                .concept-box, .example-box, .analogy-box {
+                    transition: transform 0.2s ease;
+                }
+                
+                .btn:active {
+                    transform: translateY(-1px) scale(0.98);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Console message for curious students
+            console.log("🎓 Welcome to Interactive Deep Learning! Keep exploring and learning!");
+            console.log("💡 Tip: Try different batch sizes in your own projects to see the differences!");
+        });
+    </script>
+</body>
+</html>
