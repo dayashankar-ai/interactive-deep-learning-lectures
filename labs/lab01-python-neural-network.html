@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 1: Python Foundations & First Neural Network - Dr. Daya Shankar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .lab-nav {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .lab-title-nav {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .lab-header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .lab-number {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .lab-title {
+            font-size: 3em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .lab-subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .lab-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .info-value {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #e74c3c;
+        }
+
+        .info-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .content-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .colab-button {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .colab-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(243, 156, 18, 0.4);
+        }
+
+        .exercise-card {
+            background: linear-gradient(135deg, #ecf0f1 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #e74c3c;
+            transition: all 0.3s ease;
+        }
+
+        .exercise-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .exercise-number {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .exercise-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .exercise-description {
+            color: #555;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        .deliverable-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border: 2px solid #27ae60;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .deliverable-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+
+        .checklist li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checklist li:before {
+            content: "✓";
+            background: #27ae60;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .timeline {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 0;
+            border-left: 3px solid #e74c3c;
+            padding-left: 20px;
+            margin-left: 10px;
+        }
+
+        .timeline-time {
+            background: #e74c3c;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .timeline-desc {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .assessment-rubric {
+            background: linear-gradient(135deg, #fff3cd 0%, #fef9e7 100%);
+            border: 2px solid #f39c12;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .rubric-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .rubric-table th,
+        .rubric-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .rubric-table th {
+            background: #f39c12;
+            color: white;
+            font-weight: 600;
+        }
+
+        .rubric-table tr:nth-child(even) {
+            background: rgba(243, 156, 18, 0.1);
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #ffe6e6 0%, #fff0f0 100%);
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #e74c3c;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tips-box {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .tips-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #3498db;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .neural-diagram {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .neuron {
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            border-radius: 50%;
+            margin: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .lab-title {
+                font-size: 2.2em;
+            }
+            
+            .nav-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .lab-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Lab Navigation -->
+    <nav class="lab-nav">
+        <div class="nav-content">
+            <div class="lab-title-nav">Deep Learning Lab Series</div>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">🏠 Course Home</a>
+                <a href="lecture02-mathematical-foundations.html" class="nav-link">📐 Lecture 2</a>
+                <a href="#colab-notebook" class="nav-link">💻 Open Colab</a>
+                <a href="#" class="nav-link" onclick="window.print()">🖨️ Print Lab</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Lab Header -->
+        <div class="lab-header">
+            <div class="lab-number">Lab 1 of 15</div>
+            <h1 class="lab-title">🐍 Python Foundations & First Neural Network</h1>
+            <p class="lab-subtitle">Building Your Foundation: From Python Basics to Neural Networks</p>
+            
+            <div class="lab-info">
+                <div class="info-card">
+                    <div class="info-value">2 Hours</div>
+                    <div class="info-label">Duration</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value">Beginner</div>
+                    <div class="info-label">Level</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value">Hands-On</div>
+                    <div class="info-label">Type</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-value">Individual</div>
+                    <div class="info-label">Work Style</div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 20px; color: #666; font-style: italic;">
+                <strong>Prerequisites:</strong> Lectures 1-3 completed | Basic computer literacy
+            </p>
+        </div>
+
+        <!-- Learning Objectives -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <h2 class="section-title">Learning Objectives</h2>
+            </div>
+            <p style="margin-bottom: 20px;">By the end of this lab, you will be able to:</p>
+            <ul style="padding-left: 30px; line-height: 2;">
+                <li><strong>Set up</strong> and navigate Google Colab for deep learning projects</li>
+                <li><strong>Master</strong> essential Python libraries: NumPy, Matplotlib, Pandas</li>
+                <li><strong>Implement</strong> mathematical operations using Python (matrices, derivatives)</li>
+                <li><strong>Build</strong> your first neural network from scratch without frameworks</li>
+                <li><strong>Understand</strong> forward propagation and backpropagation through coding</li>
+                <li><strong>Visualize</strong> neural network learning process in real-time</li>
+            </ul>
+        </div>
+
+        <!-- Lab Timeline -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">⏰</div>
+                <h2 class="section-title">Lab Timeline (2 Hours)</h2>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-time">0-20 min</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Setup & Python Fundamentals</div>
+                        <div class="timeline-desc">Google Colab setup, Python basics, NumPy operations</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">20-40 min</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Mathematical Operations in Python</div>
+                        <div class="timeline-desc">Matrix operations, calculus with code, visualization</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">40-70 min</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Building Your First Neuron</div>
+                        <div class="timeline-desc">Single neuron implementation, activation functions</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">70-100 min</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Complete Neural Network</div>
+                        <div class="timeline-desc">Multi-layer network, training loop, visualization</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-time">100-120 min</div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">Testing & Documentation</div>
+                        <div class="timeline-desc">Test different parameters, document findings, submission</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Google Colab Notebook -->
+        <div class="content-section" id="colab-notebook">
+            <div class="section-header">
+                <div class="section-icon">💻</div>
+                <h2 class="section-title">Google Colab Notebook</h2>
+            </div>
+            
+            <p style="margin-bottom: 20px;">
+                <strong>Primary Workspace:</strong> All your coding will be done in this interactive Google Colab notebook.
+                The notebook contains detailed instructions, code templates, and exercises.
+            </p>
+            
+            <a href="https://colab.research.google.com/drive/1LAB1_PYTHON_NEURAL_NETWORK" class="colab-button" target="_blank">
+                <span>🚀</span>
+                Open Lab 1 Google Colab Notebook
+            </a>
+            
+            <div class="warning-box">
+                <div class="warning-title">
+                    <span>⚠️</span>
+                    Important Setup Instructions
+                </div>
+                <ul style="margin-top: 10px; line-height: 1.8;">
+                    <li><strong>Save a copy:</strong> File → Save a copy in Drive (so you don't lose your work)</li>
+                    <li><strong>Enable GPU:</strong> Runtime → Change runtime type → GPU (for faster computation)</li>
+                    <li><strong>Run all cells:</strong> Runtime → Run all (to check everything works)</li>
+                    <li><strong>Share with instructor:</strong> Click Share → Add dayashankar.ai@gmail.com as viewer</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Exercise Breakdown -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <h2 class="section-title">Lab Exercises Breakdown</h2>
+            </div>
+            
+            <!-- Exercise 1 -->
+            <div class="exercise-card">
+                <div class="exercise-number">Exercise 1</div>
+                <div class="exercise-title">Python & NumPy Fundamentals</div>
+                <div class="exercise-description">
+                    Master the essential Python tools for deep learning. You'll work with arrays, matrices, 
+                    and basic operations that form the foundation of neural networks.
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# Example: Creating and manipulating matrices
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Create matrices representing neural network weights
+weights = np.random.randn(3, 2)  # 3 inputs, 2 outputs
+inputs = np.array([[1, 2, 3], [4, 5, 6]])  # 2 samples
+
+# Matrix multiplication (core of neural networks)
+output = np.dot(inputs, weights)
+print(f"Output shape: {output.shape}")
+print(f"Output values:\n{output}")
+                    </pre>
+                </div>
+                
+                <div class="tips-box">
+                    <div class="tips-title">
+                        <span>💡</span>
+                        Key Concepts to Master
+                    </div>
+                    <ul style="margin-top: 10px; line-height: 1.8;">
+                        <li><strong>Array creation:</strong> np.array(), np.zeros(), np.random.randn()</li>
+                        <li><strong>Shape manipulation:</strong> .reshape(), .transpose(), .flatten()</li>
+                        <li><strong>Mathematical operations:</strong> np.dot(), np.sum(), np.mean()</li>
+                        <li><strong>Broadcasting:</strong> Operations between different sized arrays</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Exercise 2 -->
+            <div class="exercise-card">
+                <div class="exercise-number">Exercise 2</div>
+                <div class="exercise-title">Mathematical Operations in Code</div>
+                <div class="exercise-description">
+                    Implement the mathematical concepts from Lecture 2 using Python. You'll code derivatives, 
+                    gradients, and see how calculus comes alive in programming.
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# Example: Computing derivatives numerically
+def compute_derivative(func, x, h=1e-5):
+    """Compute derivative using finite differences"""
+    return (func(x + h) - func(x - h)) / (2 * h)
+
+# Define a simple function
+def quadratic(x):
+    return x**2 + 2*x + 1
+
+# Compute derivative at x = 3
+x_point = 3
+derivative = compute_derivative(quadratic, x_point)
+analytical = 2*x_point + 2  # We know d/dx(x²+2x+1) = 2x+2
+
+print(f"Numerical derivative: {derivative:.6f}")
+print(f"Analytical derivative: {analytical}")
+print(f"Difference: {abs(derivative - analytical):.8f}")
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 3 -->
+            <div class="exercise-card">
+                <div class="exercise-number">Exercise 3</div>
+                <div class="exercise-title">Single Neuron Implementation</div>
+                <div class="exercise-description">
+                    Build your first artificial neuron from scratch. Understand how inputs are weighted, 
+                    summed, and passed through activation functions.
+                </div>
+                
+                <div class="neural-diagram">
+                    <h4 style="margin-bottom: 20px; color: #2c3e50;">Single Neuron Structure</h4>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 30px; flex-wrap: wrap;">
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 10px;">Inputs</div>
+                            <div style="color: #3498db;">x₁ = 0.5</div>
+                            <div style="color: #3498db;">x₂ = 0.3</div>
+                            <div style="color: #3498db;">x₃ = 0.8</div>
+                        </div>
+                        <div style="font-size: 2em; color: #e74c3c;">×</div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 10px;">Weights</div>
+                            <div style="color: #e74c3c;">w₁ = 0.2</div>
+                            <div style="color: #e74c3c;">w₂ = 0.7</div>
+                            <div style="color: #e74c3c;">w₃ = 0.1</div>
+                        </div>
+                        <div style="font-size: 2em; color: #27ae60;">→</div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 10px;">Neuron</div>
+                            <div class="neuron" style="display: inline-flex;">σ</div>
+                        </div>
+                        <div style="font-size: 2em; color: #27ae60;">→</div>
+                        <div style="text-align: center;">
+                            <div style="font-weight: 600; margin-bottom: 10px;">Output</div>
+                            <div style="color: #27ae60; font-size: 1.2em;">0.42</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# Example: Single neuron implementation
+class Neuron:
+    def __init__(self, num_inputs):
+        # Initialize weights randomly
+        self.weights = np.random.randn(num_inputs)
+        self.bias = np.random.randn()
+    
+    def sigmoid(self, x):
+        """Sigmoid activation function"""
+        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
+    
+    def forward(self, inputs):
+        """Forward pass through the neuron"""
+        # Weighted sum + bias
+        weighted_sum = np.dot(inputs, self.weights) + self.bias
+        # Apply activation function
+        output = self.sigmoid(weighted_sum)
+        return output, weighted_sum
+
+# Create and test a neuron
+neuron = Neuron(3)  # 3 inputs
+test_inputs = np.array([0.5, 0.3, 0.8])
+output, weighted_sum = neuron.forward(test_inputs)
+
+print(f"Inputs: {test_inputs}")
+print(f"Weights: {neuron.weights}")
+print(f"Bias: {neuron.bias:.3f}")
+print(f"Weighted sum: {weighted_sum:.3f}")
+print(f"Final output: {output:.3f}")
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 4 -->
+            <div class="exercise-card">
+                <div class="exercise-number">Exercise 4</div>
+                <div class="exercise-title">Complete Neural Network</div>
+                <div class="exercise-description">
+                    Build a complete neural network with multiple layers. Implement forward propagation, 
+                    backpropagation, and training loop. Watch your network learn!
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# Example: Simple neural network structure
+class NeuralNetwork:
+    def __init__(self, input_size, hidden_size, output_size):
+        # Initialize weights and biases
+        self.W1 = np.random.randn(input_size, hidden_size) * 0.1
+        self.b1 = np.zeros((1, hidden_size))
+        self.W2 = np.random.randn(hidden_size, output_size) * 0.1
+        self.b2 = np.zeros((1, output_size))
+        
+        # Store for backpropagation
+        self.cache = {}
+    
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))
+    
+    def sigmoid_derivative(self, x):
+        return x * (1 - x)
+    
+    def forward(self, X):
+        """Forward propagation"""
+        # Hidden layer
+        self.cache['z1'] = np.dot(X, self.W1) + self.b1
+        self.cache['a1'] = self.sigmoid(self.cache['z1'])
+        
+        # Output layer
+        self.cache['z2'] = np.dot(self.cache['a1'], self.W2) + self.b2
+        self.cache['a2'] = self.sigmoid(self.cache['z2'])
+        
+        return self.cache['a2']
+    
+    def backward(self, X, y, learning_rate=0.1):
+        """Backpropagation"""
+        m = X.shape[0]  # Number of samples
+        
+        # Output layer gradients
+        dz2 = self.cache['a2'] - y
+        dW2 = (1/m) * np.dot(self.cache['a1'].T, dz2)
+        db2 = (1/m) * np.sum(dz2, axis=0, keepdims=True)
+        
+        # Hidden layer gradients
+        da1 = np.dot(dz2, self.W2.T)
+        dz1 = da1 * self.sigmoid_derivative(self.cache['a1'])
+        dW1 = (1/m) * np.dot(X.T, dz1)
+        db1 = (1/m) * np.sum(dz1, axis=0, keepdims=True)
+        
+        # Update weights
+        self.W2 -= learning_rate * dW2
+        self.b2 -= learning_rate * db2
+        self.W1 -= learning_rate * dW1
+        self.b1 -= learning_rate * db1
+    
+    def train(self, X, y, epochs=1000, learning_rate=0.1):
+        """Training loop"""
+        losses = []
+        
+        for epoch in range(epochs):
+            # Forward pass
+            output = self.forward(X)
+            
+            # Calculate loss (Mean Squared Error)
+            loss = np.mean((output - y)**2)
+            losses.append(loss)
+            
+            # Backward pass
+            self.backward(X, y, learning_rate)
+            
+            # Print progress
+            if epoch % 100 == 0:
+                print(f"Epoch {epoch}, Loss: {loss:.6f}")
+        
+        return losses
+
+# Example usage:
+# Create XOR dataset
+X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
+y = np.array([[0], [1], [1], [0]])
+
+# Create and train network
+nn = NeuralNetwork(2, 4, 1)  # 2 inputs, 4 hidden, 1 output
+losses = nn.train(X, y, epochs=5000, learning_rate=1.0)
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Exercise 5 -->
+            <div class="exercise-card">
+                <div class="exercise-number">Exercise 5</div>
+                <div class="exercise-title">Visualization & Analysis</div>
+                <div class="exercise-description">
+                    Create visualizations to understand how your neural network learns. Plot loss curves, 
+                    decision boundaries, and weight evolution over time.
+                </div>
+                
+                <div class="code-block">
+                    <pre>
+# Example: Visualization code
+def plot_training_progress(losses):
+    """Plot training loss over time"""
+    plt.figure(figsize=(10, 6))
+    plt.plot(losses)
+    plt.title('Neural Network Training Progress')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss (Mean Squared Error)')
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+def plot_predictions(nn, X, y):
+    """Plot network predictions vs actual"""
+    predictions = nn.forward(X)
+    
+    plt.figure(figsize=(12, 4))
+    
+    # Plot 1: Actual vs Predicted
+    plt.subplot(1, 2, 1)
+    plt.scatter(range(len(y)), y.flatten(), label='Actual', alpha=0.7)
+    plt.scatter(range(len(predictions)), predictions.flatten(), label='Predicted', alpha=0.7)
+    plt.title('Actual vs Predicted Values')
+    plt.xlabel('Sample')
+    plt.ylabel('Output')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    
+    # Plot 2: Error analysis
+    plt.subplot(1, 2, 2)
+    errors = np.abs(y.flatten() - predictions.flatten())
+    plt.bar(range(len(errors)), errors)
+    plt.title('Prediction Errors')
+    plt.xlabel('Sample')
+    plt.ylabel('Absolute Error')
+    plt.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    plt.show()
+    
+    # Print results
+    print("Input -> Expected | Predicted | Error")
+    print("-" * 40)
+    for i, (input_val, expected, predicted) in enumerate(zip(X, y.flatten(), predictions.flatten())):
+        error = abs(expected - predicted)
+        print(f"{input_val} -> {expected:.1f} | {predicted:.3f} | {error:.3f}")
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deliverables -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">📋</div>
+                <h2 class="section-title">Lab Deliverables</h2>
+            </div>
+            
+            <div class="deliverable-box">
+                <div class="deliverable-title">
+                    <span>📤</span>
+                    What to Submit
+                </div>
+                <ul class="checklist">
+                    <li>Completed Google Colab notebook with all exercises</li>
+                    <li>Screenshots of your neural network training curves</li>
+                    <li>Brief written analysis (200-300 words) of your observations</li>
+                    <li>Code documentation explaining your implementation choices</li>
+                    <li>Answers to reflection questions in the notebook</li>
+                </ul>
+            </div>
+            
+            <div class="warning-box">
+                <div class="warning-title">
+                    <span>⚠️</span>
+                    Submission Requirements
+                </div>
+                <ul style="margin-top: 10px; line-height: 1.8;">
+                    <li><strong>File naming:</strong> Lab1_YourName_StudentID.ipynb</li>
+                    <li><strong>Sharing:</strong> Share Colab notebook with instructor (dayashankar.ai@gmail.com)</li>
+                    <li><strong>Deadline:</strong> Before next lab session (1 week from lab date)</li>
+                    <li><strong>Format:</strong> All outputs should be visible in the notebook</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Assessment Rubric -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">📊</div>
+                <h2 class="section-title">Assessment Rubric</h2>
+            </div>
+            
+            <div class="assessment-rubric">
+                <div class="deliverable-title">
+                    <span>🎯</span>
+                    Grading Criteria (Total: 100 points)
+                </div>
+                
+                <table class="rubric-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Excellent (90-100%)</th>
+                            <th>Good (75-89%)</th>
+                            <th>Needs Improvement (60-74%)</th>
+                            <th>Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Code Implementation</strong></td>
+                            <td>All exercises completed correctly, clean code, proper comments</td>
+                            <td>Most exercises correct, minor issues, adequate documentation</td>
+                            <td>Some exercises incorrect, poor documentation</td>
+                            <td>40 pts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Neural Network</strong></td>
+                            <td>Network trains successfully, good performance, proper implementation</td>
+                            <td>Network works with minor issues, acceptable performance</td>
+                            <td>Network has significant issues or poor performance</td>
+                            <td>30 pts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Visualizations</strong></td>
+                            <td>Clear, informative plots with proper labels and analysis</td>
+                            <td>Good plots with minor labeling issues</td>
+                            <td>Basic plots, missing labels or poor presentation</td>
+                            <td>15 pts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Analysis & Reflection</strong></td>
+                            <td>Insightful analysis, demonstrates deep understanding</td>
+                            <td>Good analysis, shows understanding of key concepts</td>
+                            <td>Basic analysis, limited understanding demonstrated</td>
+                            <td>15 pts</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🔧</div>
+                <h2 class="section-title">Common Issues & Solutions</h2>
+            </div>
+            
+            <div class="tips-box">
+                <div class="tips-title">
+                    <span>🛠️</span>
+                    Troubleshooting Guide
+                </div>
+                <div style="margin-top: 15px;">
+                    <h4 style="color: #3498db; margin-bottom: 10px;">Problem: "Runtime disconnected"</h4>
+                    <p style="margin-bottom: 15px;"><strong>Solution:</strong> Runtime → Reconnect. Save your work frequently!</p>
+                    
+                    <h4 style="color: #3498db; margin-bottom: 10px;">Problem: "Matrix dimension mismatch"</h4>
+                    <p style="margin-bottom: 15px;"><strong>Solution:</strong> Check array shapes using .shape. Use np.reshape() if needed.</p>
+                    
+                    <h4 style="color: #3498db; margin-bottom: 10px;">Problem: "Loss not decreasing"</h4>
+                    <p style="margin-bottom: 15px;"><strong>Solution:</strong> Try different learning rates (0.01, 0.1, 1.0). Check your gradient calculations.</p>
+                    
+                    <h4 style="color: #3498db; margin-bottom: 10px;">Problem: "Overflow/underflow errors"</h4>
+                    <p><strong>Solution:</strong> Use np.clip() to prevent extreme values in exponential functions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Lab Preview -->
+        <div style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%); color: white; border-radius: 15px; padding: 30px; text-align: center; margin: 30px 0;">
+            <h3 style="font-size: 1.8em; margin-bottom: 15px;">🔮 Coming Next: Lab 2</h3>
+            <p style="margin-bottom: 20px; opacity: 0.9;">
+                <strong>Mathematical Foundations in Code</strong><br>
+                Advanced optimization techniques, gradient descent variants, and mathematical deep dives with Python implementation.
+            </p>
+            <p style="opacity: 0.8; font-size: 0.9em;">
+                Based on Lectures 4-6 | Duration: 2 hours | Focus: Optimization & Advanced Math
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.8);">
+            <p><strong>Created by Dr. Daya Shankar</strong></p>
+            <p>Dean, Woxsen University | Founder, VaidyaAI</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                🌐 <a href="https://www.dayashankar.com" style="color: rgba(255,255,255,0.9);">Personal Website</a> | 
+                🏥 <a href="https://vaidyaai.com" style="color: rgba(255,255,255,0.9);">VaidyaAI</a> | 
+                🎓 <a href="https://woxsen.edu.in" style="color: rgba(255,255,255,0.9);">Woxsen University</a>
+            </p>
+            <p style="margin-top: 10px; font-size: 0.8em; opacity: 0.7;">
+                Need help? Email: dayashankar.ai@gmail.com | Office Hours: Mon-Fri 2-4 PM
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation to exercise cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.transform = 'translateY(0)';
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all exercise cards
+        document.querySelectorAll('.exercise-card').forEach(card => {
+            card.style.transform = 'translateY(20px)';
+            card.style.opacity = '0';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
