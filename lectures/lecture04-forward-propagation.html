@@ -1,1 +1,348 @@
-<!-- Lecture 2 content will go here -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 4: Forward Propagation (Interactive)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .equation-box {
+            background-color: #eff6ff; /* A soft, light blue background */
+            border-left: 4px solid #3b82f6; /* A darker accent color */
+            padding: 1.25rem; /* p-5 */
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-top: 1rem; /* mt-4 */
+        }
+        .analogy-box {
+             background-color: #fefce8; /* A soft, light yellow background */
+             border-left: 4px solid #eab308; /* A darker accent color */
+        }
+        .interactive-playground input {
+            width: 80px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .matrix {
+            display: inline-grid;
+            border: 2px solid #9ca3af;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+            vertical-align: middle;
+        }
+        .matrix-cell {
+            background-color: #f3f4f6;
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header Section -->
+        <header class="bg-white shadow-lg rounded-xl p-8 mb-8 border-t-4 border-blue-600">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2 flex items-center">
+                <span class="text-5xl mr-4">➡️</span>
+                Lecture 4: Forward Propagation
+            </h1>
+            <p class="text-lg text-gray-600">How a neural network makes its first guess. We'll follow the data on its exciting journey through the network, from input to final prediction!</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Part 1: What is Forward Propagation? -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🤔</span>Part 1: What is Forward Propagation?</h2>
+                <p class="text-base mb-4">Imagine you show a picture of a cat to a brand new, untrained neural network and ask, "What is this?" The network has no idea what a cat is. Its internal weights and biases are just random numbers. The process it uses to take that image and produce its very first, completely random guess is called <strong>Forward Propagation</strong>.</p>
+                <p class="text-base mb-4">It's the essential first step in the life of a neural network. It's a one-way trip for information, starting from the raw input data (the pixels of the cat image), moving <strong>forward</strong> through all the hidden layers of neurons, and ending at the final, conclusive guess from the output layer. This entire process is a giant chain of calculations, where the output of one layer becomes the input for the next.</p>
+                
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: The Gourmet Sandwich Factory</h4>
+                    <p class="mt-2 text-gray-700">Think of a neural network as a high-tech factory that makes sandwiches. Forward propagation is the entire assembly line from start to finish.</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700">
+                        <li><strong>Input Layer (The Loading Dock):</strong> The raw ingredients arrive. For a sandwich, this is your bread, lettuce, tomato, and cheese. For a neural network, this is your data, like `[hours_studied, hours_slept]`.</li>
+                        <li><strong>Hidden Layer 1 (The Prep Station):</strong> This station takes the raw ingredients and does the first transformation. A "Chopping Neuron" might process the lettuce and tomato. A "Cheese Slicing Neuron" handles the cheese. It turns basic ingredients into prepared ingredients.</li>
+                        <li><strong>Hidden Layer 2 (The Assembly Station):</strong> This station doesn't see the original ingredients, only the prepped ones from the previous station. It combines them in a specific order, perhaps adding sauces or spices. It creates a more complex product.</li>
+                        <li><strong>Output Layer (The Final Inspection):</strong> This station looks at the fully assembled sandwich and makes a final judgment. It outputs a label: "This is a Club Sandwich" or "This is a Veggie Delight". This is the network's final prediction.</li>
+                    </ul>
+                     <p class="mt-2 text-gray-700">Forward propagation is this complete, uninterrupted flow. No station can work until the one before it is finished. It’s the process of turning raw data into a sophisticated prediction.</p>
+                </div>
+            </section>
+            
+            <!-- Part 2: Step-by-Step Walkthrough -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">👣</span>Part 2: A Step-by-Step Journey</h2>
+                <p class="text-base mb-4">Let's follow a single piece of data through a simple network. Our goal is to predict if a student will pass an exam based on two features.</p>
+
+                <div class="p-6 border rounded-lg bg-blue-50">
+                    <h4 class="font-bold text-lg">Our Sample Problem</h4>
+                    <p><strong>Inputs (X):</strong> `[hours_studied, hours_slept]`</p>
+                    <p><strong>Output (Y):</strong> `[will_pass]` (1 for Yes, 0 for No)</p>
+                    <p><strong>Example Student:</strong> Studied for 5 hours, slept for 8 hours. So, our input vector is `X = [5, 8]`.</p>
+                </div>
+
+                <h3 class="text-2xl font-bold mt-8 mb-4">Step 1: The Input Layer to the First Hidden Layer</h3>
+                <p>The journey begins. The input data `[5, 8]` is sent to every neuron in the first hidden layer. Each of these hidden neurons has its own unique set of weights and its own bias. Let's say our hidden layer has two neurons, H1 and H2. Each will perform its own calculation.</p>
+                <p>The formula is the same one we learned for a single neuron: the <strong>weighted sum + bias</strong>. We do this for every neuron in the layer.</p>
+
+                 <div class="equation-box">
+                    <div class="text-center text-xl font-mono text-blue-900">$$ Z^{[1]} = X \cdot W^{[1]} + b^{[1]} $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong>
+                        <br> • The superscript `[1]` tells us we are working on the calculations for <strong>layer 1</strong>.
+                        <br> • <strong>X</strong> is our input data, a matrix where each row is a sample. For our one student, it's `[5, 8]`.
+                        <br> • <strong>W¹</strong> is the weight matrix for layer 1. It contains all the connection strengths. If we have 2 inputs and 2 hidden neurons, this matrix will have 4 weights in a 2x2 shape.
+                        <br> • <strong>b¹</strong> is the bias vector for layer 1. Each hidden neuron (H1 and H2) gets its own personal bias to "nudge" its result.
+                        <br> • <strong>Z¹</strong> is the final result of this calculation—a vector containing the raw scores for both H1 and H2, before they are activated.
+                    </p>
+                </div>
+
+                <h3 class="text-2xl font-bold mt-8 mb-4">Step 2: Applying the Activation Function</h3>
+                <p>The raw scores in `Z¹` could be any number (e.g., `[7.3, -2.1]`). These aren't very useful for the next layer. We need to standardize them. To do this, we pass them through an activation function (like Sigmoid). This squishes every value to be between 0 and 1, turning the raw score into a meaningful signal strength.</p>
+                 <div class="equation-box">
+                    <div class="text-center text-xl font-mono text-blue-900">$$ A^{[1]} = \sigma(Z^{[1]}) $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong>
+                        <br> • We take the raw scores from the previous step, `Z¹`.
+                        <br> • We apply the Sigmoid function (σ) to every single number inside `Z¹`. A score of 7.3 might become ~0.999, and -2.1 might become ~0.11.
+                        <br> • <strong>A¹</strong> is the final output (the "activations") of the first hidden layer. This is the processed, meaningful information that gets passed forward to the next stage of the factory.
+                    </p>
+                </div>
+
+                <h3 class="text-2xl font-bold mt-8 mb-4">Step 3: On to the Output Layer!</h3>
+                <p>The process now repeats itself exactly, but for the next layer. The activated output of our hidden layer, `A¹`, now becomes the <strong>input</strong> for the final output layer.</p>
+                 <div class="equation-box">
+                    <div class="text-center text-xl font-mono text-blue-900">$$ Z^{[2]} = A^{[1]} \cdot W^{[2]} + b^{[2]} $$</div>
+                    <div class="text-center text-xl font-mono text-blue-900 mt-4">$$ \hat{y} = A^{[2]} = \sigma(Z^{[2]}) $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong>
+                        <br> • We perform the same weighted sum, but this time using the weights (W²) and biases (b²) that connect the hidden layer to the output layer.
+                        <br> • The final result, `A²`, is our network's official prediction! We often give it a special name, `ŷ` ("y-hat"), to distinguish it from the true answer, `y`.
+                        <br> • If `ŷ` is 0.89, the network is formally guessing that there is an 89% probability that the student will pass. This is the finished sandwich, ready to be served.
+                    </p>
+                </div>
+            </section>
+
+             <!-- Part 3: The Full Calculation -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🔢</span>Part 3: The Full Calculation: A Look at the Matrices</h2>
+                <p class="text-base mb-4">Let's visualize the entire calculation with the numbers from our interactive demo. This will make the matrix math crystal clear.</p>
+
+                <div class="p-6 border rounded-lg bg-blue-50 mt-6 text-center">
+                    <strong>Input X:</strong> `[5, 8]` &nbsp;&nbsp;&nbsp; <strong>Hidden Layer Weights W¹:</strong> `[[0.8, -0.5], [0.4, 0.9]]` &nbsp;&nbsp;&nbsp; <strong>Hidden Layer Biases b¹:</strong> `[0.1, -0.2]`
+                </div>
+                
+                <div class="equation-box">
+                    <h4 class="font-bold text-lg mb-2">Calculation for Z¹</h4>
+                    <div class="text-center font-mono">
+                        $$ Z^{[1]} = 
+                        \begin{bmatrix} 5 & 8 \end{bmatrix} 
+                        \cdot
+                        \begin{bmatrix} 0.8 & -0.5 \\ 0.4 & 0.9 \end{bmatrix}
+                        +
+                        \begin{bmatrix} 0.1 & -0.2 \end{bmatrix}
+                        $$
+                        $$ Z^{[1]} = 
+                        \begin{bmatrix} (5 \cdot 0.8 + 8 \cdot 0.4) & (5 \cdot -0.5 + 8 \cdot 0.9) \end{bmatrix} 
+                        +
+                        \begin{bmatrix} 0.1 & -0.2 \end{bmatrix}
+                        $$
+                         $$ Z^{[1]} = 
+                        \begin{bmatrix} (4.0 + 3.2) & (-2.5 + 7.2) \end{bmatrix} 
+                        +
+                        \begin{bmatrix} 0.1 & -0.2 \end{bmatrix}
+                        $$
+                        $$ Z^{[1]} = 
+                        \begin{bmatrix} 7.2 & 4.7 \end{bmatrix} 
+                        +
+                        \begin{bmatrix} 0.1 & -0.2 \end{bmatrix}
+                        =
+                        \begin{bmatrix} 7.3 & 4.5 \end{bmatrix}
+                        $$
+                    </div>
+                    <h4 class="font-bold text-lg mt-6 mb-2">Calculation for A¹</h4>
+                     <div class="text-center font-mono">
+                        $$ A^{[1]} = \sigma(Z^{[1]}) = \sigma(\begin{bmatrix} 7.3 & 4.5 \end{bmatrix}) = \begin{bmatrix} 0.999 & 0.989 \end{bmatrix} $$
+                    </div>
+                </div>
+
+                 <div class="p-6 border rounded-lg bg-blue-50 mt-6 text-center">
+                    <strong>Input A¹:</strong> `[0.999, 0.989]` &nbsp;&nbsp;&nbsp; <strong>Output Layer Weights W²:</strong> `[[1.2], [-0.8]]` &nbsp;&nbsp;&nbsp; <strong>Output Layer Bias b²:</strong> `[0.3]`
+                </div>
+                
+                 <div class="equation-box">
+                    <h4 class="font-bold text-lg mb-2">Calculation for Z² and Final Prediction ŷ</h4>
+                    <div class="text-center font-mono">
+                        $$ Z^{[2]} = 
+                        \begin{bmatrix} 0.999 & 0.989 \end{bmatrix} 
+                        \cdot
+                        \begin{bmatrix} 1.2 \\ -0.8 \end{bmatrix}
+                        +
+                        \begin{bmatrix} 0.3 \end{bmatrix}
+                        $$
+                        $$ Z^{[2]} = 
+                        \begin{bmatrix} (0.999 \cdot 1.2 + 0.989 \cdot -0.8) \end{bmatrix} 
+                        +
+                        \begin{bmatrix} 0.3 \end{bmatrix}
+                        $$
+                        $$ Z^{[2]} = 
+                        \begin{bmatrix} 1.199 - 0.791 \end{bmatrix} 
+                        +
+                        \begin{bmatrix} 0.3 \end{bmatrix}
+                         =
+                        \begin{bmatrix} 0.708 \end{bmatrix}
+                        $$
+                         $$ \hat{y} = A^{[2]} = \sigma(0.708) = 0.670 $$
+                    </div>
+                </div>
+
+            </section>
+            
+            <!-- Interactive Playground -->
+            <section id="interactive-fp" class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🚀</span>Interactive Forward Propagation</h2>
+                <p class="text-base mb-4">Let's see it in action! Our simple network has 2 input neurons, a hidden layer with 2 neurons, and 1 output neuron. The weights and biases are already set. Change the student's study and sleep hours to see how the prediction changes!</p>
+                
+                <div class="interactive-playground bg-blue-50 p-6 rounded-lg">
+                    <div class="text-center mb-6">
+                        <span class="mr-4">Hours Studied: <input type="number" id="fp_x1" value="5" step="0.5"></span>
+                        <span>Hours Slept: <input type="number" id="fp_x2" value="8" step="0.5"></span>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-6 text-center">
+                        <!-- Hidden Layer Calculation -->
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-bold text-lg mb-2">1. Hidden Layer Sums (Z¹)</h4>
+                            <p class="text-sm text-gray-600">`Z = (Inputs * Weights) + Bias`</p>
+                            <div class="mt-4">
+                                <p>Neuron H1: <span id="z1" class="font-mono p-1 bg-gray-200 rounded">...</span></p>
+                                <p class="mt-2">Neuron H2: <span id="z2" class="font-mono p-1 bg-gray-200 rounded">...</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Layer Activation -->
+                         <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-bold text-lg mb-2">2. Hidden Layer Activations (A¹)</h4>
+                            <p class="text-sm text-gray-600">`A = sigmoid(Z)`</p>
+                            <div class="mt-4">
+                                <p>Neuron H1 Output: <span id="a1" class="font-mono p-1 bg-gray-200 rounded">...</span></p>
+                                <p class="mt-2">Neuron H2 Output: <span id="a2" class="font-mono p-1 bg-gray-200 rounded">...</span></p>
+                            </div>
+                        </div>
+
+                        <!-- Output Layer Calculation -->
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-bold text-lg mb-2">3. Output Layer (ŷ)</h4>
+                            <p class="text-sm text-gray-600">Combines H1 and H2 outputs</p>
+                            <div class="mt-4">
+                                <p>Final Sum (Z²): <span id="z_out" class="font-mono p-1 bg-gray-200 rounded">...</span></p>
+                                <p class="mt-2 font-bold text-blue-700">Prediction (A²): <span id="a_out" class="font-mono p-1 bg-blue-200 rounded">...</span></p>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="text-center mt-6 text-2xl font-bold bg-white p-4 rounded-lg shadow">
+                        Final Prediction: <span id="final_prediction" class="text-blue-600">The student will PASS</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer/Summary -->
+        <footer class="text-center p-6 bg-gray-800 text-white rounded-lg">
+            <h3 class="text-2xl font-bold">Lecture Summary ✅</h3>
+            <p class="mt-2 max-w-2xl mx-auto">
+                <strong>Forward Propagation</strong> is the process of passing input data through the network to get a prediction.
+                <br>At each layer, we calculate a <strong>weighted sum + bias</strong>, then apply an <strong>activation function</strong>.
+                <br>The output of one layer becomes the input for the next, until we reach the final output!
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fixed weights and biases for the demo network
+            const W1 = [[0.8, -0.5], [0.4, 0.9]]; // Shape: 2x2
+            const b1 = [0.1, -0.2]; // Shape: 1x2
+            const W2 = [[1.2], [-0.8]]; // Shape: 2x1
+            const b2 = [0.3]; // Shape: 1x1
+
+            const sigmoid = (x) => 1 / (1 + Math.exp(-x));
+
+            function runForwardProp() {
+                const x1 = parseFloat(document.getElementById('fp_x1').value);
+                const x2 = parseFloat(document.getElementById('fp_x2').value);
+                const inputs = [x1, x2];
+
+                // --- Hidden Layer ---
+                // Neuron H1 calculation
+                const z1_val = (inputs[0] * W1[0][0]) + (inputs[1] * W1[1][0]) + b1[0];
+                const a1_val = sigmoid(z1_val);
+                
+                // Neuron H2 calculation
+                const z2_val = (inputs[0] * W1[0][1]) + (inputs[1] * W1[1][1]) + b1[1];
+                const a2_val = sigmoid(z2_val);
+
+                document.getElementById('z1').textContent = z1_val.toFixed(3);
+                document.getElementById('z2').textContent = z2_val.toFixed(3);
+                document.getElementById('a1').textContent = a1_val.toFixed(3);
+                document.getElementById('a2').textContent = a2_val.toFixed(3);
+                
+                // --- Output Layer ---
+                const hidden_outputs = [a1_val, a2_val];
+                const z_out_val = (hidden_outputs[0] * W2[0][0]) + (hidden_outputs[1] * W2[1][0]) + b2[0];
+                const a_out_val = sigmoid(z_out_val);
+
+                document.getElementById('z_out').textContent = z_out_val.toFixed(3);
+                document.getElementById('a_out').textContent = a_out_val.toFixed(3);
+                
+                // --- Final Decision ---
+                const prediction_text = document.getElementById('final_prediction');
+                if (a_out_val >= 0.5) {
+                    prediction_text.textContent = `The student will PASS (${(a_out_val*100).toFixed(1)}% confident)`;
+                    prediction_text.className = 'text-green-600';
+                } else {
+                    prediction_text.textContent = `The student will FAIL (${((1-a_out_val)*100).toFixed(1)}% confident)`;
+                    prediction_text.className = 'text-red-600';
+                }
+            }
+
+            // Add event listeners to input fields
+            const inputs = document.querySelectorAll('#interactive-fp input');
+            inputs.forEach(input => {
+                input.addEventListener('input', runForwardProp);
+            });
+            
+            // Initial calculation on page load
+            runForwardProp();
+        });
+    </script>
+    
+    <!-- For LaTeX rendering -->
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [['$','$'], ['\\(','\\)']],
+          displayMath: [['$$','$$'], ['\\[','\\]']],
+          processEscapes: true
+        }
+      });
+    </script>
+
+</body>
+</html>
+
