@@ -1,1 +1,1751 @@
-<!-- Lecture 2 content will go here -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 2: Mathematical Foundations - Dr. Daya Shankar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .course-nav {
+            background: rgba(255,255,255,0.95);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            flex-wrap: wrap;
+        }
+
+        .course-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .lecture-header {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .lecture-number {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .lecture-title {
+            font-size: 3em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .lecture-subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .instructor-info {
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .content-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+
+        .section-icon {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .math-playground {
+            background: linear-gradient(135deg, #e8f4fd 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #667eea;
+        }
+
+        .playground-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .playground-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .math-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .math-tab {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .math-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .math-content {
+            display: none;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .math-content.active {
+            display: block;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .matrix-visual {
+            display: grid;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .matrix {
+            display: inline-grid;
+            gap: 5px;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .matrix-2x2 {
+            grid-template-columns: repeat(2, 60px);
+            grid-template-rows: repeat(2, 40px);
+        }
+
+        .matrix-cell {
+            background: #f0f4ff;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .matrix-cell:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .matrix-cell input {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+            text-align: center;
+            font-weight: 600;
+            color: inherit;
+        }
+
+        .matrix-operation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .operation-symbol {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 50%;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .control-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .slider-group {
+            margin: 15px 0;
+        }
+
+        .slider-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #dee2e6;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .value-display {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .function-visualizer {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            background: white;
+            margin: 20px 0;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .concept-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border-top: 4px solid;
+        }
+
+        .concept-card:nth-child(1) { border-top-color: #e74c3c; }
+        .concept-card:nth-child(2) { border-top-color: #f39c12; }
+        .concept-card:nth-child(3) { border-top-color: #27ae60; }
+        .concept-card:nth-child(4) { border-top-color: #3498db; }
+
+        .concept-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .concept-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .concept-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .concept-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .formula-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .quiz-section {
+            background: linear-gradient(135deg, #fff3cd 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            border: 2px solid #ffc107;
+        }
+
+        .quiz-question {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .question-number {
+            background: #ffc107;
+            color: #856404;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .quiz-option {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #dee2e6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .quiz-option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .explanation {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .explanation.show {
+            display: block;
+        }
+
+        .progress-indicator {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            border-radius: 25px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .progress-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(#667eea 0deg, #dee2e6 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        @media (max-width: 768px) {
+            .lecture-title {
+                font-size: 2.2em;
+            }
+            
+            .nav-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .matrix-operation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .math-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-indicator {
+                display: none;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+    <!-- Course Navigation -->
+    <nav class="course-nav">
+        <div class="nav-content">
+            <div class="course-title">Deep Learning Mastery Course</div>
+            <div class="nav-links">
+                <a href="../index.html" class="nav-link">🏠 Course Home</a>
+                <a href="lecture01-history-foundations.html" class="nav-link">← Previous</a>
+                <a href="lecture03-perceptron-basics.html" class="nav-link">Next Lecture →</a>
+                <a href="#" class="nav-link" onclick="window.print()">🖨️ Print Notes</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-circle" id="progress-circle">0%</div>
+    </div>
+
+    <div class="container">
+        <!-- Lecture Header -->
+        <div class="lecture-header">
+            <div class="lecture-number">Lecture 2 of 45</div>
+            <h1 class="lecture-title">📐 Mathematical Foundations</h1>
+            <p class="lecture-subtitle">Making Linear Algebra, Calculus & Statistics Visual and Intuitive</p>
+            <p class="instructor-info">Dr. Daya Shankar | Dean, Woxsen University | Founder, VaidyaAI</p>
+        </div>
+
+        <!-- Learning Objectives -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🎯</div>
+                <h2 class="section-title">Learning Objectives</h2>
+            </div>
+            <p>By the end of this lecture, you will:</p>
+            <ul style="margin: 20px 0; padding-left: 30px; line-height: 2;">
+                <li><strong>Master</strong> essential linear algebra concepts through interactive visualizations</li>
+                <li><strong>Understand</strong> calculus concepts crucial for neural network training</li>
+                <li><strong>Grasp</strong> probability and statistics foundations for machine learning</li>
+                <li><strong>Connect</strong> mathematical concepts to neural network operations</li>
+                <li><strong>Gain confidence</strong> in the mathematical tools you'll use throughout the course</li>
+            </ul>
+        </div>
+
+        <!-- Why Math Matters -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🧠</div>
+                <h2 class="section-title">Why Mathematics Powers Deep Learning</h2>
+            </div>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">🔢</div>
+                    <div class="concept-title">Linear Algebra</div>
+                    <div class="concept-description">
+                        Neural networks are essentially matrix operations. Every layer, every weight update, 
+                        every computation involves matrices and vectors working together.
+                    </div>
+                
+                <div class="interactive-demo">
+                    <h5>Gradient Descent Simulation</h5>
+                    <p>Watch how neural networks use gradients to find the minimum error!</p>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button class="btn" onclick="startGradientDescent()">🚀 Start Gradient Descent</button>
+                        <button class="btn" onclick="resetGradientDescent()">🔄 Reset</button>
+                        <button class="btn" onclick="stepGradientDescent()">👣 Single Step</button>
+                    </div>
+                    
+                    <canvas class="function-visualizer" id="gradientChart"></canvas>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p><strong>🎯 What's Happening:</strong></p>
+                        <p>The red dot represents our current guess. The algorithm looks at the slope (gradient) and moves in the opposite direction to find the lowest point (minimum error).</p>
+                        <p>This is exactly how neural networks learn - they minimize their prediction errors!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Probability Content -->
+            <div class="math-content" id="probability">
+                <h4 style="color: #2c3e50; margin-bottom: 20px;">🎲 Probability: Understanding Uncertainty</h4>
+                
+                <div class="interactive-demo">
+                    <h5>Probability Distribution Visualizer</h5>
+                    <p>Explore different probability distributions used in deep learning</p>
+                    
+                    <div class="control-panel">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label class="slider-label">Distribution Type:</label>
+                                <select id="distribution-type" style="width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd;" onchange="updateProbabilityChart()">
+                                    <option value="normal">Normal (Gaussian)</option>
+                                    <option value="uniform">Uniform</option>
+                                    <option value="exponential">Exponential</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="slider-label">Parameter 1: <span class="value-display" id="param1-value">0</span></label>
+                                <input type="range" class="slider" id="param1-slider" min="-3" max="3" step="0.1" value="0" oninput="updateProbabilityChart()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Parameter 2: <span class="value-display" id="param2-value">1</span></label>
+                                <input type="range" class="slider" id="param2-slider" min="0.1" max="3" step="0.1" value="1" oninput="updateProbabilityChart()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <canvas class="function-visualizer" id="probabilityChart"></canvas>
+                    
+                    <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p><strong>🧠 Neural Network Applications:</strong></p>
+                        <ul style="margin-top: 10px; line-height: 1.8;">
+                            <li><strong>Normal Distribution:</strong> Weight initialization, noise modeling</li>
+                            <li><strong>Uniform Distribution:</strong> Random sampling, dropout masks</li>
+                            <li><strong>Exponential Distribution:</strong> Waiting times, decay processes</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h5>Bayes' Theorem Interactive</h5>
+                    <p>Understanding conditional probability - fundamental for classification!</p>
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h6 style="color: #2c3e50; margin-bottom: 15px;">Medical Diagnosis Example</h6>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div>
+                                <label class="slider-label">Disease Prevalence: <span class="value-display" id="prevalence-value">1%</span></label>
+                                <input type="range" class="slider" id="prevalence-slider" min="0.1" max="10" step="0.1" value="1" oninput="updateBayesCalculation()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Test Sensitivity: <span class="value-display" id="sensitivity-value">95%</span></label>
+                                <input type="range" class="slider" id="sensitivity-slider" min="50" max="99" step="1" value="95" oninput="updateBayesCalculation()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Test Specificity: <span class="value-display" id="specificity-value">90%</span></label>
+                                <input type="range" class="slider" id="specificity-slider" min="50" max="99" step="1" value="90" oninput="updateBayesCalculation()">
+                            </div>
+                        </div>
+                        
+                        <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 15px;">
+                            <p><strong>🔬 Results:</strong></p>
+                            <p>If test is positive, probability of actually having disease: <strong><span id="bayes-result">8.7%</span></strong></p>
+                            <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                                This shows why AI diagnostic tools like VaidyaAI need sophisticated probability models!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Content -->
+            <div class="math-content" id="statistics">
+                <h4 style="color: #2c3e50; margin-bottom: 20px;">📊 Statistics: Data Understanding</h4>
+                
+                <div class="interactive-demo">
+                    <h5>Dataset Statistics Explorer</h5>
+                    <p>Generate and analyze datasets to understand statistical measures</p>
+                    
+                    <div class="control-panel">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label class="slider-label">Sample Size: <span class="value-display" id="sample-size">100</span></label>
+                                <input type="range" class="slider" id="sample-slider" min="50" max="1000" step="50" value="100" oninput="updateDatasetParams()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Mean: <span class="value-display" id="dataset-mean">50</span></label>
+                                <input type="range" class="slider" id="mean-slider" min="0" max="100" step="5" value="50" oninput="updateDatasetParams()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Std Dev: <span class="value-display" id="dataset-std">15</span></label>
+                                <input type="range" class="slider" id="std-slider" min="5" max="30" step="5" value="15" oninput="updateDatasetParams()">
+                            </div>
+                        </div>
+                        
+                        <button class="btn" onclick="generateDataset()">🎲 Generate New Dataset</button>
+                    </div>
+                    
+                    <canvas class="function-visualizer" id="statisticsChart"></canvas>
+                    
+                    <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div style="text-align: center;">
+                                <p style="font-weight: 600; color: #667eea;">Mean</p>
+                                <p style="font-size: 1.2em;" id="calculated-mean">50.0</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p style="font-weight: 600; color: #667eea;">Median</p>
+                                <p style="font-size: 1.2em;" id="calculated-median">49.8</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p style="font-weight: 600; color: #667eea;">Std Dev</p>
+                                <p style="font-size: 1.2em;" id="calculated-std">14.9</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p style="font-weight: 600; color: #667eea;">Min</p>
+                                <p style="font-size: 1.2em;" id="calculated-min">12.3</p>
+                            </div>
+                            <div style="text-align: center;">
+                                <p style="font-weight: 600; color: #667eea;">Max</p>
+                                <p style="font-size: 1.2em;" id="calculated-max">87.6</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h5>Correlation Explorer</h5>
+                    <p>Understand how variables relate to each other - crucial for feature engineering!</p>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
+                        <div>
+                            <canvas id="correlationScatter" width="300" height="200" style="border: 1px solid #ddd; border-radius: 5px;"></canvas>
+                        </div>
+                        <div style="display: flex; flex-direction: column; justify-content: center;">
+                            <div style="margin-bottom: 15px;">
+                                <label class="slider-label">Correlation: <span class="value-display" id="correlation-value">0.7</span></label>
+                                <input type="range" class="slider" id="correlation-slider" min="-1" max="1" step="0.1" value="0.7" oninput="updateCorrelationPlot()">
+                            </div>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                                <p><strong>Correlation: <span id="corr-display">0.7</span></strong></p>
+                                <p style="margin-top: 10px; color: #666; font-size: 0.9em;" id="corr-interpretation">
+                                    Strong positive correlation - as X increases, Y tends to increase
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mathematical Concepts in Neural Networks -->
+        <div class="content-section">
+            <div class="section-header">
+                <div class="section-icon">🔗</div>
+                <h2 class="section-title">How Math Powers Neural Networks</h2>
+            </div>
+            
+            <div style="background: #f8f9fa; padding: 25px; border-radius: 10px; margin: 20px 0;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">🧮 The Mathematical Journey Through a Neural Network</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #e74c3c;">
+                        <h4 style="color: #e74c3c; margin-bottom: 10px;">1. Input Processing</h4>
+                        <p><strong>Linear Algebra:</strong> Input data is organized in matrices and vectors</p>
+                        <div class="formula-box">X = [x₁, x₂, ..., xₙ]</div>
+                        <p style="font-size: 0.9em; color: #666;">Each row is a sample, each column is a feature</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #f39c12;">
+                        <h4 style="color: #f39c12; margin-bottom: 10px;">2. Weight Multiplication</h4>
+                        <p><strong>Matrix Operations:</strong> Inputs multiplied by learned weights</p>
+                        <div class="formula-box">Z = X · W + b</div>
+                        <p style="font-size: 0.9em; color: #666;">The heart of neural computation</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #27ae60;">
+                        <h4 style="color: #27ae60; margin-bottom: 10px;">3. Activation Functions</h4>
+                        <p><strong>Calculus:</strong> Non-linear functions add complexity</p>
+                        <div class="formula-box">A = σ(Z) = 1/(1+e⁻ᶻ)</div>
+                        <p style="font-size: 0.9em; color: #666;">Creates the ability to learn complex patterns</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #3498db;">
+                        <h4 style="color: #3498db; margin-bottom: 10px;">4. Error Calculation</h4>
+                        <p><strong>Statistics:</strong> Measure how wrong our predictions are</p>
+                        <div class="formula-box">Loss = ½(y - ŷ)²</div>
+                        <p style="font-size: 0.9em; color: #666;">Quantifies prediction quality</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #9b59b6;">
+                        <h4 style="color: #9b59b6; margin-bottom: 10px;">5. Backpropagation</h4>
+                        <p><strong>Chain Rule:</strong> Calculate how to improve each weight</p>
+                        <div class="formula-box">∂Loss/∂W = ∂Loss/∂A · ∂A/∂Z · ∂Z/∂W</div>
+                        <p style="font-size: 0.9em; color: #666;">The learning mechanism</p>
+                    </div>
+                    
+                    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #e67e22;">
+                        <h4 style="color: #e67e22; margin-bottom: 10px;">6. Weight Updates</h4>
+                        <p><strong>Optimization:</strong> Move weights in the direction of improvement</p>
+                        <div class="formula-box">W_new = W_old - α · ∂Loss/∂W</div>
+                        <p style="font-size: 0.9em; color: #666;">α is the learning rate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Knowledge Check Quiz -->
+        <div class="quiz-section">
+            <div class="section-header">
+                <div class="section-icon">🧠</div>
+                <h2 class="section-title">Knowledge Check: Mathematical Understanding</h2>
+            </div>
+            
+            <div class="quiz-question">
+                <div class="question-number">Question 1</div>
+                <div class="question-text">In the context of neural networks, what does matrix multiplication represent?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(1, 'a', this)">
+                        A) Just a mathematical operation with no real meaning
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'b', this)">
+                        B) The transformation of input data through learned weights
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'c', this)">
+                        C) A way to make calculations more complex
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(1, 'd', this)">
+                        D) A requirement imposed by computer hardware
+                    </div>
+                </div>
+                <div class="explanation" id="explanation1">
+                    <strong>Perfect!</strong> Matrix multiplication in neural networks represents the fundamental operation 
+                    where input data is transformed by learned weights. Each weight determines how much influence 
+                    each input feature has on the output.
+                </div>
+            </div>
+
+            <div class="quiz-question">
+                <div class="question-number">Question 2</div>
+                <div class="question-text">Why are derivatives crucial for neural network training?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(2, 'a', this)">
+                        A) They tell us how to change weights to reduce errors
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'b', this)">
+                        B) They make the math look more impressive
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'c', this)">
+                        C) They are required by programming languages
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(2, 'd', this)">
+                        D) They help us calculate the final answer faster
+                    </div>
+                </div>
+                <div class="explanation" id="explanation2">
+                    <strong>Exactly!</strong> Derivatives tell us the rate of change - specifically, how much the error 
+                    changes when we adjust each weight. This gradient information guides us on how to improve the network.
+                </div>
+            </div>
+
+            <div class="quiz-question">
+                <div class="question-number">Question 3</div>
+                <div class="question-text">What role does probability play in neural network predictions?</div>
+                <div class="quiz-options">
+                    <div class="quiz-option" onclick="checkAnswer(3, 'a', this)">
+                        A) It makes predictions random and unreliable
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'b', this)">
+                        B) It helps express confidence levels and handle uncertainty
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'c', this)">
+                        C) It's only used for gambling applications
+                    </div>
+                    <div class="quiz-option" onclick="checkAnswer(3, 'd', this)">
+                        D) It slows down the computation process
+                    </div>
+                </div>
+                <div class="explanation" id="explanation3">
+                    <strong>Correct!</strong> Probability allows neural networks to express uncertainty in their predictions. 
+                    Instead of just saying "this is a cat," they can say "I'm 85% confident this is a cat," 
+                    which is much more useful for decision-making.
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Lecture Preview -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 30px; text-align: center; margin: 30px 0;">
+            <h3 style="font-size: 1.8em; margin-bottom: 15px;">🧮 Next Up: Perceptron & Neural Basics</h3>
+            <p style="margin-bottom: 20px; opacity: 0.9;">
+                Now that you have the mathematical foundation, we'll build your first artificial neuron! 
+                We'll see how the math comes alive in the perceptron - the building block of all neural networks.
+            </p>
+            <a href="lecture03-perceptron-basics.html" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; display: inline-block;">
+                Continue to Lecture 3: Perceptron & Neural Basics →
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div style="text-align: center; padding: 30px; color: rgba(255,255,255,0.8);">
+            <p><strong>Created by Dr. Daya Shankar</strong></p>
+            <p>Dean, Woxsen University | Founder, VaidyaAI</p>
+            <p style="margin-top: 15px; font-size: 0.9em;">
+                🌐 <a href="https://www.dayashankar.com" style="color: rgba(255,255,255,0.9);">Personal Website</a> | 
+                🏥 <a href="https://vaidyaai.com" style="color: rgba(255,255,255,0.9);">VaidyaAI</a> | 
+                🎓 <a href="https://woxsen.edu.in" style="color: rgba(255,255,255,0.9);">Woxsen University</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for charts and data
+        let functionChart, gradientChart, probabilityChart, statisticsChart;
+        let gradientDescentData = { x: 2, learning_rate: 0.1, history: [] };
+        let currentDataset = [];
+
+        // Progress tracking
+        function updateProgress() {
+            let scrolled = window.pageYOffset;
+            let totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            let progress = Math.round((scrolled / totalHeight) * 100);
+            
+            document.getElementById('progress-circle').textContent = progress + '%';
+            document.getElementById('progress-circle').style.background = 
+                `conic-gradient(#667eea ${progress * 3.6}deg, #dee2e6 ${progress * 3.6}deg)`;
+        }
+
+        window.addEventListener('scroll', updateProgress);
+
+        // Math tab switching
+        function showMathTab(tabName) {
+            // Hide all content
+            document.querySelectorAll('.math-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.math-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected content and activate tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Initialize charts based on tab
+            setTimeout(() => {
+                if (tabName === 'calculus') {
+                    initializeFunctionChart();
+                    initializeGradientChart();
+                } else if (tabName === 'probability') {
+                    initializeProbabilityChart();
+                } else if (tabName === 'statistics') {
+                    initializeStatisticsChart();
+                    updateCorrelationPlot();
+                }
+            }, 100);
+        }
+
+        // Matrix multiplication
+        function calculateMatrixMultiplication() {
+            const matrixA = getMatrixValues('matrixA');
+            const matrixB = getMatrixValues('matrixB');
+            
+            // Calculate A × B for 2x2 matrices
+            const result = [
+                [matrixA[0][0] * matrixB[0][0] + matrixA[0][1] * matrixB[1][0],
+                 matrixA[0][0] * matrixB[0][1] + matrixA[0][1] * matrixB[1][1]],
+                [matrixA[1][0] * matrixB[0][0] + matrixA[1][1] * matrixB[1][0],
+                 matrixA[1][0] * matrixB[0][1] + matrixA[1][1] * matrixB[1][1]]
+            ];
+            
+            // Update result display
+            document.getElementById('result-0-0').textContent = result[0][0];
+            document.getElementById('result-0-1').textContent = result[0][1];
+            document.getElementById('result-1-0').textContent = result[1][0];
+            document.getElementById('result-1-1').textContent = result[1][1];
+        }
+
+        function getMatrixValues(matrixId) {
+            const inputs = document.querySelectorAll(`#${matrixId} input`);
+            const matrix = [[0, 0], [0, 0]];
+            inputs.forEach(input => {
+                const row = parseInt(input.dataset.row);
+                const col = parseInt(input.dataset.col);
+                matrix[row][col] = parseFloat(input.value) || 0;
+            });
+            return matrix;
+        }
+
+        function generateRandomMatrices() {
+            const inputs = document.querySelectorAll('.matrix input');
+            inputs.forEach(input => {
+                input.value = Math.floor(Math.random() * 10) - 5; // Random between -5 and 4
+            });
+            calculateMatrixMultiplication();
+        }
+
+        // Vector operations
+        function generateRandomVectors() {
+            const a = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
+            const b = [Math.floor(Math.random() * 10), Math.floor(Math.random() * 10)];
+            
+            document.getElementById('vectorA').textContent = a.join(', ');
+            document.getElementById('vectorB').textContent = b.join(', ');
+            
+            const magA = Math.sqrt(a[0]*a[0] + a[1]*a[1]);
+            const magB = Math.sqrt(b[0]*b[0] + b[1]*b[1]);
+            const dotProduct = a[0]*b[0] + a[1]*b[1];
+            
+            document.getElementById('magA').textContent = magA.toFixed(1);
+            document.getElementById('magB').textContent = magB.toFixed(1);
+            document.getElementById('dotProduct').textContent = dotProduct;
+        }
+
+        // Function and derivative visualization
+        function initializeFunctionChart() {
+            updateFunctionDisplay();
+        }
+
+        function updateFunctionDisplay() {
+            const a = parseFloat(document.getElementById('slider-a').value);
+            const b = parseFloat(document.getElementById('slider-b').value);
+            const c = parseFloat(document.getElementById('slider-c').value);
+            const x = parseFloat(document.getElementById('slider-x').value);
+            
+            // Update parameter displays
+            document.getElementById('param-a').textContent = a;
+            document.getElementById('param-b').textContent = b;
+            document.getElementById('param-c').textContent = c;
+            document.getElementById('point-x').textContent = x;
+            
+            // Update equations
+            const functionEq = `${a}x² + ${b}x + ${c}`;
+            const derivativeEq = `${2*a}x + ${b}`;
+            
+            document.getElementById('function-eq').textContent = functionEq;
+            document.getElementById('derivative-eq').textContent = derivativeEq;
+            
+            // Calculate values at point x
+            const fx = a*x*x + b*x + c;
+            const fpx = 2*a*x + b;
+            
+            document.getElementById('current-x').textContent = x;
+            document.getElementById('current-f').textContent = fx.toFixed(2);
+            document.getElementById('current-derivative').textContent = fpx.toFixed(2);
+            
+            // Generate chart data
+            const xValues = [];
+            const yValues = [];
+            const derivativeValues = [];
+            
+            for (let i = -3; i <= 3; i += 0.1) {
+                xValues.push(i);
+                yValues.push(a*i*i + b*i + c);
+                derivativeValues.push(2*a*i + b);
+            }
+            
+            // Update or create chart
+            const ctx = document.getElementById('functionChart').getContext('2d');
+            
+            if (functionChart) {
+                functionChart.destroy();
+            }
+            
+            functionChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(1)),
+                    datasets: [{
+                        label: 'f(x)',
+                        data: yValues,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }, {
+                        label: "f'(x)",
+                        data: derivativeValues,
+                        borderColor: '#e74c3c',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'x'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'y'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Gradient descent simulation
+        function initializeGradientChart() {
+            resetGradientDescent();
+        }
+
+        function startGradientDescent() {
+            const interval = setInterval(() => {
+                stepGradientDescent();
+                if (Math.abs(gradientDescentData.x) < 0.01 || gradientDescentData.history.length > 50) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        function stepGradientDescent() {
+            // Simple quadratic function: f(x) = x²
+            // Derivative: f'(x) = 2x
+            const currentX = gradientDescentData.x;
+            const gradient = 2 * currentX; // Derivative at current point
+            const newX = currentX - gradientDescentData.learning_rate * gradient;
+            
+            gradientDescentData.x = newX;
+            gradientDescentData.history.push({x: currentX, y: currentX * currentX});
+            
+            updateGradientChart();
+        }
+
+        function resetGradientDescent() {
+            gradientDescentData = { x: 2, learning_rate: 0.1, history: [] };
+            updateGradientChart();
+        }
+
+        function updateGradientChart() {
+            const ctx = document.getElementById('gradientChart').getContext('2d');
+            
+            // Generate function data
+            const xValues = [];
+            const yValues = [];
+            for (let i = -3; i <= 3; i += 0.1) {
+                xValues.push(i);
+                yValues.push(i * i); // f(x) = x²
+            }
+            
+            // Current position
+            const currentPos = {
+                x: gradientDescentData.x,
+                y: gradientDescentData.x * gradientDescentData.x
+            };
+            
+            if (gradientChart) {
+                gradientChart.destroy();
+            }
+            
+            gradientChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(1)),
+                    datasets: [{
+                        label: 'f(x) = x²',
+                        data: yValues,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }, {
+                        label: 'Current Position',
+                        data: [{x: currentPos.x, y: currentPos.y}],
+                        borderColor: '#e74c3c',
+                        backgroundColor: '#e74c3c',
+                        pointRadius: 8,
+                        showLine: false
+                    }, {
+                        label: 'Path',
+                        data: gradientDescentData.history,
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.3)',
+                        borderWidth: 2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'x'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'f(x)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Probability distributions
+        function initializeProbabilityChart() {
+            updateProbabilityChart();
+        }
+
+        function updateProbabilityChart() {
+            const distributionType = document.getElementById('distribution-type').value;
+            const param1 = parseFloat(document.getElementById('param1-slider').value);
+            const param2 = parseFloat(document.getElementById('param2-slider').value);
+            
+            document.getElementById('param1-value').textContent = param1.toFixed(1);
+            document.getElementById('param2-value').textContent = param2.toFixed(1);
+            
+            const xValues = [];
+            const yValues = [];
+            
+            if (distributionType === 'normal') {
+                // Normal distribution
+                for (let x = -5; x <= 5; x += 0.1) {
+                    xValues.push(x);
+                    const variance = param2 * param2;
+                    const y = (1 / Math.sqrt(2 * Math.PI * variance)) * 
+                              Math.exp(-0.5 * Math.pow(x - param1, 2) / variance);
+                    yValues.push(y);
+                }
+            } else if (distributionType === 'uniform') {
+                // Uniform distribution
+                for (let x = -3; x <= 3; x += 0.1) {
+                    xValues.push(x);
+                    if (x >= param1 && x <= param1 + param2) {
+                        yValues.push(1 / param2);
+                    } else {
+                        yValues.push(0);
+                    }
+                }
+            } else if (distributionType === 'exponential') {
+                // Exponential distribution
+                for (let x = 0; x <= 5; x += 0.1) {
+                    xValues.push(x);
+                    const lambda = param2;
+                    yValues.push(lambda * Math.exp(-lambda * x));
+                }
+            }
+            
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            
+            if (probabilityChart) {
+                probabilityChart.destroy();
+            }
+            
+            probabilityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(1)),
+                    datasets: [{
+                        label: `${distributionType.charAt(0).toUpperCase() + distributionType.slice(1)} Distribution`,
+                        data: yValues,
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+                        fill: true,
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'x'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Bayes theorem calculation
+        function updateBayesCalculation() {
+            const prevalence = parseFloat(document.getElementById('prevalence-slider').value) / 100;
+            const sensitivity = parseFloat(document.getElementById('sensitivity-slider').value) / 100;
+            const specificity = parseFloat(document.getElementById('specificity-slider').value) / 100;
+            
+            document.getElementById('prevalence-value').textContent = (prevalence * 100).toFixed(1) + '%';
+            document.getElementById('sensitivity-value').textContent = (sensitivity * 100).toFixed(0) + '%';
+            document.getElementById('specificity-value').textContent = (specificity * 100).toFixed(0) + '%';
+            
+            // Bayes' theorem calculation
+            const truePositive = prevalence * sensitivity;
+            const falsePositive = (1 - prevalence) * (1 - specificity);
+            const posteriorProbability = truePositive / (truePositive + falsePositive);
+            
+            document.getElementById('bayes-result').textContent = (posteriorProbability * 100).toFixed(1) + '%';
+        }
+
+        // Statistics functions
+        function initializeStatisticsChart() {
+            generateDataset();
+        }
+
+        function updateDatasetParams() {
+            const sampleSize = parseInt(document.getElementById('sample-slider').value);
+            const mean = parseFloat(document.getElementById('mean-slider').value);
+            const std = parseFloat(document.getElementById('dataset-std').value);
+            
+            document.getElementById('sample-size').textContent = sampleSize;
+            document.getElementById('dataset-mean').textContent = mean;
+            document.getElementById('dataset-std').textContent = std;
+        }
+
+        function generateDataset() {
+            const sampleSize = parseInt(document.getElementById('sample-slider').value);
+            const targetMean = parseFloat(document.getElementById('mean-slider').value);
+            const targetStd = parseFloat(document.getElementById('std-slider').value);
+            
+            // Generate normal distribution using Box-Muller transform
+            currentDataset = [];
+            for (let i = 0; i < sampleSize; i++) {
+                const u1 = Math.random();
+                const u2 = Math.random();
+                const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+                const value = targetMean + z * targetStd;
+                currentDataset.push(value);
+            }
+            
+            updateStatisticsDisplay();
+            updateStatisticsChart();
+        }
+
+        function updateStatisticsDisplay() {
+            const sorted = [...currentDataset].sort((a, b) => a - b);
+            const mean = currentDataset.reduce((sum, val) => sum + val, 0) / currentDataset.length;
+            const median = sorted[Math.floor(sorted.length / 2)];
+            const variance = currentDataset.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / currentDataset.length;
+            const std = Math.sqrt(variance);
+            const min = Math.min(...currentDataset);
+            const max = Math.max(...currentDataset);
+            
+            document.getElementById('calculated-mean').textContent = mean.toFixed(1);
+            document.getElementById('calculated-median').textContent = median.toFixed(1);
+            document.getElementById('calculated-std').textContent = std.toFixed(1);
+            document.getElementById('calculated-min').textContent = min.toFixed(1);
+            document.getElementById('calculated-max').textContent = max.toFixed(1);
+        }
+
+        function updateStatisticsChart() {
+            // Create histogram
+            const bins = 20;
+            const min = Math.min(...currentDataset);
+            const max = Math.max(...currentDataset);
+            const binWidth = (max - min) / bins;
+            
+            const histogram = new Array(bins).fill(0);
+            const binLabels = [];
+            
+            for (let i = 0; i < bins; i++) {
+                binLabels.push((min + i * binWidth).toFixed(1));
+            }
+            
+            currentDataset.forEach(value => {
+                const binIndex = Math.min(Math.floor((value - min) / binWidth), bins - 1);
+                histogram[binIndex]++;
+            });
+            
+            const ctx = document.getElementById('statisticsChart').getContext('2d');
+            
+            if (statisticsChart) {
+                statisticsChart.destroy();
+            }
+            
+            statisticsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: binLabels,
+                    datasets: [{
+                        label: 'Frequency',
+                        data: histogram,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: '#667eea',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Frequency'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Correlation plot
+        function updateCorrelationPlot() {
+            const correlation = parseFloat(document.getElementById('correlation-slider').value);
+            document.getElementById('correlation-value').textContent = correlation.toFixed(1);
+            document.getElementById('corr-display').textContent = correlation.toFixed(1);
+            
+            // Update interpretation
+            let interpretation = '';
+            if (Math.abs(correlation) < 0.3) {
+                interpretation = 'Weak correlation - little linear relationship';
+            } else if (Math.abs(correlation) < 0.7) {
+                interpretation = 'Moderate correlation - some linear relationship';
+            } else {
+                interpretation = 'Strong correlation - clear linear relationship';
+            }
+            
+            if (correlation > 0) {
+                interpretation = 'Positive ' + interpretation.toLowerCase() + ' - as X increases, Y tends to increase';
+            } else if (correlation < 0) {
+                interpretation = 'Negative ' + interpretation.toLowerCase() + ' - as X increases, Y tends to decrease';
+            }
+            
+            document.getElementById('corr-interpretation').textContent = interpretation;
+            
+            // Generate correlated data
+            const canvas = document.getElementById('correlationScatter');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Generate data points
+            const n = 50;
+            const points = [];
+            
+            for (let i = 0; i < n; i++) {
+                const x = Math.random() * 10;
+                const noise = (Math.random() - 0.5) * Math.sqrt(1 - correlation * correlation) * 3;
+                const y = correlation * x + noise + 2;
+                points.push({x, y});
+            }
+            
+            // Draw points
+            ctx.fillStyle = '#667eea';
+            points.forEach(point => {
+                const canvasX = (point.x / 10) * canvas.width;
+                const canvasY = canvas.height - (point.y / 10) * canvas.height;
+                ctx.beginPath();
+                ctx.arc(canvasX, canvasY, 3, 0, 2 * Math.PI);
+                ctx.fill();
+            });
+            
+            // Draw correlation line
+            if (Math.abs(correlation) > 0.1) {
+                ctx.strokeStyle = '#e74c3c';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height - (2 / 10) * canvas.height);
+                ctx.lineTo(canvas.width, canvas.height - ((correlation * 10 + 2) / 10) * canvas.height);
+                ctx.stroke();
+            }
+        }
+
+        // Quiz functionality
+        const quizAnswers = {1: 'b', 2: 'a', 3: 'b'};
+        
+        function checkAnswer(questionNum, selectedAnswer, element) {
+            const correctAnswer = quizAnswers[questionNum];
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            const explanation = document.getElementById(`explanation${questionNum}`);
+            
+            // Remove previous selections
+            options.forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+            
+            // Mark correct/incorrect
+            if (selectedAnswer === correctAnswer) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+                // Also highlight the correct answer
+                options.forEach(option => {
+                    if (option.textContent.trim().startsWith(correctAnswer.toUpperCase())) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+            
+            // Show explanation
+            explanation.classList.add('show');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateMatrixMultiplication();
+            generateRandomVectors();
+            updateBayesCalculation();
+            updateCorrelationPlot();
+            
+            // Initialize first tab
+            setTimeout(() => {
+                updateFunctionDisplay();
+            }, 100);
+        });
+    </script>
+</body>
+</html>    <div class="formula-box">
+                        Output = Input × Weights + Bias
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <div class="concept-icon">📈</div>
+                    <div class="concept-title">Calculus</div>
+                    <div class="concept-description">
+                        Derivatives tell us how to improve our network. Gradients show the direction of 
+                        steepest improvement, enabling networks to learn from their mistakes.
+                    </div>
+                    <div class="formula-box">
+                        ∂Loss/∂Weight = How much to change weight
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <div class="concept-icon">🎲</div>
+                    <div class="concept-title">Probability</div>
+                    <div class="concept-description">
+                        Neural networks make predictions with uncertainty. Probability helps us understand 
+                        confidence levels and make better decisions with incomplete information.
+                    </div>
+                    <div class="formula-box">
+                        P(Class|Input) = Confidence in prediction
+                    </div>
+                </div>
+
+                <div class="concept-card">
+                    <div class="concept-icon">📊</div>
+                    <div class="concept-title">Statistics</div>
+                    <div class="concept-description">
+                        We need statistics to understand our data, evaluate model performance, and make 
+                        informed decisions about network architecture and training.
+                    </div>
+                    <div class="formula-box">
+                        Mean, Variance, Distribution shape
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Math Playground -->
+        <div class="math-playground">
+            <div class="playground-header">
+                <h3 class="playground-title">🎮 Interactive Mathematics Playground</h3>
+                <p>Click through each topic to explore mathematical concepts with hands-on demonstrations</p>
+            </div>
+            
+            <div class="math-tabs">
+                <div class="math-tab active" onclick="showMathTab('linear-algebra')">📊 Linear Algebra</div>
+                <div class="math-tab" onclick="showMathTab('calculus')">📈 Calculus</div>
+                <div class="math-tab" onclick="showMathTab('probability')">🎲 Probability</div>
+                <div class="math-tab" onclick="showMathTab('statistics')">📉 Statistics</div>
+            </div>
+
+            <!-- Linear Algebra Content -->
+            <div class="math-content active" id="linear-algebra">
+                <h4 style="color: #2c3e50; margin-bottom: 20px;">🔢 Linear Algebra: Matrices and Vectors</h4>
+                
+                <div class="interactive-demo">
+                    <h5>Matrix Multiplication Visualizer</h5>
+                    <p>Understand how neural networks multiply inputs by weights</p>
+                    
+                    <div class="matrix-operation">
+                        <div>
+                            <p style="text-align: center; margin-bottom: 10px;"><strong>Matrix A (2×2)</strong></p>
+                            <div class="matrix matrix-2x2" id="matrixA">
+                                <input type="number" value="2" class="matrix-cell" data-row="0" data-col="0" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="3" class="matrix-cell" data-row="0" data-col="1" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="1" class="matrix-cell" data-row="1" data-col="0" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="4" class="matrix-cell" data-row="1" data-col="1" onchange="calculateMatrixMultiplication()">
+                            </div>
+                        </div>
+                        
+                        <div class="operation-symbol">×</div>
+                        
+                        <div>
+                            <p style="text-align: center; margin-bottom: 10px;"><strong>Matrix B (2×2)</strong></p>
+                            <div class="matrix matrix-2x2" id="matrixB">
+                                <input type="number" value="1" class="matrix-cell" data-row="0" data-col="0" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="0" class="matrix-cell" data-row="0" data-col="1" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="2" class="matrix-cell" data-row="1" data-col="0" onchange="calculateMatrixMultiplication()">
+                                <input type="number" value="1" class="matrix-cell" data-row="1" data-col="1" onchange="calculateMatrixMultiplication()">
+                            </div>
+                        </div>
+                        
+                        <div class="operation-symbol">=</div>
+                        
+                        <div>
+                            <p style="text-align: center; margin-bottom: 10px;"><strong>Result (2×2)</strong></p>
+                            <div class="matrix matrix-2x2" id="matrixResult">
+                                <div class="matrix-cell" id="result-0-0">8</div>
+                                <div class="matrix-cell" id="result-0-1">3</div>
+                                <div class="matrix-cell" id="result-1-0">9</div>
+                                <div class="matrix-cell" id="result-1-1">4</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="calculateMatrixMultiplication()">🔄 Calculate</button>
+                    <button class="btn" onclick="generateRandomMatrices()">🎲 Random Matrices</button>
+                    
+                    <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p><strong>💡 Neural Network Connection:</strong></p>
+                        <p>In a neural network, Matrix A represents input data, Matrix B represents weights, 
+                        and the result represents the processed information flowing to the next layer!</p>
+                    </div>
+                </div>
+                
+                <div class="interactive-demo">
+                    <h5>Vector Operations</h5>
+                    <p>Vectors are the building blocks of neural network computations</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                        <div style="text-align: center;">
+                            <p><strong>Vector A</strong></p>
+                            <div style="background: #f0f4ff; padding: 10px; border-radius: 5px;">
+                                [<span id="vectorA">3, 4</span>]
+                            </div>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">Magnitude: <span id="magA">5.0</span></p>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <p><strong>Vector B</strong></p>
+                            <div style="background: #f0f4ff; padding: 10px; border-radius: 5px;">
+                                [<span id="vectorB">1, 2</span>]
+                            </div>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">Magnitude: <span id="magB">2.2</span></p>
+                        </div>
+                        
+                        <div style="text-align: center;">
+                            <p><strong>Dot Product</strong></p>
+                            <div style="background: #e8f5e8; padding: 10px; border-radius: 5px;">
+                                <span id="dotProduct">11</span>
+                            </div>
+                            <p style="margin-top: 5px; font-size: 0.9em; color: #666;">A · B = sum(A[i] × B[i])</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="generateRandomVectors()">🎲 New Random Vectors</button>
+                </div>
+            </div>
+
+            <!-- Calculus Content -->
+            <div class="math-content" id="calculus">
+                <h4 style="color: #2c3e50; margin-bottom: 20px;">📈 Calculus: Derivatives and Gradients</h4>
+                
+                <div class="interactive-demo">
+                    <h5>Function & Derivative Visualizer</h5>
+                    <p>See how derivatives show the slope at any point - crucial for neural network learning!</p>
+                    
+                    <div class="control-panel">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label class="slider-label">a = <span class="value-display" id="param-a">1</span></label>
+                                <input type="range" class="slider" id="slider-a" min="-2" max="2" step="0.1" value="1" oninput="updateFunctionDisplay()">
+                            </div>
+                            <div>
+                                <label class="slider-label">b = <span class="value-display" id="param-b">0</span></label>
+                                <input type="range" class="slider" id="slider-b" min="-5" max="5" step="0.1" value="0" oninput="updateFunctionDisplay()">
+                            </div>
+                            <div>
+                                <label class="slider-label">c = <span class="value-display" id="param-c">0</span></label>
+                                <input type="range" class="slider" id="slider-c" min="-5" max="5" step="0.1" value="0" oninput="updateFunctionDisplay()">
+                            </div>
+                            <div>
+                                <label class="slider-label">Point x = <span class="value-display" id="point-x">0</span></label>
+                                <input type="range" class="slider" id="slider-x" min="-3" max="3" step="0.1" value="0" oninput="updateFunctionDisplay()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <canvas class="function-visualizer" id="functionChart"></canvas>
+                    
+                    <div style="background: #e8f4fd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                        <p><strong>📊 Current Values:</strong></p>
+                        <p>f(x) = <span id="function-eq">x²</span></p>
+                        <p>f'(x) = <span id="derivative-eq">2x</span> (derivative)</p>
+                        <p>At x = <span id="current-x">0</span>: f(x) = <span id="current-f">0</span>, f'(x) = <span id="current-derivative">0</span></p>
+                        <p><strong>💡 Meaning:</strong> The derivative tells us how steeply the function is changing at this point!</p>
+                    </div>
+                </div>
