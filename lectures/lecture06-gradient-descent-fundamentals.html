@@ -1,1 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 6: Gradient Descent Fundamentals (Interactive)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .equation-box {
+            background-color: #eef8ff; /* A soft, light blue background */
+            border-left: 4px solid #3b82f6; /* A darker accent color */
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .analogy-box {
+             background-color: #fefce8; /* A soft, light yellow background */
+             border-left: 4px solid #eab308; /* A darker accent color */
+        }
+        .key-concept-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header Section -->
+        <header class="bg-white shadow-lg rounded-xl p-8 mb-8 border-t-4 border-blue-600">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2 flex items-center">
+                <span class="text-5xl mr-4">⬇️</span>
+                Lecture 6: Gradient Descent
+            </h1>
+            <p class="text-lg text-gray-600">The engine of optimization. Discover how neural networks find the best path to minimize their mistakes and truly learn.</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Part 1: The Goal of All Our Hard Work -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🎯</span>Part 1: The Ultimate Goal - Finding the Bottom of the Valley</h2>
+                <p class="text-base mb-4">Let's recap. We've built a network, pushed data through it (Forward Propagation), and calculated how wrong it was (the Loss). We've even figured out the direction of "more error" for every weight (Backward Propagation and Gradients).</p>
+                <p class="text-base mb-4">All that work leads to this single, critical moment: <strong>Optimization</strong>. The goal of optimization is to use the gradients we found to update our weights and biases in a way that makes the Loss smaller.</p>
+                
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: The Hiker's Journey Home</h4>
+                    <p class="mt-2 text-gray-700">Think back to our hiker on a foggy mountain (our Loss Landscape).
+                        <br> • <strong>The Goal:</strong> Reach the lowest point in the valley, where the cabin (minimum error) is.
+                        <br> • <strong>The Problem:</strong> The fog is so thick, the hiker can only see the ground at their feet.
+                        <br> • <strong>The Strategy:</strong> At every step, the hiker feels the slope (the gradient) and takes a small step in the steepest **downhill** direction. They repeat this over and over, hoping each step gets them closer to the bottom.
+                    </p>
+                    <p class="mt-4 font-semibold text-gray-800"><strong>Gradient Descent is this exact strategy.</strong> It's a simple, iterative algorithm for finding the minimum of a function.</p>
+                </div>
+            </section>
+            
+            <!-- Part 2: The Core of Gradient Descent -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">⚙️</span>Part 2: The Update Rule - How We Take a Step</h2>
+                <p class="text-base mb-4">The entire process of learning is captured in one elegant mathematical update rule. This is what our network does for every single weight and bias after each round of backpropagation.</p>
+
+                <div class="equation-box">
+                    <div class="text-center text-2xl font-mono text-blue-900">$$ W_{\text{new}} = W_{\text{old}} - \alpha \cdot \nabla L(W_{\text{old}}) $$</div>
+                    <p class="mt-4"><strong>Let's break this down piece by piece:</strong>
+                        <br> • $W_{\text{new}}$: This is the new, improved weight we are calculating. Our "next step."
+                        <br> • $W_{\text{old}}$: This is our current position—the weight's value before the update.
+                        <br> • $\alpha$ (alpha): The <strong>Learning Rate</strong>. We'll explore this in detail next, but for now, think of it as the size of our step. It's a small positive number, like 0.01.
+                        <br> • $\nabla L(W_{\text{old}})$: This is the gradient of the Loss with respect to our old weight. This is the value we worked so hard to calculate during backpropagation. It tells us the direction of the steepest **uphill** slope.
+                    </p>
+                    <p class="mt-4 font-semibold text-blue-800">
+                        Notice the minus sign! Since the gradient points uphill, we subtract it from our current position to move downhill, closer to the minimum loss.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Part 3: The Learning Rate -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🚀</span>Part 3: The Most Important Knob - The Learning Rate ($\alpha$)</h2>
+                <p class="text-base mb-4">The Learning Rate is arguably the most important <strong>hyperparameter</strong> you will tune. A hyperparameter is a setting you, the engineer, choose before training begins. The learning rate determines how big of a step our hiker takes down the mountain.</p>
+
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: Baby Steps vs. Giant Leaps</h4>
+                    <p class="mt-2 text-gray-700">Choosing a learning rate is a delicate balance:</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700">
+                       <li><strong>Too Small ($\alpha=0.0001$):</strong> The hiker takes tiny, cautious baby steps. They will eventually reach the bottom, but it will take a very long time. The training will be extremely slow.</li>
+                       <li><strong>Too Large ($\alpha=1.0$):</strong> The hiker takes a giant leap in the downhill direction. They might leap so far that they completely overshoot the valley and land on the other side of the mountain, even higher up than where they started! The loss will get worse, not better, and the training will diverge.</li>
+                       <li><strong>Just Right ($\alpha=0.01$):</strong> The hiker takes confident, reasonably sized steps. They make good progress towards the bottom without overshooting. This is the sweet spot we aim for.</li>
+                    </ul>
+                </div>
+                
+                <div class="key-concept-box rounded-lg p-6 my-6">
+                    <p class="text-green-800">Finding a good learning rate is crucial for successful training. It's often found through experimentation. Common starting values are 0.1, 0.01, and 0.001.</p>
+                </div>
+            </section>
+            
+            <!-- Part 4: Interactive Gradient Descent -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">🔬</span>Part 4: Interactive Optimizer - Be the Hiker!</h2>
+                <p class="text-base mb-4">Let's visualize this process. Below is the "loss landscape" for a simple problem. Your goal is to find the lowest point. Adjust the learning rate and starting position, then take steps to see how Gradient Descent works in practice.</p>
+
+                 <div class="interactive-playground bg-blue-50 p-6 rounded-lg">
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="learning_rate" class="block font-medium">Learning Rate ($\alpha$):</label>
+                            <input type="range" id="learning_rate" min="0.01" max="1.0" step="0.01" value="0.1" class="w-full">
+                            <div class="text-center font-bold" id="lr_value">0.10</div>
+                        </div>
+                         <div>
+                            <label for="start_position" class="block font-medium">Start Position:</label>
+                            <input type="range" id="start_position" min="-4.5" max="4.5" step="0.1" value="-4.0" class="w-full">
+                             <div class="text-center font-bold" id="sp_value">-4.0</div>
+                        </div>
+                        <div class="flex items-end justify-center space-x-2">
+                             <button id="step_btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">Take 1 Step</button>
+                             <button id="reset_btn" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition">Reset</button>
+                        </div>
+                    </div>
+                     
+                    <div class="mt-4">
+                        <canvas id="loss_chart"></canvas>
+                    </div>
+                    <div id="info_box" class="mt-4 text-center font-mono bg-white p-3 rounded-lg">
+                        Step: 0 | Current Position: -4.00 | Loss: 16.00 | Gradient: -8.00
+                    </div>
+                 </div>
+            </section>
+            
+            <!-- Part 5: Convergence and Challenges -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                 <h2 class="text-3xl font-bold text-blue-700 mb-4 flex items-center"><span class="text-4xl mr-3">⛰️</span>Part 5: The Landscape of Loss - Not Always a Simple Valley</h2>
+                 <p class="text-base mb-4">Our interactive demo used a simple, bowl-shaped loss function. This is called a <strong>convex function</strong>, and it has only one minimum (a global minimum). Gradient descent is guaranteed to find it.</p>
+                 <p class="text-base mb-4">However, in real deep learning, the loss landscape is incredibly complex and looks more like a giant mountain range with many valleys, plateaus, and hills.</p>
+                 <div class="grid md:grid-cols-2 gap-8 mt-6">
+                     <div class="analogy-box rounded-lg p-6">
+                        <h4 class="font-bold text-lg text-yellow-800">Problem: Local Minima</h4>
+                        <p class="mt-2 text-gray-700">Our hiker might find a small valley and think they've reached the bottom, but the true, deepest valley (the global minimum) is still far away. The hiker gets "stuck" because from their position, every direction is uphill. This is a <strong>local minimum</strong>.</p>
+                    </div>
+                    <div class="analogy-box rounded-lg p-6">
+                        <h4 class="font-bold text-lg text-yellow-800">Problem: Saddle Points & Plateaus</h4>
+                        <p class="mt-2 text-gray-700">The hiker might reach a large, flat area (a plateau) where the slope is almost zero. The gradient is tiny, so they take minuscule steps and their progress grinds to a halt. This can make training incredibly slow.</p>
+                    </div>
+                 </div>
+                 <div class="key-concept-box rounded-lg p-6 my-6">
+                    <p class="text-green-800">Fortunately, in the very high-dimensional spaces of deep learning, true local minima are less of a problem than saddle points. More advanced optimizers (like Adam and RMSprop, which we'll see in the next lecture) are designed to handle these complex landscapes more effectively than vanilla Gradient Descent.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer/Summary -->
+        <footer class="text-center p-6 bg-gray-800 text-white rounded-lg">
+            <h3 class="text-2xl font-bold">Lecture Summary ✅</h3>
+            <p class="mt-2 max-w-2xl mx-auto">
+                <strong>Gradient Descent</strong> is the core optimization algorithm that drives learning. It iteratively adjusts weights by taking small steps in the opposite direction of the gradient.
+                <br>The <strong>Learning Rate ($\alpha$)</strong> is a critical hyperparameter that controls the step size.
+                <br>While simple, Gradient Descent lays the foundation for all modern optimizers and provides a powerful intuition for how neural networks find optimal solutions.
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+        let lossChart;
+        let hiker = {
+            position: -4.0,
+            history: [],
+            step: 0,
+        };
+
+        const lossFunction = (x) => x * x; // f(x) = x^2
+        const gradientFunction = (x) => 2 * x; // f'(x) = 2x
+
+        function updateHikerState(newPosition) {
+            hiker.history.push(hiker.position);
+            hiker.position = newPosition;
+            hiker.step++;
+            updateInfoBox();
+            updateChart();
+        }
+        
+        function resetHiker() {
+            const startPos = parseFloat(document.getElementById('start_position').value);
+            hiker.position = startPos;
+            hiker.history = [];
+            hiker.step = 0;
+            updateInfoBox();
+            updateChart();
+        }
+
+        function updateInfoBox() {
+            const infoBox = document.getElementById('info_box');
+            const loss = lossFunction(hiker.position);
+            const gradient = gradientFunction(hiker.position);
+            infoBox.textContent = `Step: ${hiker.step} | Position: ${hiker.position.toFixed(2)} | Loss: ${loss.toFixed(2)} | Gradient: ${gradient.toFixed(2)}`;
+        }
+
+        function takeStep() {
+            const learningRate = parseFloat(document.getElementById('learning_rate').value);
+            const currentPosition = hiker.position;
+            const gradient = gradientFunction(currentPosition);
+            const newPosition = currentPosition - learningRate * gradient;
+            updateHikerState(newPosition);
+        }
+
+        function setupChart() {
+            const ctx = document.getElementById('loss_chart').getContext('2d');
+            const xValues = [];
+            for (let i = -5; i <= 5; i += 0.1) {
+                xValues.push(i.toFixed(1));
+            }
+            const yValues = xValues.map(x => lossFunction(parseFloat(x)));
+            
+            lossChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues,
+                    datasets: [
+                        {
+                            label: 'Loss Function (L = w^2)',
+                            data: yValues,
+                            borderColor: '#3b82f6',
+                            tension: 0.1,
+                            pointRadius: 0
+                        },
+                        {
+                            label: 'Hiker\'s Position',
+                            data: [],
+                            backgroundColor: '#ef4444',
+                            borderColor: '#ef4444',
+                            pointRadius: 6,
+                            type: 'scatter'
+                        }
+                    ]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Loss (L)' }
+                        },
+                        x: {
+                           title: { display: true, text: 'Weight (w)' }
+                        }
+                    },
+                    animation: {
+                        duration: 500
+                    }
+                }
+            });
+            resetHiker();
+        }
+
+        function updateChart() {
+             lossChart.data.datasets[1].data = [{
+                x: hiker.position.toFixed(1),
+                y: lossFunction(hiker.position)
+            }];
+            lossChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupChart();
+            
+            const lrSlider = document.getElementById('learning_rate');
+            const lrValue = document.getElementById('lr_value');
+            const spSlider = document.getElementById('start_position');
+            const spValue = document.getElementById('sp_value');
+
+            lrSlider.addEventListener('input', (e) => {
+                lrValue.textContent = parseFloat(e.target.value).toFixed(2);
+            });
+
+            spSlider.addEventListener('input', (e) => {
+                spValue.textContent = parseFloat(e.target.value).toFixed(1);
+                resetHiker();
+            });
+            
+            document.getElementById('step_btn').addEventListener('click', takeStep);
+            document.getElementById('reset_btn').addEventListener('click', resetHiker);
+        });
+
+    </script>
+    
+    <!-- For LaTeX rendering -->
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [['$','$'], ['\\(','\\)']],
+          displayMath: [['$$','$$'], ['\\[','\\]']],
+          processEscapes: true
+        }
+      });
+    </script>
+
+</body>
+</html>
 
