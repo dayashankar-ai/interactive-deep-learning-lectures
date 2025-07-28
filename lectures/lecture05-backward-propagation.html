@@ -1,1 +1,311 @@
-<!-- Lecture 5 content will go here -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 5: Backward Propagation (Interactive)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .equation-box {
+            background-color: #ffeeef; /* A soft, light red background */
+            border-left: 4px solid #ef4444; /* A darker accent color */
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .analogy-box {
+             background-color: #fefce8; /* A soft, light yellow background */
+             border-left: 4px solid #eab308; /* A darker accent color */
+        }
+        .interactive-playground .control {
+            margin-bottom: 1rem;
+        }
+        .interactive-playground .control label {
+            font-weight: 500;
+            margin-right: 10px;
+        }
+        .interactive-playground .control input {
+            width: 100px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .flow-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: #f9fafb;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .flow-step {
+            text-align: center;
+            position: relative;
+        }
+        .flow-step-box {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .flow-arrow {
+            font-size: 2.5rem;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header Section -->
+        <header class="bg-white shadow-lg rounded-xl p-8 mb-8 border-t-4 border-red-600">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2 flex items-center">
+                <span class="text-5xl mr-4">⬅️</span>
+                Lecture 5: Backward Propagation
+            </h1>
+            <p class="text-lg text-gray-600">The magic behind how neural networks learn. We'll travel backward through the network to wisely correct its mistakes.</p>
+        </header>
+
+        <!-- Main Content -->
+        <main>
+            <!-- Part 1: Why We Need to Go Backwards -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">❓</span>Part 1: The Big Question: "How Wrong Were We?"</h2>
+                <p class="text-base mb-4">In the last lecture, our network performed <strong>Forward Propagation</strong> to make a guess. For our student who studied 5 hours and slept 8, it predicted a 67% chance of passing ($\hat{y} = 0.670$).</p>
+                <p class="text-base mb-4">But what if we know the student actually <strong>failed</strong>? The correct answer ($y$) was 0. Our network was wrong! Now comes the most important part of deep learning: <strong>learning from that mistake</strong>.</p>
+                <p class="text-base font-semibold mb-4">Backward Propagation (or Backpropagation) is the process of figuring out exactly *how* wrong the network was and assigning blame to every single weight and bias that contributed to the error.</p>
+                
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: The Detective Story</h4>
+                    <p class="mt-2 text-gray-700">Imagine our neural network is a team of detectives trying to solve a case.
+                        <br> • <strong>Forward Propagation</strong> is them making their initial accusation: "We think Butler Bob did it!"
+                        <br> • <strong>The "Error"</strong> is new evidence proving Bob is innocent. Their guess was wrong.
+                        <br> • <strong>Backward Propagation</strong> is the chief detective going back through the entire investigation, step-by-step, to see where the faulty logic occurred. Which clue was misinterpreted? Which detective made a bad assumption? They trace the error backward from the final accusation to the initial clues to correct their reasoning for the next time.
+                    </p>
+                </div>
+            </section>
+            
+            <!-- Part 2: The Loss Function -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">📉</span>Part 2: Step 1 - Measuring the Mistake (The Loss Function)</h2>
+                <p class="text-base mb-4">Before we can assign blame, we need to quantify the mistake. How wrong is "very wrong"? We use a <strong>Loss Function</strong> to calculate a single number that represents the total error.</p>
+                <p class="text-base mb-4">A common choice is the <strong>Mean Squared Error (MSE)</strong>.</p>
+
+                <div class="equation-box">
+                    <div class="text-center text-2xl font-mono text-red-900">$$ L = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2 $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong>
+                        <br> • For each prediction, calculate the difference between the true answer ($y$) and our prediction ($\hat{y}$).
+                        <br> • <strong>Square</strong> this difference to make it positive and to penalize larger errors more.
+                        <br> • <strong>Average</strong> these squared differences across all our examples.
+                        <br> • The final number $L$ is our Loss. A high loss means big mistakes. The goal of training is to get this number as close to zero as possible.
+                    </p>
+                </div>
+                 <div class="p-4 border rounded-lg bg-red-50 mt-4">
+                    <strong>Our Student's Error:</strong> The true answer $y$ was 0, but our prediction $\hat{y}$ was 0.670.
+                    <br>The squared error for this one student is $(0 - 0.670)^2 = 0.4489$. This is our starting point for backpropagation.
+                </div>
+            </section>
+            
+             <!-- Part 3: Gradients -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">🧭</span>Part 3: Gradients - The Direction of Learning</h2>
+                <p class="text-base mb-4">Okay, we have a Loss of 0.4489. Now what? We need to know *how to change our weights and biases* to make this Loss smaller. Should we increase a weight? Decrease it? By how much?</p>
+                <p class="text-base mb-4">The answer lies in the <strong>gradient</strong>. The gradient is a vector of partial derivatives. In simple terms, it tells us the <strong>direction of the steepest ascent</strong> for the loss function.</p>
+
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: The Hiker on a Foggy Mountain</h4>
+                    <p class="mt-2 text-gray-700">Imagine you are a hiker on a mountain, and it's completely foggy. Your goal is to get to the lowest point in the valley (the point of minimum loss). You can't see anything, but you can feel the ground right under your feet.</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700">
+                       <li>The <strong>gradient</strong> is the direction the ground slopes **uphill** most steeply from where you are standing.</li>
+                       <li>To get to the valley, you need to take a step in the exact **opposite** direction of the gradient.</li>
+                       <li>Backpropagation is the process of calculating this gradient for every single weight and bias in our network.</li>
+                    </ul>
+                </div>
+                
+                 <div class="equation-box">
+                    <div class="text-center text-2xl font-mono text-red-900">$$ \nabla L = \begin{bmatrix} \frac{\partial L}{\partial w_1} \\ \frac{\partial L}{\partial w_2} \\ \vdots \\ \frac{\partial L}{\partial w_k} \end{bmatrix} $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong> The gradient $\nabla L$ is just a big list of all the partial derivatives. Each number in this list tells us two things about its corresponding weight:
+                    <br>1. <strong>The sign (+ or -):</strong> Tells us if increasing the weight will increase or decrease the loss.
+                    <br>2. <strong>The magnitude:</strong> Tells us how much influence this weight has on the final loss. A big number means a big influence.
+                    </p>
+                </div>
+            </section>
+
+             <!-- Part 4: The Chain Rule -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">🔗</span>Part 4: The Secret Weapon - The Chain Rule</h2>
+                <p class="text-base mb-4">Here's the puzzle: the final error $L$ is at the very end of the network. The weights $W^{[1]}$ are at the very beginning. How does a change in $W^{[1]}$ affect $L$? They aren't directly connected!</p>
+                <p class="text-base mb-4">This is where calculus comes in with a powerful tool: the <strong>Chain Rule</strong>. It lets us calculate the effect of one thing on another through a long chain of intermediate steps.</p>
+
+                <div class="analogy-box rounded-lg p-6 my-6">
+                    <h3 class="font-bold text-lg text-yellow-800">Analogy: The Ripple Effect</h4>
+                    <p class="mt-2 text-gray-700">Imagine you want to know how turning a sprinkler on in your garden ($W^{[1]}$) affects the water level of a distant river ($L$). You can't measure it directly, but you can use the chain rule:</p>
+                    <ul class="list-disc list-inside mt-2 text-gray-700">
+                       <li>How does the sprinkler affect the garden soil moisture? ($\partial(\text{Soil Moisture}) / \partial(\text{Sprinkler})$)</li>
+                       <li>How does the soil moisture affect the groundwater level? ($\partial(\text{Groundwater}) / \partial(\text{Soil Moisture})$)</li>
+                       <li>How does the groundwater level affect the river level? ($\partial(\text{River}) / \partial(\text{Groundwater})$)</li>
+                    </ul>
+                    <p class="mt-2 text-gray-700">By multiplying these individual effects, you can find the total effect of the sprinkler on the river!</p>
+                </div>
+
+                <div class="equation-box">
+                    <div class="text-center text-2xl font-mono text-red-900">$$ \frac{\partial L}{\partial W^{[1]}} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{\partial \hat{y}}{\partial Z^{[2]}} \cdot \frac{\partial Z^{[2]}}{\partial A^{[1]}} \cdot \frac{\partial A^{[1]}}{\partial Z^{[1]}} \cdot \frac{\partial Z^{[1]}}{\partial W^{[1]}} $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong> This looks terrifying, but it's just our ripple effect analogy in math. We are working backward from the Loss $L$, step-by-step, calculating how each part of the forward pass contributed to the final error, until we finally figure out the "blame" for the first set of weights $W^{[1]}$.</p>
+                </div>
+            </section>
+            
+            <!-- Part 5: The Full Algorithm -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                 <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">⚙️</span>Part 5: The Full Algorithm in 4 Steps</h2>
+                 <p class="text-base mb-4">The entire training process for one batch of data can be summarized in four key steps.</p>
+                 <div class="flow-diagram">
+                     <div class="flow-step">
+                         <div class="flow-step-box"><strong>1. Forward Pass</strong><br>Make a prediction</div>
+                     </div>
+                     <div class="flow-arrow">➡️</div>
+                     <div class="flow-step">
+                         <div class="flow-step-box"><strong>2. Calculate Loss</strong><br>Measure the error</div>
+                     </div>
+                     <div class="flow-arrow">➡️</div>
+                      <div class="flow-step">
+                         <div class="flow-step-box"><strong>3. Backward Pass</strong><br>Compute gradients</div>
+                     </div>
+                     <div class="flow-arrow">➡️</div>
+                     <div class="flow-step">
+                         <div class="flow-step-box"><strong>4. Update Weights</strong><br>Take a small step</div>
+                     </div>
+                 </div>
+                 <div class="equation-box mt-8">
+                    <h4 class="font-bold text-lg mb-2">The Weight Update Rule</h4>
+                    <div class="text-center text-2xl font-mono text-red-900">$$ W_{\text{new}} = W_{\text{old}} - \alpha \cdot \frac{\partial L}{\partial W_{\text{old}}} $$</div>
+                    <p class="mt-4"><strong>Simple Explanation:</strong>
+                        <br> • $W_{\text{new}}$: The new, slightly improved weight.
+                        <br> • $W_{\text{old}}$: The weight we started with.
+                        <br> • $\alpha$ (alpha): The <strong>Learning Rate</strong>. This is a small number (like 0.01) that controls how big of a step we take. Too big, and we might overshoot the valley. Too small, and it will take forever to get there.
+                        <br> • $\frac{\partial L}{\partial W_{\text{old}}}$: This is the gradient we calculated during backpropagation. It tells us the direction of the hill. We subtract because we want to go downhill!
+                    </p>
+                 </div>
+            </section>
+
+            <!-- Part 6: Interactive Backpropagation -->
+            <section class="bg-white shadow-lg rounded-xl p-8 mb-8">
+                <h2 class="text-3xl font-bold text-red-700 mb-4 flex items-center"><span class="text-4xl mr-3">🔬</span>Part 6: Interactive Backpropagation Step</h2>
+                <p class="text-base mb-4">Let's calculate the "blame" for one single weight: the one connecting Hidden Neuron H2 to the Output, $W^{[2]}_{2,1}$ (which was -0.8). How much did this specific weight contribute to our error of 0.4489?</p>
+
+                 <div class="interactive-playground bg-red-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-bold text-center mb-4">See a Weight Update in Action</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="control">
+                            <label>Prediction ($\hat{y}$):</label>
+                            <input type="number" id="bp_pred" value="0.670" readonly>
+                        </div>
+                        <div class="control">
+                            <label>True Answer ($y$):</label>
+                            <input type="number" id="bp_true" value="0" readonly>
+                        </div>
+                        <div class="control">
+                            <label>Output of Neuron H2 ($A^{[1]}_2$):</label>
+                            <input type="number" id="bp_a1_2" value="0.989" readonly>
+                        </div>
+                         <div class="control">
+                            <label>Learning Rate ($\alpha$):</label>
+                            <input type="number" id="bp_lr" value="0.5" step="0.1" oninput="runBackprop()">
+                        </div>
+                    </div>
+                     <div class="text-center mt-4">
+                        <button onclick="runBackprop()" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-700 transition">Calculate Weight Update</button>
+                    </div>
+
+                    <div id="bp_results" class="mt-6 bg-white p-4 rounded-lg shadow hidden">
+                        <h4 class="font-bold text-lg mb-2">Step-by-Step Gradient Calculation:</h4>
+                        <p class="font-mono text-sm">1. $\frac{\partial L}{\partial \hat{y}} = (\hat{y} - y)$ = <span id="res_g1" class="font-bold"></span></p>
+                        <p class="font-mono text-sm">2. $\frac{\partial \hat{y}}{\partial Z^{[2]}} = \hat{y} \cdot (1 - \hat{y})$ = <span id="res_g2" class="font-bold"></span></p>
+                        <p class="font-mono text-sm">3. $\frac{\partial Z^{[2]}}{\partial W^{[2]}_{2,1}} = A^{[1]}_2$ = <span id="res_g3" class="font-bold"></span></p>
+                        <p class="font-mono text-sm mt-2"><strong>Total Gradient ($\frac{\partial L}{\partial W^{[2]}_{2,1}}$) = g1 * g2 * g3 = <span id="res_total_grad" class="font-bold text-red-600"></span></strong></p>
+                        <hr class="my-4">
+                        <h4 class="font-bold text-lg mb-2">The Learning Step (Weight Update):</h4>
+                        <p class="font-mono text-sm">Old Weight = -0.8</p>
+                        <p class="font-mono text-sm">Update = $\alpha \cdot$ Gradient = <span id="res_update_val" class="font-bold"></span></p>
+                        <p class="font-mono text-sm mt-2"><strong>New Weight = Old Weight - Update = <span id="res_new_weight" class="font-bold text-green-600"></span></strong></p>
+                    </div>
+                 </div>
+            </section>
+        </main>
+
+        <!-- Footer/Summary -->
+        <footer class="text-center p-6 bg-gray-800 text-white rounded-lg">
+            <h3 class="text-2xl font-bold">Lecture Summary ✅</h3>
+            <p class="mt-2 max-w-2xl mx-auto">
+                <strong>Backpropagation</strong> is how a network learns. It starts by calculating the <strong>Loss</strong> (the error).
+                <br>Then, using the <strong>Chain Rule</strong>, it calculates the <strong>gradient</strong> for every weight and bias, which tells us how to adjust them.
+                <br>Finally, it performs the <strong>Weight Update</strong>, making tiny corrections to get better on the next try. This entire forward/backward cycle is one step of training!
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript for interactivity -->
+    <script>
+        function runBackprop() {
+            const pred = parseFloat(document.getElementById('bp_pred').value);
+            const true_val = parseFloat(document.getElementById('bp_true').value);
+            const a1_2 = parseFloat(document.getElementById('bp_a1_2').value);
+            const lr = parseFloat(document.getElementById('bp_lr').value);
+
+            // 1. ∂L/∂ŷ (derivative of MSE is just the difference for a single point)
+            const g1 = pred - true_val;
+            document.getElementById('res_g1').textContent = g1.toFixed(4);
+
+            // 2. ∂ŷ/∂Z² (derivative of sigmoid)
+            const g2 = pred * (1 - pred);
+            document.getElementById('res_g2').textContent = g2.toFixed(4);
+
+            // 3. ∂Z²/∂W₂₂ (derivative of Z² = A¹₁W₂₁ + A¹₂W₂₂ + b² with respect to W₂₂)
+            const g3 = a1_2;
+            document.getElementById('res_g3').textContent = g3.toFixed(4);
+
+            // Total Gradient
+            const total_grad = g1 * g2 * g3;
+            document.getElementById('res_total_grad').textContent = total_grad.toFixed(4);
+            
+            // Weight Update
+            const old_weight = -0.8;
+            const update_val = lr * total_grad;
+            const new_weight = old_weight - update_val;
+
+            document.getElementById('res_update_val').textContent = update_val.toFixed(4);
+            document.getElementById('res_new_weight').textContent = new_weight.toFixed(4);
+
+            document.getElementById('bp_results').classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('bp_lr').addEventListener('input', runBackprop);
+             // Run once on load to populate the fields initially
+            runBackprop();
+        });
+    </script>
+    
+    <!-- For LaTeX rendering -->
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [['$','$'], ['\\(','\\)']],
+          displayMath: [['$$','$$'], ['\\[','\\]']],
+          processEscapes: true
+        }
+      });
+    </script>
+
+</body>
+</html>
