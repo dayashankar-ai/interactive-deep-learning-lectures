@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 8: Advanced Optimizers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 50%, #45b7d1 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.8em;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .header .subtitle {
+            font-size: 1.3em;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .lecture-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .optimizer-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .optimizer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .analogy-box {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 6px solid #ff6b6b;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.2);
+        }
+
+        .equation-box {
+            background: linear-gradient(135deg, #f8f9ff, #e8f4fd);
+            border: 3px solid #4ecdc4;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(78, 205, 196, 0.15);
+        }
+
+        .equation {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .equation-explanation {
+            color: #666;
+            font-style: italic;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+
+        .example-box {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            border-left: 6px solid #17a2b8;
+            box-shadow: 0 8px 25px rgba(23, 162, 184, 0.2);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 18px;
+            text-align: left;
+            border: none;
+        }
+
+        .comparison-table th {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8f9ff;
+        }
+
+        .comparison-table tr:hover {
+            background-color: #e8f4fd;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .pros, .cons {
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .pros {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .cons {
+            background: linear-gradient(45deg, #ff6b6b, #ffa8a8);
+            color: white;
+        }
+
+        .code-block {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 25px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 8px 25px rgba(44, 62, 80, 0.3);
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            margin: 35px 0;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
+        }
+
+        .visualization {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .optimizer-timeline {
+            position: relative;
+            margin: 30px 0;
+        }
+
+        .timeline-item {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-left: 6px solid #4ecdc4;
+            transition: transform 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            transform: translateX(10px);
+        }
+
+        .performance-chart {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .chart-bar {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shine 2s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .lecture-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+
+            .performance-chart {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #ffeb3b, #ffc107);
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .concept-visual {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .visual-element {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>🚀 Lecture 8: Advanced Optimizers</h1>
+            <p class="subtitle">Modern Optimization Algorithms: Momentum, RMSprop, Adam & Adaptive Methods</p>
+            <div class="lecture-info">
+                <div class="info-item">⏱️ 60 Minutes</div>
+                <div class="info-item">🎯 Beginner to Expert</div>
+                <div class="info-item">🧠 Momentum</div>
+                <div class="info-item">⚡ Adam</div>
+                <div class="info-item">📊 RMSprop</div>
+            </div>
+        </div>
+
+        <!-- Learning Objectives -->
+        <div class="section">
+            <h2 class="section-title">🎯 Learning Objectives</h2>
+            <p>By the end of this lecture, you will master:</p>
+            <ul style="margin: 20px 0; padding-left: 30px; font-size: 1.1em;">
+                <li>Why standard gradient descent struggles and how advanced optimizers solve these problems</li>
+                <li>Momentum: The physics of accelerated learning</li>
+                <li>RMSprop: Adaptive learning rates for different parameters</li>
+                <li>Adam: The best of both worlds optimizer</li>
+                <li>When to use each optimizer and their practical trade-offs</li>
+                <li>How to tune hyperparameters for optimal performance</li>
+            </ul>
+        </div>
+
+        <!-- The Problem with Basic Gradient Descent -->
+        <div class="section">
+            <h2 class="section-title">🐌 The Problem: Why Basic Gradient Descent Struggles</h2>
+            
+            <div class="analogy-box">
+                <h3>🏔️ The Mountain Climbing Analogy</h3>
+                <p><strong>Imagine you're trying to reach the bottom of a valley (minimum loss) in thick fog:</strong></p>
+                
+                <div style="margin: 20px 0;">
+                    <p><strong>🚶‍♂️ Basic Gradient Descent Problems:</strong></p>
+                    <ul style="padding-left: 25px; margin: 15px 0;">
+                        <li><strong>Slow in flat areas:</strong> Like walking very slowly on gentle slopes</li>
+                        <li><strong>Oscillates in narrow valleys:</strong> Bounces back and forth instead of going straight down</li>
+                        <li><strong>Gets stuck easily:</strong> Can't escape small hills (local minima)</li>
+                        <li><strong>Same step size everywhere:</strong> Uses same pace on steep and gentle slopes</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="visualization">
+                <h4>📊 Visual Problem Illustration</h4>
+                <div class="concept-visual">
+                    <div class="visual-element">
+                        <h5>😴 Slow Convergence</h5>
+                        <p>Takes forever to reach minimum</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>🏓 Oscillation</h5>
+                        <p>Bounces back and forth</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>🏔️ Local Minima</h5>
+                        <p>Gets trapped easily</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>⚖️ Fixed Learning Rate</h5>
+                        <p>Same step size everywhere</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="equation-box">
+                <h4>📐 The Basic Formula (Reminder)</h4>
+                <div class="equation">
+                    θ<sub>t+1</sub> = θ<sub>t</sub> - α∇J(θ<sub>t</sub>)
+                </div>
+                <div class="equation-explanation">
+                    This simple formula doesn't consider:<br>
+                    • Previous movement direction (no memory)<br>
+                    • Different learning rates for different parameters<br>
+                    • Acceleration when moving in consistent direction
+                </div>
+            </div>
+        </div>
+
+        <!-- Momentum: The Physics Solution -->
+        <div class="section">
+            <h2 class="section-title">🏃‍♂️ Momentum: Adding Physics to Learning</h2>
+            
+            <div class="optimizer-card">
+                <h3>🧠 The Big Idea: Remember Where You Came From</h3>
+                <p>Momentum adds "memory" to gradient descent by considering previous updates, just like a rolling ball that gains speed when moving in the same direction!</p>
+            </div>
+
+            <div class="analogy-box">
+                <h3>⚽ The Rolling Ball Analogy</h3>
+                <p><strong>Momentum in gradient descent works exactly like a ball rolling down a hill:</strong></p>
+                
+                <div style="margin: 20px 0;">
+                    <ul style="padding-left: 25px;">
+                        <li><strong>🎳 Builds Speed:</strong> The longer it rolls in the same direction, the faster it goes</li>
+                        <li><strong>🏔️ Overcomes Small Hills:</strong> Has enough energy to roll over small bumps</li>
+                        <li><strong>📏 Reduces Oscillation:</strong> Smooths out back-and-forth movements</li>
+                        <li><strong>⚡ Accelerates in Valleys:</strong> Goes faster in consistent directions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="equation-box">
+                <h4>🔢 Momentum Mathematics Made Simple</h4>
+                <div class="equation">
+                    v<sub>t</sub> = βv<sub>t-1</sub> + α∇J(θ<sub>t</sub>)<br>
+                    θ<sub>t+1</sub> = θ<sub>t</sub> - v<sub>t</sub>
+                </div>
+                <div class="equation-explanation">
+                    <strong>Translation into everyday language:</strong><br>
+                    • v<sub>t</sub> = current velocity (speed and direction)<br>
+                    • β = momentum coefficient (usually 0.9, means "remember 90% of previous speed")<br>
+                    • We update position using velocity, not just current gradient
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 Step-by-Step Example: Training a Neural Network</h4>
+                <p><strong>Scenario:</strong> We're training a model to recognize cats, current weight = 0.5</p>
+                
+                <div class="code-block">
+# Initial values
+weight = 0.5
+velocity = 0.0
+momentum_beta = 0.9
+learning_rate = 0.01
+
+# Step 1: First gradient update
+gradient_1 = -0.3  # Gradient says "decrease weight"
+velocity = 0.9 * 0.0 + 0.01 * (-0.3) = -0.003
+weight = 0.5 - (-0.003) = 0.503
+
+# Step 2: Second gradient update (same direction)
+gradient_2 = -0.3  # Still says "decrease weight"
+velocity = 0.9 * (-0.003) + 0.01 * (-0.3) = -0.0057
+weight = 0.503 - (-0.0057) = 0.5087
+
+# Notice: velocity is building up, making bigger updates!
+                </div>
+                
+                <p><strong>Key Insight:</strong> The weight changes are getting bigger because we keep moving in the same direction - that's momentum in action! 🚀</p>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Momentum Advantages</h4>
+                    <ul>
+                        <li>Faster convergence in consistent directions</li>
+                        <li>Reduces oscillations in narrow valleys</li>
+                        <li>Can escape shallow local minima</li>
+                        <li>Smooths out noisy gradients</li>
+                        <li>Only one extra hyperparameter (β)</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Momentum Limitations</h4>
+                    <ul>
+                        <li>Might overshoot the minimum</li>
+                        <li>Still uses same learning rate for all parameters</li>
+                        <li>Needs tuning of momentum coefficient</li>
+                        <li>Can be hard to stop near minimum</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- RMSprop: Adaptive Learning Rates -->
+        <div class="section">
+            <h2 class="section-title">🎯 RMSprop: Smart Learning Rates for Every Parameter</h2>
+            
+            <div class="optimizer-card">
+                <h3>🧠 The Revolutionary Idea: Different Speeds for Different Parameters</h3>
+                <p>RMSprop gives each parameter its own learning rate based on how much it has been changing recently. It's like having a smart GPS that adjusts speed based on road conditions!</p>
+            </div>
+
+            <div class="analogy-box">
+                <h3>🚗 The Smart Car Analogy</h3>
+                <p><strong>Imagine a car that automatically adjusts its speed:</strong></p>
+                
+                <div style="margin: 20px 0;">
+                    <ul style="padding-left: 25px;">
+                        <li><strong>🛣️ Smooth Highway:</strong> Speeds up when the road is straight and clear</li>
+                        <li><strong>🌪️ Bumpy Road:</strong> Slows down when the road is rough and unstable</li>
+                        <li><strong>🏔️ Mountain Pass:</strong> Uses different speeds for uphill vs downhill</li>
+                        <li><strong>📊 Learning History:</strong> Remembers recent road conditions to make decisions</li>
+                    </ul>
+                </div>
+                
+                <p><strong>In neural networks:</strong> Some parameters need big updates (smooth road), others need small updates (bumpy road). RMSprop figures this out automatically!</p>
+            </div>
+
+            <div class="equation-box">
+                <h4>🔢 RMSprop Mathematics Simplified</h4>
+                <div class="equation">
+                    s<sub>t</sub> = βs<sub>t-1</sub> + (1-β)(∇J(θ<sub>t</sub>))²<br>
+                    θ<sub>t+1</sub> = θ<sub>t</sub> - α/(√s<sub>t</sub> + ε) × ∇J(θ<sub>t</sub>)
+                </div>
+                <div class="equation-explanation">
+                    <strong>In plain English:</strong><br>
+                    • s<sub>t</sub> = running average of squared gradients (measures "bumpiness")<br>
+                    • β = decay rate (usually 0.9, means "remember 90% of previous bumpiness")<br>
+                    • ε = small number (10⁻⁸) to prevent division by zero<br>
+                    • <strong>Key:</strong> Learning rate gets smaller when gradients are large and noisy!
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 RMSprop in Action: Image Recognition Example</h4>
+                <p><strong>Scenario:</strong> Training a model with two parameters - edge_detector (stable) and color_detector (noisy)</p>
+                
+                <div class="code-block">
+# Parameter 1: edge_detector (consistent gradients)
+edge_gradients = [-0.1, -0.1, -0.1, -0.1]  # Smooth, consistent
+s_edge = 0.9*0 + 0.1*(-0.1)² = 0.001
+adaptive_lr_edge = 0.01/√(0.001 + 1e-8) ≈ 0.316
+
+# Parameter 2: color_detector (noisy gradients)  
+color_gradients = [-0.8, 0.7, -0.9, 0.6]   # Very noisy!
+s_color = 0.9*0 + 0.1*(-0.8)² = 0.064
+adaptive_lr_color = 0.01/√(0.064 + 1e-8) ≈ 0.0395
+
+# Result: edge_detector gets BIGGER learning rate (stable parameter)
+#         color_detector gets SMALLER learning rate (noisy parameter)
+                </div>
+                
+                <p><strong>Magic Result:</strong> Stable parameters learn faster, noisy parameters learn more carefully! 🎯</p>
+            </div>
+
+            <div class="visualization">
+                <h4>📊 RMSprop Learning Rate Adaptation</h4>
+                <div class="performance-chart">
+                    <div class="chart-bar">
+                        <h5>Stable Parameter</h5>
+                        <p>High Learning Rate</p>
+                        <p>Fast Learning ⚡</p>
+                    </div>
+                    <div class="chart-bar">
+                        <h5>Noisy Parameter</h5>
+                        <p>Low Learning Rate</p>
+                        <p>Careful Learning 🎯</p>
+                    </div>
+                    <div class="chart-bar">
+                        <h5>Variable Parameter</h5>
+                        <p>Adaptive Rate</p>
+                        <p>Smart Learning 🧠</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Adam: The Best of Both Worlds -->
+        <div class="section">
+            <h2 class="section-title">👑 Adam: The King of Optimizers</h2>
+            
+            <div class="optimizer-card">
+                <h3>🧠 The Ultimate Combination: Momentum + Adaptive Learning Rates</h3>
+                <p>Adam combines the best features of Momentum (remembers direction) and RMSprop (adaptive learning rates). It's like having a smart car with momentum - the perfect driving experience!</p>
+            </div>
+
+            <div class="analogy-box">
+                <h3>🏎️ The Formula 1 Car Analogy</h3>
+                <p><strong>Adam is like a Formula 1 race car with:</strong></p>
+                
+                <div style="margin: 20px 0;">
+                    <ul style="padding-left: 25px;">
+                        <li><strong>🏃‍♂️ Momentum (from racing physics):</strong> Builds speed in consistent directions</li>
+                        <li><strong>🧠 Smart Braking (from RMSprop):</strong> Automatically adjusts speed for different track conditions</li>
+                        <li><strong>📊 Race Memory:</strong> Learns from both recent turns and overall track layout</li>
+                        <li><strong>⚖️ Perfect Balance:</strong> Neither too aggressive nor too conservative</li>
+                    </ul>
+                </div>
+                
+                <p><strong>Result:</strong> Fastest, most stable path to the finish line (optimal parameters)! 🏆</p>
+            </div>
+
+            <div class="equation-box">
+                <h4>🔢 Adam: The Complete Mathematical Picture</h4>
+                <div class="equation">
+                    m<sub>t</sub> = β₁m<sub>t-1</sub> + (1-β₁)∇J(θ<sub>t</sub>) &nbsp;&nbsp;&nbsp; (Momentum)<br>
+                    v<sub>t</sub> = β₂v<sub>t-1</sub> + (1-β₂)(∇J(θ<sub>t</sub>))² &nbsp;&nbsp;&nbsp; (RMSprop)<br><br>
+                    
+                    m̂<sub>t</sub> = m<sub>t</sub>/(1-β₁ᵗ) &nbsp;&nbsp;&nbsp; v̂<sub>t</sub> = v<sub>t</sub>/(1-β₂ᵗ) &nbsp;&nbsp;&nbsp; (Bias Correction)<br><br>
+                    
+                    θ<sub>t+1</sub> = θ<sub>t</sub> - α × m̂<sub>t</sub>/(√v̂<sub>t</sub> + ε)
+                </div>
+                <div class="equation-explanation">
+                    <strong>Breaking it down:</strong><br>
+                    • m<sub>t</sub> = momentum term (remembers direction)<br>
+                    • v<sub>t</sub> = second moment (remembers gradient magnitudes)<br>
+                    • β₁ = 0.9 (momentum decay), β₂ = 0.999 (RMSprop decay)<br>
+                    • Bias correction prevents slow start in early iterations<br>
+                    • <strong>Result:</strong> Smart, adaptive, momentum-based optimization! 🚀
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 Complete Adam Example: Text Classification</h4>
+                <p><strong>Scenario:</strong> Training a sentiment analysis model, optimizing word embedding weights</p>
+                
+                <div class="code-block">
+# Adam hyperparameters (typical values)
+alpha = 0.001      # Learning rate
+beta1 = 0.9        # Momentum decay
+beta2 = 0.999      # RMSprop decay
+epsilon = 1e-8     # Numerical stability
+
+# Initialize
+m = 0.0    # Momentum accumulator
+v = 0.0    # Second moment accumulator
+t = 1      # Time step
+
+# Training step with gradient = -0.05
+gradient = -0.05
+
+# Step 1: Update momentum and second moment
+m = 0.9 * 0.0 + 0.1 * (-0.05) = -0.005
+v = 0.999 * 0.0 + 0.001 * (-0.05)² = 0.0000025
+
+# Step 2: Bias correction (important for early iterations)
+m_corrected = -0.005 / (1 - 0.9¹) = -0.005 / 0.1 = -0.05
+v_corrected = 0.0000025 / (1 - 0.999¹) = 0.0000025 / 0.001 = 0.0025
+
+# Step 3: Final parameter update
+update = 0.001 * (-0.05) / (√0.0025 + 1e-8) = 0.001 * (-0.05) / 0.05 = -0.001
+
+# Result: Smart, stable update that considers both momentum and adaptation!
+                </div>
+                
+                <p><strong>Why Adam is Amazing:</strong> It automatically balances speed (momentum) with stability (adaptive learning rate)! 🎯</p>
+            </div>
+
+            <div class="pros-cons">
+                <div class="pros">
+                    <h4>✅ Adam Advantages</h4>
+                    <ul>
+                        <li>Combines best of momentum and RMSprop</li>
+                        <li>Works well with default hyperparameters</li>
+                        <li>Handles sparse gradients excellently</li>
+                        <li>Fast convergence in most cases</li>
+                        <li>Automatically adapts to problem characteristics</li>
+                        <li>Industry standard for deep learning</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h4>❌ Adam Limitations</h4>
+                    <ul>
+                        <li>More complex than simpler optimizers</li>
+                        <li>Uses more memory (stores two accumulators)</li>
+                        <li>Sometimes converges to suboptimal solutions</li>
+                        <li>May need learning rate scheduling for best results</li>
+                        <li>Can be slower than SGD in some specific cases</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comprehensive Comparison -->
+        <div class="section">
+            <h2 class="section-title">⚖️ The Great Optimizer Comparison</h2>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Optimizer</th>
+                        <th>Key Feature</th>
+                        <th>Best For</th>
+                        <th>Speed</th>
+                        <th>Memory</th>
+                        <th>Tuning Difficulty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>SGD</strong></td>
+                        <td>Simple and reliable</td>
+                        <td>Computer vision, when you have time to tune</td>
+                        <td>Medium</td>
+                        <td>Low</td>
+                        <td>Hard</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SGD + Momentum</strong></td>
+                        <td>Accelerated learning</td>
+                        <td>Consistent gradients, avoiding oscillations</td>
+                        <td>Fast</td>
+                        <td>Low</td>
+                        <td>Medium</td>
+                    </tr>
+                    <tr>
+                        <td><strong>RMSprop</strong></td>
+                        <td>Adaptive learning rates</td>
+                        <td>RNNs, noisy gradients</td>
+                        <td>Fast</td>
+                        <td>Medium</td>
+                        <td>Easy</td>
+                    </tr>
+                    <tr style="background-color: #e8f5e8;">
+                        <td><strong>Adam</strong></td>
+                        <td>Best of both worlds</td>
+                        <td>Most deep learning tasks</td>
+                        <td>Very Fast</td>
+                        <td>Medium</td>
+                        <td>Very Easy</td>
+                    </tr>
+                    <tr>
+                        <td><strong>AdamW</strong></td>
+                        <td>Adam + weight decay</td>
+                        <td>Transformers, large models</td>
+                        <td>Very Fast</td>
+                        <td>Medium</td>
+                        <td>Easy</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="example-box">
+                <h4>🎯 Quick Decision Guide</h4>
+                <ul style="padding-left: 25px;">
+                    <li><strong>🚀 Just starting out?</strong> Use Adam with default settings</li>
+                    <li><strong>🖼️ Computer vision?</strong> Try SGD with momentum for best final performance</li>
+                    <li><strong>📝 NLP/Transformers?</strong> Use AdamW (Adam with weight decay)</li>
+                    <li><strong>⚡ Need speed?</strong> Adam or RMSprop are your friends</li>
+                    <li><strong>💾 Limited memory?</strong> Stick with SGD + momentum</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Advanced Optimizer Variants -->
+        <div class="section">
+            <h2 class="section-title">🔬 Advanced Optimizer Variants</h2>
+            
+            <div class="optimizer-timeline">
+                <div class="timeline-item">
+                    <h4>🚀 AdamW (Adam with Weight Decay)</h4>
+                    <p><strong>The Problem:</strong> Regular Adam couples weight decay with gradient-based optimization</p>
+                    <p><strong>The Solution:</strong> Separate weight decay from gradient updates</p>
+                    <div class="equation-box">
+                        <div class="equation">
+                            θ<sub>t+1</sub> = θ<sub>t</sub> - α(m̂<sub>t</sub>/(√v̂<sub>t</sub> + ε) + λθ<sub>t</sub>)
+                        </div>
+                        <div class="equation-explanation">
+                            λθ<sub>t</sub> is added separately, not mixed with gradients<br>
+                            <strong>Result:</strong> Better generalization, especially for Transformers
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <h4>⚡ Lookahead Optimizer</h4>
+                    <p><strong>The Idea:</strong> Take several steps with a fast optimizer, then step back and evaluate</p>
+                    <p><strong>Analogy:</strong> Like a scout who explores ahead, then reports back to guide the main group</p>
+                    <div class="code-block">
+# Pseudocode for Lookahead
+for k steps:
+    fast_weights = adam_update(fast_weights)
+slow_weights = slow_weights + α(fast_weights - slow_weights)
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <h4>🎯 RAdam (Rectified Adam)</h4>
+                    <p><strong>The Problem:</strong> Adam's adaptive learning rate can be harmful in early training</p>
+                    <p><strong>The Solution:</strong> Use SGD initially, switch to Adam when variance is well-estimated</p>
+                    <p><strong>Benefit:</strong> More robust training without warmup</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hyperparameter Tuning Guide -->
+        <div class="section">
+            <h2 class="section-title">🎛️ Hyperparameter Tuning Masterclass</h2>
+            
+            <div class="example-box">
+                <h4>🔧 Adam Hyperparameter Guide</h4>
+                
+                <div class="performance-chart">
+                    <div class="chart-bar">
+                        <h5>Learning Rate (α)</h5>
+                        <p><strong>Default:</strong> 0.001</p>
+                        <p><strong>Range:</strong> 1e-4 to 1e-2</p>
+                        <p><strong>Tip:</strong> Most important parameter!</p>
+                    </div>
+                    <div class="chart-bar">
+                        <h5>Beta1 (β₁)</h5>
+                        <p><strong>Default:</strong> 0.9</p>
+                        <p><strong>Range:</strong> 0.8 to 0.95</p>
+                        <p><strong>Tip:</strong> Higher = more momentum</p>
+                    </div>
+                    <div class="chart-bar">
+                        <h5>Beta2 (β₂)</h5>
+                        <p><strong>Default:</strong> 0.999</p>
+                        <p><strong>Range:</strong> 0.99 to 0.9999</p>
+                        <p><strong>Tip:</strong> Rarely needs changing</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analogy-box">
+                <h3>🎵 The Orchestra Conductor Analogy</h3>
+                <p><strong>Tuning optimizers is like conducting an orchestra:</strong></p>
+                
+                <div style="margin: 20px 0;">
+                    <ul style="padding-left: 25px;">
+                        <li><strong>🎼 Learning Rate = Tempo:</strong> Too fast and music becomes chaos, too slow and audience falls asleep</li>
+                        <li><strong>🥁 Beta1 = Rhythm Memory:</strong> How much musicians remember the previous beat</li>
+                        <li><strong>🎹 Beta2 = Volume Control:</strong> How much to adjust based on recent volume changes</li>
+                        <li><strong>🎯 Perfect Harmony:</strong> All parameters work together for beautiful music (optimal convergence)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Hyperparameter Tuning Strategy</h3>
+                <div class="optimizer-timeline">
+                    <div class="timeline-item">
+                        <h5>Step 1: Start with Defaults</h5>
+                        <div class="code-block">
+optimizer = Adam(lr=0.001, beta1=0.9, beta2=0.999)
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <h5>Step 2: Tune Learning Rate First</h5>
+                        <p>Try: [0.1, 0.01, 0.001, 0.0001] and see which works best</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h5>Step 3: Adjust Beta1 if Needed</h5>
+                        <p>If oscillating: decrease to 0.8<br>If too slow: increase to 0.95</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h5>Step 4: Fine-tune (Optional)</h5>
+                        <p>Only adjust beta2 for very specific problems</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Rate Scheduling -->
+        <div class="section">
+            <h2 class="section-title">📈 Learning Rate Scheduling: The Final Touch</h2>
+            
+            <div class="optimizer-card">
+                <h3>🧠 The Smart Strategy: Change Learning Rate During Training</h3>
+                <p>Even the best optimizer can benefit from adjusting learning rate over time. It's like shifting gears in a car - different speeds for different parts of the journey!</p>
+            </div>
+
+            <div class="visualization">
+                <h4>🚗 Learning Rate Scheduling Strategies</h4>
+                <div class="concept-visual">
+                    <div class="visual-element">
+                        <h5>📉 Step Decay</h5>
+                        <p>Reduce by half every N epochs</p>
+                        <p><strong>Use:</strong> When training plateaus</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>📊 Exponential Decay</h5>
+                        <p>Gradually decrease over time</p>
+                        <p><strong>Use:</strong> Long training runs</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>🌊 Cosine Annealing</h5>
+                        <p>Smooth wave-like reduction</p>
+                        <p><strong>Use:</strong> Modern deep learning</p>
+                    </div>
+                    <div class="visual-element">
+                        <h5>🔥 Warm Restarts</h5>
+                        <p>Periodic learning rate resets</p>
+                        <p><strong>Use:</strong> Avoiding local minima</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 Practical Scheduling Example</h4>
+                <div class="code-block">
+# Cosine Annealing with Warm Restarts
+import math
+
+def cosine_annealing_lr(epoch, T_max, eta_min=0, eta_max=0.001):
+    """
+    T_max: Maximum number of epochs for one cycle
+    eta_min: Minimum learning rate
+    eta_max: Maximum learning rate
+    """
+    return eta_min + (eta_max - eta_min) * (1 + math.cos(math.pi * epoch / T_max)) / 2
+
+# Example usage
+for epoch in range(100):
+    lr = cosine_annealing_lr(epoch, T_max=50)
+    optimizer.param_groups[0]['lr'] = lr
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-world Case Studies -->
+        <div class="section">
+            <h2 class="section-title">🌍 Real-world Success Stories</h2>
+            
+            <div class="example-box">
+                <h4>🖼️ Case Study 1: ImageNet Classification (ResNet)</h4>
+                <ul style="padding-left: 25px;">
+                    <li><strong>Problem:</strong> Training 152-layer neural network on 1.2M images</li>
+                    <li><strong>Optimizer Choice:</strong> SGD with momentum (0.9)</li>
+                    <li><strong>Learning Rate:</strong> 0.1, reduced by 10x every 30 epochs</li>
+                    <li><strong>Result:</strong> Achieved superhuman performance on image recognition</li>
+                    <li><strong>Why SGD?</strong> Better final performance for computer vision tasks</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h4>🤖 Case Study 2: GPT-3 Language Model</h4>
+                <ul style="padding-left: 25px;">
+                    <li><strong>Problem:</strong> Training 175B parameter model on massive text data</li>
+                    <li><strong>Optimizer Choice:</strong> Adam with β₁=0.9, β₂=0.95</li>
+                    <li><strong>Learning Rate:</strong> 6e-4 with cosine decay</li>
+                    <li><strong>Special:</strong> Gradient clipping to prevent exploding gradients</li>
+                    <li><strong>Result:</strong> Revolutionary language understanding capabilities</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h4>🛒 Case Study 3: Netflix Recommendation System</h4>
+                <ul style="padding-left: 25px;">
+                    <li><strong>Problem:</strong> Real-time learning from millions of user interactions</li>
+                    <li><strong>Optimizer Choice:</strong> AdaGrad (predecessor to RMSprop)</li>
+                    <li><strong>Why:</strong> Handles sparse data well, adapts to user behavior changes</li>
+                    <li><strong>Result:</strong> Personalized recommendations that keep users engaged</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Common Pitfalls and Solutions -->
+        <div class="section">
+            <h2 class="section-title">⚠️ Common Pitfalls and Expert Solutions</h2>
+            
+            <div class="pros-cons">
+                <div class="cons">
+                    <h4>🚫 Pitfall 1: Learning Rate Too High</h4>
+                    <p><strong>Symptoms:</strong></p>
+                    <ul>
+                        <li>Loss explodes or oscillates wildly</li>
+                        <li>Gradients become NaN</li>
+                        <li>Model performance gets worse</li>
+                    </ul>
+                </div>
+                <div class="pros">
+                    <h4>✅ Solution</h4>
+                    <ul>
+                        <li>Reduce learning rate by 10x</li>
+                        <li>Use gradient clipping</li>
+                        <li>Start with lr=1e-4 and increase gradually</li>
+                        <li>Monitor gradient norms</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="cons">
+                    <h4>🚫 Pitfall 2: Learning Rate Too Small</h4>
+                    <p><strong>Symptoms:</strong></p>
+                    <ul>
+                        <li>Loss decreases very slowly</li>
+                        <li>Training takes forever</li>
+                        <li>Gets stuck in local minima</li>
+                    </ul>
+                </div>
+                <div class="pros">
+                    <h4>✅ Solution</h4>
+                    <ul>
+                        <li>Increase learning rate by 3-10x</li>
+                        <li>Use learning rate finder</li>
+                        <li>Try cyclical learning rates</li>
+                        <li>Consider warm-up period</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="pros-cons">
+                <div class="cons">
+                    <h4>🚫 Pitfall 3: Wrong Optimizer Choice</h4>
+                    <p><strong>Symptoms:</strong></p>
+                    <ul>
+                        <li>Training is unstable</li>
+                        <li>Poor convergence despite tuning</li>
+                        <li>Inconsistent results</li>
+                    </ul>
+                </div>
+                <div class="pros">
+                    <h4>✅ Solution</h4>
+                    <ul>
+                        <li>Try Adam for most problems</li>
+                        <li>Use SGD+momentum for computer vision</li>
+                        <li>AdamW for transformers</li>
+                        <li>RMSprop for RNNs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Practical Implementation -->
+        <div class="section">
+            <h2 class="section-title">💻 Practical Implementation Guide</h2>
+            
+            <div class="example-box">
+                <h4>🐍 Python Implementation Examples</h4>
+                
+                <h5>PyTorch Implementation:</h5>
+                <div class="code-block">
+import torch.optim as optim
+
+# Adam (recommended for most cases)
+optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
+
+# SGD with momentum (for computer vision)
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+
+# AdamW (for transformers)
+optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+
+# RMSprop (alternative to Adam)
+optimizer = optim.RMSprop(model.parameters(), lr=0.001, alpha=0.99)
+                </div>
+                
+                <h5>TensorFlow/Keras Implementation:</h5>
+                <div class="code-block">
+from tensorflow.keras.optimizers import Adam, SGD, RMSprop
+
+# Adam
+optimizer = Adam(learning_rate=0.001, beta_1=0.9, beta_2=0.999)
+
+# SGD with momentum
+optimizer = SGD(learning_rate=0.01, momentum=0.9)
+
+# RMSprop
+optimizer = RMSprop(learning_rate=0.001, rho=0.9)
+
+# Compile model
+model.compile(optimizer=optimizer, loss='categorical_crossentropy')
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎯 Quick Start Template</h3>
+                <div class="code-block">
+# Universal optimizer setup for beginners
+def get_optimizer(model, task_type="general"):
+    if task_type == "computer_vision":
+        return optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+    elif task_type == "nlp":
+        return optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+    else:  # general case
+        return optim.Adam(model.parameters(), lr=0.001)
+
+# Usage
+optimizer = get_optimizer(model, "computer_vision")
+                </div>
+                <button class="btn" onclick="alert('Copy this template and customize for your specific needs! 🚀')">💾 Copy Template!</button>
+            </div>
+        </div>
+
+        <!-- Future of Optimization -->
+        <div class="section">
+            <h2 class="section-title">🔮 The Future of Optimization</h2>
+            
+            <div class="optimizer-card">
+                <h3>🚀 Emerging Trends in Optimization</h3>
+                <p>The field of optimization is rapidly evolving with new techniques and insights!</p>
+            </div>
+
+            <div class="optimizer-timeline">
+                <div class="timeline-item">
+                    <h4>🧠 Meta-Learning Optimizers</h4>
+                    <p>Optimizers that learn how to optimize! Using neural networks to design better optimization algorithms.</p>
+                    <p><strong>Example:</strong> Learning to learn gradients, automated hyperparameter tuning</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <h4>⚡ Second-Order Methods</h4>
+                    <p>Using second-order information (Hessian) for better optimization paths.</p>
+                    <p><strong>Example:</strong> K-FAC, Shampoo, natural gradients</p>
+                </div>
+                
+                <div class="timeline-item">
+                    <h4>🎯 Adaptive Architectures</h4>
+                    <p>Optimizers that adapt the model architecture during training.</p>
+                    <p><strong>Example:</strong> Progressive growing, neural architecture search</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary and Key Takeaways -->
+        <div class="section">
+            <h2 class="section-title">🎯 Summary and Key Takeaways</h2>
+            
+            <div class="optimizer-card">
+                <h3>🧠 What You've Mastered Today</h3>
+                <p>You now understand the evolution from basic gradient descent to state-of-the-art optimizers!</p>
+            </div>
+
+            <div class="example-box">
+                <h4>📚 Key Concepts Conquered:</h4>
+                <ul style="padding-left: 25px;">
+                    <li><strong>🏃‍♂️ Momentum:</strong> Adds memory and acceleration to learning (like a rolling ball)</li>
+                    <li><strong>🎯 RMSprop:</strong> Gives each parameter its own learning rate (like a smart car)</li>
+                    <li><strong>👑 Adam:</strong> Combines momentum + adaptive rates (like a Formula 1 car)</li>
+                    <li><strong>🔧 Hyperparameter Tuning:</strong> Learning rate is king, start with defaults</li>
+                    <li><strong>📈 Learning Rate Scheduling:</strong> Change speed during training for best results</li>
+                </ul>
+            </div>
+
+            <div class="analogy-box">
+                <h4>🎓 The Final Wisdom: The Perfect Journey</h4>
+                <p><strong>Remember:</strong> Choosing an optimizer is like choosing transportation for a journey. SGD is walking (reliable but slow), Momentum is biking (faster with good balance), RMSprop is driving (adapts to road conditions), and <span class="highlight">Adam is flying</span> - gets you there fast and handles most conditions automatically! ✈️</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🏆 Your Optimizer Decision Tree</h3>
+                <div class="visualization">
+                    <div class="concept-visual">
+                        <div class="visual-element" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">
+                            <h5>🤔 Just Starting?</h5>
+                            <p><strong>Use Adam</strong></p>
+                            <p>lr=0.001, defaults</p>
+                        </div>
+                        <div class="visual-element" style="background: linear-gradient(45deg, #4ecdc4, #45b7d1);">
+                            <h5>🖼️ Computer Vision?</h5>
+                            <p><strong>Try SGD+Momentum</strong></p>
+                            <p>lr=0.01, momentum=0.9</p>
+                        </div>
+                        <div class="visual-element" style="background: linear-gradient(45deg, #45b7d1, #ff6b6b);">
+                            <h5>📝 NLP/Transformers?</h5>
+                            <p><strong>Use AdamW</strong></p>
+                            <p>lr=0.001, weight_decay=0.01</p>
+                        </div>
+                        <div class="visual-element" style="background: linear-gradient(45deg, #a8e6cf, #ffd93d);">
+                            <h5>🔬 Research/Experimenting?</h5>
+                            <p><strong>Compare Multiple</strong></p>
+                            <p>Adam vs SGD+momentum</p>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn" onclick="alert('Ready to optimize like a pro! Remember: Adam for most tasks, SGD+momentum for computer vision! 🚀')">🎯 Start Optimizing!</button>
+            </div>
+        </div>
+
+        <!-- Quick Reference Card -->
+        <div class="section">
+            <h2 class="section-title">📋 Optimizer Cheat Sheet</h2>
+            
+            <div class="example-box">
+                <h4>🔧 Copy-Paste Ready Code</h4>
+                
+                <div class="code-block">
+# The "Just Works" optimizer setup
+import torch.optim as optim
+
+def get_adam_optimizer(model, task="general"):
+    """One-size-fits-most optimizer"""
+    if task == "computer_vision":
+        return optim.SGD(model.parameters(), lr=0.01, momentum=0.9, weight_decay=1e-4)
+    elif task == "nlp":
+        return optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+    else:
+        return optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999))
+
+# Training loop template
+optimizer = get_adam_optimizer(model)
+scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100)
+
+for epoch in range(num_epochs):
+    for batch in dataloader:
+        optimizer.zero_grad()
+        loss = compute_loss(model(batch.x), batch.y)
+        loss.backward()
+        optimizer.step()
+    scheduler.step()  # Update learning rate
+                </div>
+            </div>
+
+            <div class="optimizer-card">
+                <h3>🎯 Golden Rules of Optimization</h3>
+                <ul style="padding-left: 25px;">
+                    <li><strong>Rule 1:</strong> Start with Adam - it works 90% of the time</li>
+                    <li><strong>Rule 2:</strong> Learning rate is the most important hyperparameter</li>
+                    <li><strong>Rule 3:</strong> Use SGD+momentum for computer vision final models</li>
+                    <li><strong>Rule 4:</strong> Always use learning rate scheduling for long training</li>
+                    <li><strong>Rule 5:</strong> Monitor your training curves - they tell the story</li>
+                    <li><strong>Rule 6:</strong> When in doubt, reduce learning rate by 10x</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="section" style="text-align: center; background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1); color: white;">
+            <h2>🎉 Optimization Mastery Achieved!</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">You've mastered the art and science of neural network optimization!</p>
+            <p>From simple gradient descent to state-of-the-art Adam, you now have the tools to train any neural network efficiently.</p>
+            
+            <div style="margin: 30px 0;">
+                <h3>🔗 Course Repository</h3>
+                <p>GitHub: <a href="https://github.com/dayashankar-ai/interactive-deep-learning-lectures" style="color: #FFD700;">Interactive Deep Learning Lectures</a></p>
+                <p>Next Lecture: <strong>Lecture 9 - Regularization Techniques</strong></p>
+            </div>
+            
+            <div class="performance-chart" style="margin: 30px 0;">
+                <div class="chart-bar" style="background: rgba(255,255,255,0.2);">
+                    <h5>🧠 Knowledge Gained</h5>
+                    <p>Advanced Optimizers ✅</p>
+                </div>
+                <div class="chart-bar" style="background: rgba(255,255,255,0.2);">
+                    <h5>🛠️ Skills Acquired</h5>
+                    <p>Hyperparameter Tuning ✅</p>
+                </div>
+                <div class="chart-bar" style="background: rgba(255,255,255,0.2);">
+                    <h5>🚀 Ready For</h5>
+                    <p>Real-world Applications ✅</p>
+                </div>
+            </div>
+            
+            <div style="margin-top: 30px; font-size: 0.9em; opacity: 0.9;">
+                <p>Created by Prof. Daya Shankar | Dean, School of Sciences | Woxsen University</p>
+                <p>Transforming Complex AI Concepts into Simple, Actionable Knowledge 🚀</p>
+                <p><em>"Making every student an AI optimization expert, one equation at a time!"</em></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced interactivity for advanced optimizers lecture
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Interactive optimizer cards
+            document.querySelectorAll('.optimizer-card').forEach(card => {
+                card.style.cursor = 'pointer';
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.02) translateY(-5px)';
+                    this.style.boxShadow = '0 20px 50px rgba(102, 126, 234, 0.5)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-5px)';
+                        this.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.3)';
+                    }, 200);
+                });
+            });
+
+            // Equation box interactions
+            document.querySelectorAll('.equation-box').forEach(box => {
+                box.addEventListener('click', function() {
+                    const explanation = this.querySelector('.equation-explanation');
+                    if (explanation) {
+                        explanation.style.animation = 'pulse 0.5s ease';
+                        setTimeout(() => {
+                            explanation.style.animation = '';
+                        }, 500);
+                    }
+                });
+            });
+
+            // Timeline item hover effects
+            document.querySelectorAll('.timeline-item').forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(10px)';
+                    this.style.borderLeft = '6px solid #ff6b6b';
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                    this.style.borderLeft = '6px solid #4ecdc4';
+                });
+            });
+
+            // Chart bar animation on scroll
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'slideInUp 0.6s ease-out';
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.chart-bar, .visual-element').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Dynamic learning rate visualization
+            let lrDemo = document.querySelector('#lr-demo');
+            if (lrDemo) {
+                let epoch = 0;
+                setInterval(() => {
+                    epoch++;
+                    const lr = 0.001 * Math.cos(Math.PI * epoch / 50);
+                    lrDemo.textContent = `Current LR: ${lr.toFixed(6)}`;
+                }, 100);
+            }
+
+            // Code block copy functionality
+            document.querySelectorAll('.code-block').forEach(block => {
+                block.style.position = 'relative';
+                
+                const copyBtn = document.createElement('button');
+                copyBtn.textContent = '📋 Copy';
+                copyBtn.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: #45b7d1;
+                    color: white;
+                    border: none;
+                    padding: 5px 10px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.8em;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                block.appendChild(copyBtn);
+                
+                block.addEventListener('mouseenter', () => {
+                    copyBtn.style.opacity = '1';
+                });
+                
+                block.addEventListener('mouseleave', () => {
+                    copyBtn.style.opacity = '0';
+                });
+                
+                copyBtn.addEventListener('click', () => {
+                    const text = block.textContent.replace('📋 Copy', '').trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        copyBtn.textContent = '✅ Copied!';
+                        setTimeout(() => {
+                            copyBtn.textContent = '📋 Copy';
+                        }, 2000);
+                    });
+                });
+            });
+
+            // Interactive optimizer comparison
+            const comparisonRows = document.querySelectorAll('.comparison-table tr');
+            comparisonRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // Remove previous highlights
+                    comparisonRows.forEach(r => r.style.background = '');
+                    
+                    // Highlight clicked row
+                    this.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4)';
+                    this.style.color = 'white';
+                    
+                    setTimeout(() => {
+                        this.style.background = '';
+                        this.style.color = '';
+                    }, 2000);
+                });
+            });
+
+            // Momentum simulation
+            function simulateMomentum() {
+                const demo = document.createElement('div');
+                demo.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 10px;
+                    width: 20px;
+                    height: 20px;
+                    background: radial-gradient(circle, #ff6b6b, #4ecdc4);
+                    border-radius: 50%;
+                    z-index: 1000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(demo);
+                
+                let position = 10;
+                let velocity = 0;
+                const momentum = 0.9;
+                
+                const animate = () => {
+                    velocity = momentum * velocity + 2;
+                    position += velocity;
+                    demo.style.left = position + 'px';
+                    
+                    if (position < window.innerWidth - 30) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        document.body.removeChild(demo);
+                    }
+                };
+                
+                animate();
+            }
+
+            // Add momentum demo button
+            const momentumBtn = document.createElement('button');
+            momentumBtn.textContent = '🏃‍♂️ See Momentum in Action!';
+            momentumBtn.className = 'btn';
+            momentumBtn.style.position = 'fixed';
+            momentumBtn.style.bottom = '20px';
+            momentumBtn.style.right = '20px';
+            momentumBtn.style.zIndex = '1000';
+            momentumBtn.addEventListener('click', simulateMomentum);
+            document.body.appendChild(momentumBtn);
+
+            // Learning progress tracker
+            let scrollProgress = 0;
+            window.addEventListener('scroll', () => {
+                const scrollTop = window.pageYOffset;
+                const docHeight = document.body.scrollHeight - window.innerHeight;
+                scrollProgress = (scrollTop / docHeight) * 100;
+                
+                // Update any progress indicators
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    bar.style.width = Math.min(scrollProgress, 100) + '%';
+                });
+            });
+
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes pulse {
+                    0%, 100% {
+                        transform: scale(1);
+                    }
+                    50% {
+                        transform: scale(1.05);
+                    }
+                }
+                
+                @keyframes fadeInScale {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.8);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
+                
+                .section {
+                    animation: fadeInScale 0.6s ease-out;
+                }
+                
+                .btn:active {
+                    transform: translateY(-1px) scale(0.98);
+                }
+                
+                .equation {
+                    transition: all 0.3s ease;
+                }
+                
+                .equation:hover {
+                    transform: scale(1.05);
+                    color: #ff6b6b;
+                }
+                
+                .visual-element:hover {
+                    transform: translateY(-5px) scale(1.05);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                }
+            `;
+            document.head.appendChild(style);
+
+            // Console messages for curious students
+            console.log("🚀 Welcome to Advanced Optimizers Lecture!");
+            console.log("💡 Pro tip: Try different optimizers on your projects:");
+            console.log("   • Adam: Great for most tasks");
+            console.log("   • SGD+Momentum: Best for computer vision");
+            console.log("   • AdamW: Perfect for transformers");
+            console.log("🎯 Remember: Learning rate is the most important hyperparameter!");
+            
+            // Easter egg: Konami code for optimizer comparison
+            let konamiCode = [];
+            const sequence = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+            
+            document.addEventListener('keydown', (e) => {
+                konamiCode.push(e.code);
+                if (konamiCode.length > sequence.length) {
+                    konamiCode.shift();
+                }
+                
+                if (JSON.stringify(konamiCode) === JSON.stringify(sequence)) {
+                    alert("🎉 Easter Egg Found! You've unlocked the secret optimizer knowledge: The best optimizer is the one you understand and can tune properly! 🚀");
+                    konamiCode = [];
+                }
+            });
+        });
+
+        // Optimizer performance simulator
+        function simulateOptimizer(type) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            canvas.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                border: 2px solid #ff6b6b;
+                border-radius: 10px;
+                background: white;
+                z-index: 10000;
+            `;
+            
+            const ctx = canvas.getContext('2d');
+            document.body.appendChild(canvas);
+            
+            // Simple loss landscape
+            let x = 50, y = 150;
+            let vx = 0, vy = 0;
+            let step = 0;
+            
+            const animate = () => {
+                ctx.clearRect(0, 0, 400, 300);
+                
+                // Draw loss landscape
+                ctx.fillStyle = '#f0f0f0';
+                for (let i = 0; i < 400; i += 20) {
+                    for (let j = 0; j < 300; j += 20) {
+                        const loss = Math.sin(i/30) * Math.cos(j/30) * 50 + 150;
+                        ctx.fillStyle = `hsl(${200 + loss/5}, 50%, 80%)`;
+                        ctx.fillRect(i, j, 20, 20);
+                    }
+                }
+                
+                // Simulate optimizer behavior
+                const targetX = 350, targetY = 150;
+                let dx = targetX - x;
+                let dy = targetY - y;
+                
+                if (type === 'sgd') {
+                    x += dx * 0.01;
+                    y += dy * 0.01;
+                } else if (type === 'momentum') {
+                    vx = 0.9 * vx + 0.01 * dx;
+                    vy = 0.9 * vy + 0.01 * dy;
+                    x += vx;
+                    y += vy;
+                } else if (type === 'adam') {
+                    vx = 0.9 * vx + 0.1 * dx;
+                    vy = 0.9 * vy + 0.1 * dy;
+                    x += vx * 0.1;
+                    y += vy * 0.1;
+                }
+                
+                // Draw optimizer position
+                ctx.fillStyle = '#ff6b6b';
+                ctx.beginPath();
+                ctx.arc(x, y, 8, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // Draw target
+                ctx.fillStyle = '#4ecdc4';
+                ctx.beginPath();
+                ctx.arc(targetX, targetY, 12, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                step++;
+                if (step < 500 && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+                    requestAnimationFrame(animate);
+                } else {
+                    setTimeout(() => {
+                        document.body.removeChild(canvas);
+                    }, 2000);
+                }
+            };
+            
+            animate();
+        }
+    </script>
+</body>
+</html>
