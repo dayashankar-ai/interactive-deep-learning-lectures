@@ -1244,5 +1244,50 @@
             });
         });
     </script>
+    <script>
+// Repository Protection Script
+(function() {
+    'use strict';
+    
+    // Disable right-click
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        showProtectionAlert();
+    });
+    
+    // Disable common keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Disable Ctrl+S, Ctrl+A, Ctrl+U, F12
+        if (e.ctrlKey && (e.key === 's' || e.key === 'a' || e.key === 'u') || e.key === 'F12') {
+            e.preventDefault();
+            showProtectionAlert();
+        }
+    });
+    
+    function showProtectionAlert() {
+        alert('🎓 EDUCATIONAL CONTENT PROTECTION\n\n' +
+              '✅ Study online and learn from the concepts\n' +
+              '✅ Use individual code snippets in your projects\n' +
+              '❌ Downloading/cloning is not permitted\n\n' +
+              'Respect the creator\'s hard work! 🙏');
+    }
+    
+    // Add watermark
+    const watermark = document.createElement('div');
+    watermark.innerHTML = '© Prof. Daya Shankar - Educational Use Only';
+    watermark.style.cssText = `
+        position: fixed; bottom: 10px; right: 10px;
+        background: rgba(0,0,0,0.8); color: white;
+        padding: 8px 12px; border-radius: 6px;
+        font-size: 11px; z-index: 10000;
+        pointer-events: none; font-family: Arial, sans-serif;
+    `;
+    document.body.appendChild(watermark);
+    
+    // Console message
+    console.log('%c🎓 EDUCATIONAL REPOSITORY', 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+    console.log('%c© Prof. Daya Shankar - Online study only, no downloading permitted', 'color: #666;');
+})();
+</script>
 </body>
 </html>
