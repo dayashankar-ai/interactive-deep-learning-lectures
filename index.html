@@ -1,835 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deep Learning Mastery Course - Dr. Daya Shankar</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .instructor-banner {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .instructor-photo {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3em;
-            color: white;
-            flex-shrink: 0;
-        }
-
-        .instructor-info {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .instructor-name {
-            font-size: 2.2em;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 8px;
-        }
-
-        .instructor-title {
-            font-size: 1.3em;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 15px;
-            line-height: 1.3;
-        }
-
-        .instructor-bio {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-
-        .instructor-links {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .link-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.3s ease;
-        }
-
-        .link-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 3.5em;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header .course-info {
-            font-size: 1.4em;
-            opacity: 0.9;
-            margin-bottom: 15px;
-        }
-
-        .header .description {
-            font-size: 1.1em;
-            opacity: 0.8;
-            max-width: 900px;
-            margin: 0 auto 20px;
-            line-height: 1.6;
-        }
-
-        .course-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin: 30px 0;
-            flex-wrap: wrap;
-        }
-
-        .stat-item {
-            text-align: center;
-            color: white;
-        }
-
-        .stat-number {
-            font-size: 2.8em;
-            font-weight: 700;
-            display: block;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.9;
-            margin-top: 5px;
-        }
-
-        .modules-container {
-            margin: 50px 0;
-        }
-
-        .module-section {
-            background: rgba(255,255,255,0.95);
-            border-radius: 20px;
-            padding: 40px;
-            margin: 40px 0;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-
-        .module-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .module-header h2 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .module-subtitle {
-            color: #667eea;
-            font-size: 1.2em;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .module-header p {
-            color: #666;
-            font-size: 1.1em;
-            max-width: 700px;
-            margin: 0 auto;
-            line-height: 1.5;
-        }
-
-        .lectures-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin: 30px 0;
-        }
-
-        .lecture-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            transition: all 0.4s ease;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-            border-top: 4px solid;
-        }
-
-        .lecture-card.available {
-            border-top-color: #28a745;
-        }
-
-        .lecture-card.coming-soon {
-            border-top-color: #ffc107;
-            opacity: 0.9;
-        }
-
-        .lecture-card.planned {
-            border-top-color: #6c757d;
-            opacity: 0.7;
-        }
-
-        .lecture-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-
-        .lecture-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .status-available {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-coming-soon {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-planned {
-            background: #f8f9fa;
-            color: #6c757d;
-        }
-
-        .lecture-number {
-            font-size: 0.95em;
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 8px;
-        }
-
-        .lecture-title {
-            font-size: 1.25em;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: #2c3e50;
-            line-height: 1.3;
-        }
-
-        .lecture-description {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-        }
-
-        .lecture-topics {
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 12px 0;
-        }
-
-        .topics-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .topic-tag {
-            background: #e9ecef;
-            color: #495057;
-            padding: 3px 8px;
-            border-radius: 8px;
-            font-size: 0.75em;
-            border: 1px solid #dee2e6;
-        }
-
-        .lecture-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .lecture-duration {
-            color: #28a745;
-            font-weight: 600;
-            font-size: 0.85em;
-        }
-
-        .launch-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 18px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85em;
-            transition: all 0.3s ease;
-        }
-
-        .launch-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .launch-btn.disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .launch-btn.disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        .module-progress {
-            text-align: center;
-            margin: 20px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #dee2e6;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 10px 0;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            transition: width 0.3s ease;
-        }
-
-        .footer {
-            text-align: center;
-            color: rgba(255,255,255,0.8);
-            margin-top: 60px;
-            padding: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .instructor-banner {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .instructor-photo {
-                width: 100px;
-                height: 100px;
-                font-size: 2.5em;
-            }
-            
-            .instructor-name {
-                font-size: 1.8em;
-            }
-            
-            .header h1 {
-                font-size: 2.5em;
-            }
-            
-            .lectures-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .course-stats {
-                gap: 20px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Instructor Banner -->
-        <div class="instructor-banner">
-            <div class="instructor-photo">👨‍⚕️</div>
-            <div class="instructor-info">
-                <div class="instructor-name">Dr. Daya Shankar</div>
-                <div class="instructor-title">Dean, Woxsen University | Founder, VaidyaAI | Applying AI to Solve Clinical Challenges in Diagnostics & Documentation | HealthTech Innovator</div>
-                <div class="instructor-bio">
-                    Leading expert in AI applications for healthcare, with extensive experience in deep learning, 
-                    clinical diagnostics, and educational innovation. Passionate about bridging the gap between 
-                    cutting-edge AI research and practical healthcare solutions.
-                </div>
-                <div class="instructor-links">
-                    <a href="https://www.dayashankar.com" class="link-btn" target="_blank">🌐 Personal Website</a>
-                    <a href="https://vaidyaai.com" class="link-btn" target="_blank">🏥 VaidyaAI</a>
-                    <a href="https://woxsen.edu.in" class="link-btn" target="_blank">🎓 Woxsen University</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="header">
-            <h1>🧠 Deep Learning Mastery</h1>
-		<!-- 🎓 ATTRACTIVE INSTRUCTOR PROFILE SECTION -->
-<!-- Add this right after your main header, before course content -->
-<div class="instructor-profile-banner" style="
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-    color: white;
-    padding: 50px 30px;
-    border-radius: 25px;
-    margin: 30px 0;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
-    position: relative;
-    overflow: hidden;
-">
-    <!-- Background Animation -->
-    <div style="
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-        background-size: 50px 50px;
-        animation: float 20s ease-in-out infinite;
-        pointer-events: none;
-    "></div>
-    
-    <!-- Profile Content Container -->
-    <div style="position: relative; z-index: 2;">
-        
-        <!-- Profile Image with Hover Effect -->
-        <div class="profile-image-wrapper" style="
-            display: inline-block;
-            margin-bottom: 30px;
-            position: relative;
-        ">
-            <img src="images/profile.jpg" alt="Prof. Dr. Daya Shankar" style="
-                width: 200px; 
-                height: 200px; 
-                border-radius: 50%; 
-                object-fit: cover;
-                border: 8px solid rgba(255,255,255,0.9);
-                box-shadow: 0 20px 50px rgba(0,0,0,0.4);
-                transition: all 0.4s ease;
-                cursor: pointer;
-            " onmouseover="
-                this.style.transform='scale(1.08) rotate(2deg)';
-                this.style.boxShadow='0 25px 60px rgba(0,0,0,0.5)';
-                this.style.borderColor='rgba(255,255,255,1)';
-            " onmouseout="
-                this.style.transform='scale(1) rotate(0deg)';
-                this.style.boxShadow='0 20px 50px rgba(0,0,0,0.4)';
-                this.style.borderColor='rgba(255,255,255,0.9)';
-            ">
-            
-            <!-- Floating Achievement Badge -->
-            <div style="
-                position: absolute;
-                top: -10px;
-                right: -10px;
-                background: linear-gradient(45deg, #ff6b6b, #ffa500);
-                color: white;
-                padding: 8px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: bold;
-                box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-                animation: pulse 2s infinite;
-            ">
-                🏆 Dean
-            </div>
-        </div>
-        
-        <!-- Name and Credentials -->
-        <div style="margin-bottom: 25px;">
-            <h1 style="
-                font-size: 3em; 
-                margin: 0 0 10px 0; 
-                text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
-                background: linear-gradient(45deg, #ffffff, #f0f8ff);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                animation: shimmer 3s ease-in-out infinite;
-            ">
-                Prof. Dr. Daya Shankar
-            </h1>
-            <p style="
-                font-size: 1.4em; 
-                margin: 10px 0; 
-                opacity: 0.95;
-                font-weight: 300;
-                letter-spacing: 1px;
-            ">
-                Dean, School of Sciences | Woxsen University
-            </p>
-            <p style="
-                font-size: 1.2em; 
-                margin: 10px 0; 
-                opacity: 0.9;
-                font-style: italic;
-            ">
-                Founder & AI Innovator | VaidyaAI Healthcare Solutions
-            </p>
-        </div>
-        
-        <!-- Professional Highlights -->
-        <div style="margin: 30px 0;">
-            <div style="
-                display: inline-block;
-                background: rgba(255,255,255,0.15);
-                backdrop-filter: blur(10px);
-                padding: 20px 30px;
-                border-radius: 15px;
-                margin: 10px;
-                border: 1px solid rgba(255,255,255,0.2);
-                transition: all 0.3s ease;
-            " onmouseover="
-                this.style.background='rgba(255,255,255,0.25)';
-                this.style.transform='translateY(-5px)';
-            " onmouseout="
-                this.style.background='rgba(255,255,255,0.15)';
-                this.style.transform='translateY(0)';
-            ">
-                <h4 style="margin: 0 0 10px 0; font-size: 1.1em;">🧠 AI Research Excellence</h4>
-                <p style="margin: 0; font-size: 0.95em; opacity: 0.9;">Deep Learning • Computer Vision • NLP</p>
-            </div>
-            
-            <div style="
-                display: inline-block;
-                background: rgba(255,255,255,0.15);
-                backdrop-filter: blur(10px);
-                padding: 20px 30px;
-                border-radius: 15px;
-                margin: 10px;
-                border: 1px solid rgba(255,255,255,0.2);
-                transition: all 0.3s ease;
-            " onmouseover="
-                this.style.background='rgba(255,255,255,0.25)';
-                this.style.transform='translateY(-5px)';
-            " onmouseout="
-                this.style.background='rgba(255,255,255,0.15)';
-                this.style.transform='translateY(0)';
-            ">
-                <h4 style="margin: 0 0 10px 0; font-size: 1.1em;">🏥 HealthTech Innovation</h4>
-                <p style="margin: 0; font-size: 0.95em; opacity: 0.9;">Medical AI • Clinical Decision Support</p>
-            </div>
-            
-            <div style="
-                display: inline-block;
-                background: rgba(255,255,255,0.15);
-                backdrop-filter: blur(10px);
-                padding: 20px 30px;
-                border-radius: 15px;
-                margin: 10px;
-                border: 1px solid rgba(255,255,255,0.2);
-                transition: all 0.3s ease;
-            " onmouseover="
-                this.style.background='rgba(255,255,255,0.25)';
-                this.style.transform='translateY(-5px)';
-            " onmouseout="
-                this.style.background='rgba(255,255,255,0.15)';
-                this.style.transform='translateY(0)';
-            ">
-                <h4 style="margin: 0 0 10px 0; font-size: 1.1em;">🎓 Academic Leadership</h4>
-                <p style="margin: 0; font-size: 0.95em; opacity: 0.9;">Leading 5 Departments • 500+ Students</p>
-            </div>
-        </div>
-        
-        <!-- Brief About Section -->
-        <div style="
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px);
-            padding: 30px;
-            border-radius: 20px;
-            margin: 30px auto;
-            max-width: 800px;
-            border: 1px solid rgba(255,255,255,0.2);
-            text-align: left;
-        ">
-            <h3 style="
-                text-align: center;
-                margin: 0 0 20px 0;
-                font-size: 1.5em;
-                color: #ffffff;
-            ">
-                🌟 About the Instructor
-            </h3>
-            <p style="
-                font-size: 1.1em;
-                line-height: 1.8;
-                margin: 15px 0;
-                text-align: justify;
-                opacity: 0.95;
-            ">
-                <strong>Prof. Dr. Daya Shankar</strong> serves as the Dean of School of Sciences at Woxsen University, overseeing five departments: Physics, Chemistry, Mathematics, Biotechnology, Computer Science, and AI & Data Science. With a Ph.D. in Mechanical Engineering, he specializes in applying rigorous quantitative analysis to solve complex data challenges.
-            </p>
-            <p style="
-                font-size: 1.1em;
-                line-height: 1.8;
-                margin: 15px 0;
-                text-align: justify;
-                opacity: 0.95;
-            ">
-                As the founder of <strong>VaidyaAI</strong>, he's revolutionizing healthcare through artificial intelligence, creating medical intelligence systems that transform complex medical data into actionable insights for clinicians and patients. His work bridges the gap between cutting-edge AI research and practical healthcare applications.
-            </p>
-            <p style="
-                font-size: 1.1em;
-                line-height: 1.8;
-                margin: 15px 0;
-                text-align: justify;
-                opacity: 0.95;
-            ">
-                Dr. Shankar's educational philosophy centers on making complex AI concepts accessible through interactive, hands-on learning experiences. This course represents months of careful preparation, combining theoretical rigor with practical application to create the ultimate deep learning educational resource.
-            </p>
-        </div>
-        
-        <!-- Professional Links with Enhanced Design -->
-        <div style="margin: 40px 0 20px 0;">
-            <h3 style="margin: 0 0 25px 0; opacity: 0.9;">🌐 Connect & Explore</h3>
-            
-            <a href="https://www.drdayashankar.in/" target="_blank" style="
-                background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
-                color: white;
-                padding: 15px 25px;
-                margin: 10px;
-                border-radius: 30px;
-                text-decoration: none;
-                display: inline-block;
-                font-weight: bold;
-                font-size: 1em;
-                transition: all 0.4s ease;
-                box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
-                border: 2px solid transparent;
-            " onmouseover="
-                this.style.transform='translateY(-3px) scale(1.05)';
-                this.style.boxShadow='0 15px 35px rgba(255, 107, 107, 0.4)';
-                this.style.borderColor='rgba(255,255,255,0.3)';
-            " onmouseout="
-                this.style.transform='translateY(0) scale(1)';
-                this.style.boxShadow='0 8px 25px rgba(255, 107, 107, 0.3)';
-                this.style.borderColor='transparent';
-            ">
-                🌐 Personal Website
-            </a>
-            
-            <a href="https://vaidyaai.com" target="_blank" style="
-                background: linear-gradient(45deg, #4ecdc4, #44a08d);
-                color: white;
-                padding: 15px 25px;
-                margin: 10px;
-                border-radius: 30px;
-                text-decoration: none;
-                display: inline-block;
-                font-weight: bold;
-                font-size: 1em;
-                transition: all 0.4s ease;
-                box-shadow: 0 8px 25px rgba(78, 205, 196, 0.3);
-                border: 2px solid transparent;
-            " onmouseover="
-                this.style.transform='translateY(-3px) scale(1.05)';
-                this.style.boxShadow='0 15px 35px rgba(78, 205, 196, 0.4)';
-                this.style.borderColor='rgba(255,255,255,0.3)';
-            " onmouseout="
-                this.style.transform='translateY(0) scale(1)';
-                this.style.boxShadow='0 8px 25px rgba(78, 205, 196, 0.3)';
-                this.style.borderColor='transparent';
-            ">
-                🏥 VaidyaAI Platform
-            </a>
-            
-            <a href="https://woxsen.edu.in" target="_blank" style="
-                background: linear-gradient(45deg, #667eea, #764ba2);
-                color: white;
-                padding: 15px 25px;
-                margin: 10px;
-                border-radius: 30px;
-                text-decoration: none;
-                display: inline-block;
-                font-weight: bold;
-                font-size: 1em;
-                transition: all 0.4s ease;
-                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-                border: 2px solid transparent;
-            " onmouseover="
-                this.style.transform='translateY(-3px) scale(1.05)';
-                this.style.boxShadow='0 15px 35px rgba(102, 126, 234, 0.4)';
-                this.style.borderColor='rgba(255,255,255,0.3)';
-            " onmouseout="
-                this.style.transform='translateY(0) scale(1)';
-                this.style.boxShadow='0 8px 25px rgba(102, 126, 234, 0.3)';
-                this.style.borderColor='transparent';
-            ">
-                🎓 Woxsen University
-            </a>
-            
-            <a href="https://www.linkedin.com/in/daya-shankar-tiwary/" target="_blank" style="
-                background: linear-gradient(45deg, #0077b5, #005885);
-                color: white;
-                padding: 15px 25px;
-                margin: 10px;
-                border-radius: 30px;
-                text-decoration: none;
-                display: inline-block;
-                font-weight: bold;
-                font-size: 1em;
-                transition: all 0.4s ease;
-                box-shadow: 0 8px 25px rgba(0, 119, 181, 0.3);
-                border: 2px solid transparent;
-            " onmouseover="
-                this.style.transform='translateY(-3px) scale(1.05)';
-                this.style.boxShadow='0 15px 35px rgba(0, 119, 181, 0.4)';
-                this.style.borderColor='rgba(255,255,255,0.3)';
-            " onmouseout="
-                this.style.transform='translateY(0) scale(1)';
-                this.style.boxShadow='0 8px 25px rgba(0, 119, 181, 0.3)';
-                this.style.borderColor='transparent';
-            ">
-                💼 LinkedIn Profile
-            </a>
-        </div>
-        
-        <!-- Inspirational Quote -->
-        <div style="
-            margin: 40px auto 20px auto;
-            padding: 25px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
-            max-width: 700px;
-            font-style: italic;
-            font-size: 1.2em;
-            line-height: 1.6;
-            position: relative;
-        ">
-            <div style="
-                position: absolute;
-                top: -15px;
-                left: 30px;
-                background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-                color: white;
-                padding: 5px 15px;
-                border-radius: 15px;
-                font-size: 0.8em;
-                font-weight: bold;
-            ">
-                💭 Philosophy
-            </div>
-            <p style="margin: 15px 0 0 0; opacity: 0.95;">
-                "Transforming complex AI concepts into intuitive, interactive learning experiences that empower the next generation of practitioners to solve humanity's greatest challenges."
-            </p>
-        </div>
-    </div>
-</div>
-
-<!-- CSS Animations -->
-<style>
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(180deg); }
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-@keyframes shimmer {
-    0%, 100% { filter: hue-rotate(0deg); }
-    50% { filter: hue-rotate(30deg); }
-}
-
-/* Mobile Responsiveness */
-@media (max-width: 768px) {
-    .instructor-profile-banner {
-        padding: 30px 20px !important;
-        margin: 20px 0 !important;
-    }
-    
-    .instructor-profile-banner h1 {
-        font-size: 2.2em !important;
-    }
-    
-    .instructor-profile-banner img {
-        width: 150px !important;
-        height: 150px !important;
-    }
-    
-    .instructor-profile-banner div[style*="display: inline-block"] {
-        display: block !important;
-        margin: 10px 0 !important;
-    }
-    
-    .instructor-profile-banner a {
-        display: block !important;
-        margin: 10px auto !important;
-        max-width: 250px;
-    }
-}
-</style>
-            <div class="course-info">Comprehensive 45-Lecture Interactive Course</div>
-            <div class="description">
-                Master deep neural networks from fundamental concepts to cutting-edge applications. 
-                This comprehensive course covers theory, implementation, and real-world applications 
-                with hands-on interactive lectures designed for undergraduate and graduate students.
-            </div>
-            
-            <div class="course-stats">
-                <div class="stat-item">
-                    <span class="stat-number">45</span>
-                    <div class="stat-label">Interactive Lectures</div>
+<div class="stat-label">Interactive Lectures</div>
                 </div>
                 <div class="stat-item">
                     <span class="stat-number">45+</span>
@@ -852,7 +21,7 @@
 
         <div class="modules-container">
             <!-- Module I: Foundations (12 Lectures) -->
-            <div class="module-section">
+            <div class="module-section animate-on-scroll">
                 <div class="module-header">
                     <h2>📚 Module I: Deep Learning Foundations</h2>
                     <div class="module-subtitle">12 Lectures • 12 Hours</div>
@@ -860,12 +29,12 @@
                 </div>
                 
                 <div class="module-progress">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span><strong>Progress:</strong> 7/12 lectures available</span>
-                        <span><strong>58% Complete</strong></span>
+                    <div class="progress-info">
+                        <span><strong>Progress:</strong> 8/12 lectures available</span>
+                        <span><strong>67% Complete</strong></span>
                     </div>
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: 58%;"></div>
+                        <div class="progress-fill" style="width: 67%;"></div>
                     </div>
                 </div>
                 
@@ -998,7 +167,7 @@
                     </a>
 
                     <a href="lectures/lecture08-advanced-optimizers.html" class="lecture-card available">
-                        <div class="lecture-status status-coming-soon">✅ Available</div>
+                        <div class="lecture-status status-available">✅ Available</div>
                         <div class="lecture-number">Lecture 8</div>
                         <div class="lecture-title">🚀 Advanced Optimizers</div>
                         <div class="lecture-description">Modern optimization algorithms: Momentum, RMSprop, Adam, and adaptive learning rate methods.</div>
@@ -1011,7 +180,7 @@
                         </div>
                         <div class="lecture-meta">
                             <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">🔒 In Development</div>
+                            <div class="launch-btn">🚀 Advanced Optimize</div>
                         </div>
                     </a>
 
@@ -1090,7 +259,7 @@
             </div>
 
             <!-- Module II: CNNs (12 Lectures) -->
-            <div class="module-section">
+            <div class="module-section animate-on-scroll">
                 <div class="module-header">
                     <h2>🖼️ Module II: Convolutional Neural Networks</h2>
                     <div class="module-subtitle">12 Lectures • 12 Hours</div>
@@ -1098,7 +267,7 @@
                 </div>
                 
                 <div class="module-progress">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="progress-info">
                         <span><strong>Progress:</strong> 0/12 lectures available</span>
                         <span><strong>0% Complete</strong></span>
                     </div>
@@ -1130,120 +299,12 @@
                         </div>
                     </a>
 
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 15</div>
-                        <div class="lecture-title">🏊 Pooling & Subsampling</div>
-                        <div class="lecture-description">Reduce spatial dimensions with pooling layers: max pooling, average pooling, and modern alternatives.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 16</div>
-                        <div class="lecture-title">🏗️ CNN Architecture Design</div>
-                        <div class="lecture-description">Building complete CNN architectures: layer stacking, feature hierarchies, and architectural principles.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 17</div>
-                        <div class="lecture-title">🚀 LeNet & AlexNet</div>
-                        <div class="lecture-description">Historical CNN architectures: LeNet-5 and the revolutionary AlexNet that started the deep learning boom.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 18</div>
-                        <div class="lecture-title">📈 VGG & Network Depth</div>
-                        <div class="lecture-description">Going deeper with VGG networks: understanding the impact of network depth and small filter design.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 19</div>
-                        <div class="lecture-title">💎 ResNet & Skip Connections</div>
-                        <div class="lecture-description">Revolutionary residual connections: solving vanishing gradients and enabling ultra-deep networks.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 20</div>
-                        <div class="lecture-title">🌟 Inception Networks</div>
-                        <div class="lecture-description">Multi-scale feature extraction with Inception modules and efficient network design principles.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 21</div>
-                        <div class="lecture-title">🎯 Object Detection Basics</div>
-                        <div class="lecture-description">From classification to detection: bounding boxes, IoU, and object localization fundamentals.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 22</div>
-                        <div class="lecture-title">📦 R-CNN Family</div>
-                        <div class="lecture-description">Region-based detection: R-CNN, Fast R-CNN, and Faster R-CNN architectures and improvements.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 23</div>
-                        <div class="lecture-title">⚡ YOLO & Real-time Detection</div>
-                        <div class="lecture-description">You Only Look Once: real-time object detection with single-shot detection methods.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 24</div>
-                        <div class="lecture-title">🖼️ Semantic Segmentation</div>
-                        <div class="lecture-description">Pixel-level understanding: FCN, U-Net, and semantic segmentation architectures.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
+                    <!-- Additional CNN lectures would go here... -->
                 </div>
             </div>
 
             <!-- Module III: RNNs & Sequences (11 Lectures) -->
-            <div class="module-section">
+            <div class="module-section animate-on-scroll">
                 <div class="module-header">
                     <h2>🔄 Module III: Recurrent Networks & Sequences</h2>
                     <div class="module-subtitle">11 Lectures • 11 Hours</div>
@@ -1251,7 +312,7 @@
                 </div>
                 
                 <div class="module-progress">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="progress-info">
                         <span><strong>Progress:</strong> 0/11 lectures available</span>
                         <span><strong>0% Complete</strong></span>
                     </div>
@@ -1272,120 +333,12 @@
                         </div>
                     </a>
 
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 26</div>
-                        <div class="lecture-title">🔄 Vanilla RNN Fundamentals</div>
-                        <div class="lecture-description">Basic recurrent neural networks: hidden states, unfolding, and simple sequence modeling.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 27</div>
-                        <div class="lecture-title">⚡ RNN Training & Challenges</div>
-                        <div class="lecture-description">Backpropagation through time, vanishing/exploding gradients, and training difficulties.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 28</div>
-                        <div class="lecture-title">🧠 LSTM Architecture</div>
-                        <div class="lecture-description">Long Short-Term Memory: gates, cell states, and solving long-term dependencies.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 29</div>
-                        <div class="lecture-title">🎛️ GRU & Modern RNNs</div>
-                        <div class="lecture-description">Gated Recurrent Units: simplified gating mechanisms and modern RNN variants.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 30</div>
-                        <div class="lecture-title">🔀 Bidirectional RNNs</div>
-                        <div class="lecture-description">Processing sequences in both directions: bidirectional architectures and applications.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 31</div>
-                        <div class="lecture-title">🎯 Attention Mechanisms</div>
-                        <div class="lecture-description">Revolutionary attention: focusing on relevant parts of sequences and solving alignment problems.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 32</div>
-                        <div class="lecture-title">🔮 Transformer Architecture</div>
-                        <div class="lecture-description">Self-attention and transformers: the architecture that revolutionized NLP and beyond.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 33</div>
-                        <div class="lecture-title">📚 BERT & Language Models</div>
-                        <div class="lecture-description">Bidirectional transformers: BERT, pre-training, fine-tuning, and modern language understanding.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 34</div>
-                        <div class="lecture-title">🗨️ Text Generation & GPT</div>
-                        <div class="lecture-description">Generative language models: GPT architecture, autoregressive generation, and large language models.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 35</div>
-                        <div class="lecture-title">📈 Sequence-to-Sequence Applications</div>
-                        <div class="lecture-description">Real-world applications: machine translation, summarization, question answering, and chatbots.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
+                    <!-- Additional RNN lectures would go here... -->
                 </div>
             </div>
 
             <!-- Module IV: Advanced Deep Learning (10 Lectures) -->
-            <div class="module-section">
+            <div class="module-section animate-on-scroll">
                 <div class="module-header">
                     <h2>🚀 Module IV: Advanced Deep Learning</h2>
                     <div class="module-subtitle">10 Lectures • 10 Hours</div>
@@ -1393,7 +346,7 @@
                 </div>
                 
                 <div class="module-progress">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="progress-info">
                         <span><strong>Progress:</strong> 0/10 lectures available</span>
                         <span><strong>0% Complete</strong></span>
                     </div>
@@ -1414,326 +367,320 @@
                         </div>
                     </a>
 
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 37</div>
-                        <div class="lecture-title">🧬 Autoencoders & Representation Learning</div>
-                        <div class="lecture-description">Unsupervised learning: encoders, decoders, dimensionality reduction, and feature learning.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 38</div>
-                        <div class="lecture-title">🎭 Generative Adversarial Networks</div>
-                        <div class="lecture-description">GANs fundamentals: generator-discriminator dynamics, training challenges, and basic GAN architectures.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 39</div>
-                        <div class="lecture-title">🎨 Advanced GANs & Applications</div>
-                        <div class="lecture-description">StyleGAN, DCGAN, conditional GANs, and creative applications of generative models.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 40</div>
-                        <div class="lecture-title">🎮 Deep Reinforcement Learning</div>
-                        <div class="lecture-description">RL fundamentals: Q-learning, policy gradients, and deep Q-networks for intelligent agents.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 41</div>
-                        <div class="lecture-title">🏆 Advanced RL Algorithms</div>
-                        <div class="lecture-description">Actor-critic methods, PPO, A3C, and modern reinforcement learning algorithms.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 42</div>
-                        <div class="lecture-title">⚗️ Physics-Informed Neural Networks</div>
-                        <div class="lecture-description">Cutting-edge fusion of physics and AI: solving PDEs, enforcing physical constraints, and scientific computing.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 43</div>
-                        <div class="lecture-title">👁️ Vision Transformers & Modern Architectures</div>
-                        <div class="lecture-description">Transformers for vision: ViT, DETR, and the latest architectural innovations across domains.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 44</div>
-                        <div class="lecture-title">🩺 AI in Healthcare Applications</div>
-                        <div class="lecture-description">Deep learning for medical imaging, diagnostics, drug discovery, and clinical decision support systems.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
-
-                    <a href="#" class="lecture-card planned">
-                        <div class="lecture-status status-planned">📋 Planned</div>
-                        <div class="lecture-number">Lecture 45</div>
-                        <div class="lecture-title">🌐 Future of Deep Learning</div>
-                        <div class="lecture-description">Emerging trends, ethical considerations, interpretability, and the future landscape of AI research.</div>
-                        <div class="lecture-meta">
-                            <div class="lecture-duration">⏱️ 60 minutes</div>
-                            <div class="launch-btn disabled">📅 Future</div>
-                        </div>
-                    </a>
+                    <!-- Additional advanced lectures would go here... -->
                 </div>
             </div>
         </div>
 	
-	<!-- Interactive Labs Section -->
-        <div class="content-section">
-            <div class="section-header">
-                <div class="section-icon">🧪</div>
-                <h2 class="section-title">Interactive Laboratory Sessions</h2>
+        <!-- Interactive Labs Section -->
+        <div class="labs-section animate-on-scroll">
+            <div class="labs-header">
+                <h2>🧪 Interactive Laboratory Sessions</h2>
+                <p class="labs-subtitle"><strong>12 Hands-On Labs</strong> • Google Colab Ready • Progressive Difficulty • Real Neural Networks</p>
             </div>
             
-            <p style="font-size: 1.2em; text-align: center; margin-bottom: 30px; color: #FFFFFF;">
-                <strong>15 Hands-On Labs</strong> • Google Colab Ready • Progressive Difficulty • Real Neural Networks
-            </p>
-            
-            <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 20px; padding: 40px; margin: 30px 0; border: 3px solid #667eea;">
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h3 style="color: #2c3e50; font-size: 2em; margin-bottom: 15px;">🚀 Lab Experience</h3>
-                    <p style="color: #666; font-size: 1.1em; max-width: 800px; margin: 0 auto;">
-                        Transform theory into practice! Our interactive labs let you build neural networks from scratch, 
-                        solve real AI problems, and see the math come alive through hands-on coding.
-                    </p>
+            <div class="lab-card">
+                <div style="background: #27ae60; color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.9em; font-weight: 700; display: inline-block; margin-bottom: 20px;">
+                    ✅ Lab 1 Available Now
                 </div>
                 
-                <!-- Labs Grid -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; margin: 30px 0;">
-                    
-                    <!-- Lab 1 - Available -->
-                    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 4px solid #27ae60; transition: all 0.3s ease; 			position: relative;" 
-                         onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.15)'" 
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'">
-                        
-                        <div style="background: #27ae60; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.8em; font-weight: 600; display: inline-block; margin-bottom: 				15px;">
-                            ✅ Available Now
-                        </div>
-                        
-                        <h4 style="color: #2c3e50; font-size: 1.4em; margin-bottom: 10px; font-weight: 700;">
-                            🐍 Lab 1: Python Foundations & First Neural Network
-                        </h4>
-                        
-                        <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">
-                            Build your first neural network from scratch! Master NumPy, solve the famous XOR problem, 
-                            and watch AI learn in real-time.
-                        </p>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #27ae60;">2 Hours</div>
-                                <div style="font-size: 0.8em; color: #666;">Duration</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #27ae60;">5 Exercises</div>
-                                <div style="font-size: 0.8em; color: #666;">Hands-On</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #27ae60;">Beginner</div>
-                                <div style="font-size: 0.8em; color: #666;">Level</div>
-                            </div>
-                        </div>
-                        
-                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <a href="https://colab.research.google.com/github/dayashankar-ai/interactive-deep-learning-lectures/blob/main/labs/lab-01-python-foundations/lab1_setup.py" 
-                               target="_blank"
-                               style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-					weight: 600; font-size: 0.9em; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;"
-                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(243, 156, 18, 0.4)'"
-                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                🚀 Open in Colab
-                            </a>
-                            <a href="labs/lab-01-python-foundations/" 
-                               style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-					weight: 600; font-size: 0.9em; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;"
-                               onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 5px 15px rgba(52, 152, 219, 0.4)'"
-                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                📁 View Files
-                            </a>
-                        </div>
-                        
-                        <div style="margin-top: 15px; padding: 12px; background: #e8f5e8; border-radius: 8px; border-left: 3px solid #27ae60;">
-                            <p style="margin: 0; font-size: 0.9em; color: #2d5a2d;">
-                                <strong>🎯 You'll Build:</strong> Complete XOR neural network, NumPy operations, gradient descent visualization
-                            </p>
-                        </div>
+                <h3 style="color: #2c3e50; font-size: 1.5em; margin-bottom: 15px; font-weight: 800;">
+                    🐍 Python Foundations & First Neural Network
+                </h3>
+                
+                <p style="color: #666; margin-bottom: 20px; line-height: 1.6; font-size: 1.1em;">
+                    Build your first neural network from scratch! Master NumPy, solve the famous XOR problem, 
+                    and watch AI learn in real-time. Perfect introduction to hands-on deep learning.
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                    <div style="text-align: center;">
+                        <div style="font-weight: 800; color: #27ae60; font-size: 1.3em;">2 Hours</div>
+                        <div style="font-size: 0.9em; color: #666;">Duration</div>
                     </div>
-                    
-                    <!-- Lab 2 - Coming Soon -->
-                    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 4px solid #f39c12; opacity: 0.9; transition: all 			0.3s ease;" 
-                         onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.15)'" 
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'">
-                        
-                        <div style="background: #f39c12; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.8em; font-weight: 600; display: inline-block; margin-bottom: 				15px;">
-                            🚧 Coming Soon
-                        </div>
-                        
-                        <h4 style="color: #2c3e50; font-size: 1.4em; margin-bottom: 10px; font-weight: 700;">
-                            🧮 Lab 2: Mathematical Foundations in Code
-                        </h4>
-                        
-                        <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">
-                            Advanced optimization techniques, gradient descent variants, and mathematical deep dives 
-                            with interactive Python implementations.
-                        </p>
-                        
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #f39c12;">2.5 Hours</div>
-                                <div style="font-size: 0.8em; color: #666;">Duration</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #f39c12;">6 Exercises</div>
-                                <div style="font-size: 0.8em; color: #666;">Advanced Math</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-weight: 700; color: #f39c12;">Intermediate</div>
-                                <div style="font-size: 0.8em; color: #666;">Level</div>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-top: 15px; padding: 12px; background: #fff3cd; border-radius: 8px; border-left: 3px solid #f39c12;">
-                            <p style="margin: 0; font-size: 0.9em; color: #856404;">
-                                <strong>🎯 You'll Build:</strong> Optimization algorithms, derivative calculators, advanced gradient descent
-                            </p>
-                        </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: 800; color: #27ae60; font-size: 1.3em;">5 Exercises</div>
+                        <div style="font-size: 0.9em; color: #666;">Hands-On</div>
                     </div>
-                    
-                    <!-- Lab 3 - Coming Soon -->
-                    <div style="background: white; border-radius: 15px; padding: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 4px solid #6c757d; opacity: 0.7; transition: all 			0.3s ease;"
-                         onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 15px 35px rgba(0,0,0,0.15)'" 
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.1)'">
-                        
-                        <div style="background: #6c757d; color: white; padding: 5px 12px; border-radius: 15px; font-size: 0.8em; font-weight: 600; display: inline-block; margin-bottom: 			15px;">
-                            📋 Planned
-                        </div>
-                        
-                        <h4 style="color: #2c3e50; font-size: 1.4em; margin-bottom: 10px; font-weight: 700;">
-                            🏗️ Lab 3: Building Deep Neural Networks
-                        </h4>
-                        
-                        <p style="color: #666; margin-bottom: 15px; line-height: 1.6;">
-                            Multi-layer perceptrons, activation functions, and advanced architectures for complex 
-                            pattern recognition and real-world applications.
-                        </p>
-                        
-                        <div style="margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; border-left: 3px solid #6c757d;">
-                            <p style="margin: 0; font-size: 0.9em; color: #6c757d;">
-                                <strong>🎯 You'll Build:</strong> Deep networks, CNN basics, activation comparisons
-                            </p>
-                        </div>
+                    <div style="text-align: center;">
+                        <div style="font-weight: 800; color: #27ae60; font-size: 1.3em;">Beginner</div>
+                        <div style="font-size: 0.9em; color: #666;">Level</div>
                     </div>
                 </div>
                 
-                <!-- Lab Instructions -->
-                <div style="background: rgba(102, 126, 234, 0.1); border-radius: 15px; padding: 25px; margin: 30px 0; border: 2px solid #667eea;">
-                    <h4 style="color: #2c3e50; margin-bottom: 20px; text-align: center; font-size: 1.4em;">
-                        🎓 How to Use the Labs
-                    </h4>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                        <div style="text-align: center; padding: 20px;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">🚀</div>
-                            <h5 style="color: #667eea; margin-bottom: 10px;">1. Quick Start</h5>
-                            <p style="color: #666; font-size: 0.9em;">
-                                Click "Open in Colab" → Save copy to Drive → Enable GPU → Start coding!
-                            </p>
-                        </div>
-                        
-                        <div style="text-align: center; padding: 20px;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">📚</div>
-                            <h5 style="color: #667eea; margin-bottom: 10px;">2. Learn by Doing</h5>
-                            <p style="color: #666; font-size: 0.9em;">
-                                Complete exercises step-by-step, run code, see immediate results, build understanding.
-                            </p>
-                        </div>
-                        
-                        <div style="text-align: center; padding: 20px;">
-                            <div style="font-size: 3em; margin-bottom: 15px;">🧠</div>
-                            <h5 style="color: #667eea; margin-bottom: 10px;">3. Build Neural Networks</h5>
-                            <p style="color: #666; font-size: 0.9em;">
-                                Create AI from scratch, solve real problems, understand how deep learning works.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Call to Action -->
-                <div style="text-align: center; margin: 30px 0;">
-                    <a href="labs.html" 
-                       style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 30px; text-decoration: none; font-size: 1.2em; 			font-weight: 700; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);"
-                       onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 10px 30px rgba(102, 126, 234, 0.4)'"
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(102, 126, 234, 0.3)'">
-                        🧪 Explore All Labs →
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+                    <a href="https://colab.research.google.com/github/dayashankar-ai/interactive-deep-learning-lectures/blob/main/labs/lab1.ipynb" 
+                       target="_blank"
+                       style="background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; padding: 15px 25px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 1em; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);"
+                       onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(243, 156, 18, 0.4)'"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(243, 156, 18, 0.3)'">
+                        🚀 Open in Google Colab
+                    </a>
+                    <a href="labs/" 
+                       style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%); color: white; padding: 15px 25px; border-radius: 25px; text-decoration: none; font-weight: 700; font-size: 1em; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);"
+                       onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(52, 152, 219, 0.4)'"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(52, 152, 219, 0.3)'">
+                        📁 View All Labs
                     </a>
                 </div>
                 
-                <div style="text-align: center; margin-top: 20px;">
-                    <p style="color: #666; font-style: italic;">
-                        <strong>💡 Pro Tip:</strong> Complete each lab after finishing the corresponding lectures for maximum learning impact!
+                <div style="margin-top: 25px; padding: 20px; background: #e8f5e8; border-radius: 12px; border-left: 4px solid #27ae60;">
+                    <p style="margin: 0; font-size: 1em; color: #2d5a2d; font-weight: 600;">
+                        <strong>🎯 What You'll Build:</strong> Complete XOR neural network, NumPy operations mastery, gradient descent visualization, and your first AI that actually learns!
                     </p>
+                </div>
+            </div>
+
+            <!-- Lab Instructions -->
+            <div style="background: rgba(102, 126, 234, 0.12); border-radius: 20px; padding: 30px; margin: 40px 0; border: 2px solid #667eea;">
+                <h3 style="color: #2c3e50; margin-bottom: 25px; text-align: center; font-size: 1.6em;">
+                    🎓 How to Use the Labs
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 25px;">
+                    <div style="text-align: center; padding: 25px;">
+                        <div style="font-size: 3.5em; margin-bottom: 20px;">🚀</div>
+                        <h4 style="color: #667eea; margin-bottom: 15px; font-size: 1.2em;">1. Quick Start</h4>
+                        <p style="color: #666; font-size: 1em; line-height: 1.5;">
+                            Click "Open in Colab" → Save copy to Drive → Enable GPU → Start coding!
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 25px;">
+                        <div style="font-size: 3.5em; margin-bottom: 20px;">📚</div>
+                        <h4 style="color: #667eea; margin-bottom: 15px; font-size: 1.2em;">2. Learn by Doing</h4>
+                        <p style="color: #666; font-size: 1em; line-height: 1.5;">
+                            Complete exercises step-by-step, run code, see immediate results, build understanding.
+                        </p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 25px;">
+                        <div style="font-size: 3.5em; margin-bottom: 20px;">🧠</div>
+                        <h4 style="color: #667eea; margin-bottom: 15px; font-size: 1.2em;">3. Build Neural Networks</h4>
+                        <p style="color: #666; font-size: 1em; line-height: 1.5;">
+                            Create AI from scratch, solve real problems, understand how deep learning works.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- Footer -->
         <div class="footer">
-            <p>🎓 <strong>Created by Dr. Daya Shankar</strong></p>
+            <h3>🎓 Created with Academic Excellence</h3>
+            <p><strong>Prof. Dr. Daya Shankar</strong> | Dean, School of Sciences | Woxsen University</p>
             <p>📚 Comprehensive 45-lecture course covering theoretical foundations and practical implementations</p>
-            <br>
-            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; margin: 20px 0;">
+            
+            <div class="references">
                 <p><strong>📖 Reference Materials:</strong></p>
-                <p style="font-size: 0.9em; margin-top: 10px; line-height: 1.6;">
+                <p style="font-size: 1em; margin-top: 15px; line-height: 1.7;">
                     • Ian Goodfellow et al. - Deep Learning (MIT Press)<br>
                     • Michael Nielsen - Neural Networks and Deep Learning<br>
                     • Josh Patterson & Adam Gibson - Deep Learning: A Practitioner's Approach<br>
-                    • Additional resources: GeeksforGeeks, NPTEL Lectures, Latest Research Papers
+                    • Latest research papers and industry best practices
                 </p>
             </div>
-            <p style="font-size: 0.9em; opacity: 0.7; margin-top: 20px;">
-                Interactive lectures designed for comprehensive deep learning education.
-                <br>Suitable for undergraduate and graduate students in Computer Science, AI & Data Science.
-                <br><strong>Copyright © 2024 Dr. Daya Shankar. All rights reserved.</strong>
-            </p>
+            
+            <div class="copyright">
+                Interactive lectures designed for comprehensive deep learning education.<br>
+                Suitable for undergraduate and graduate students in Computer Science, AI & Data Science.<br>
+                <strong>© 2025 Prof. Dr. Daya Shankar - Educational Use Only. All rights reserved.</strong>
+            </div>
         </div>
     </div>
 
+    <!-- Educational Content Protection Script -->
     <script>
+        // Educational Content Protection System
+        // © Prof. Dr. Daya Shankar - Woxsen University
+        
+        (function() {
+            'use strict';
+            
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                showEducationalAlert();
+                return false;
+            });
+            
+            // Disable common keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                // Disable Ctrl+S (Save page)
+                if (e.ctrlKey && e.key === 's') {
+                    e.preventDefault();
+                    showEducationalAlert();
+                    return false;
+                }
+                
+                // Disable Ctrl+U (View source)
+                if (e.ctrlKey && e.key === 'u') {
+                    e.preventDefault();
+                    showEducationalAlert();
+                    return false;
+                }
+                
+                // Disable Ctrl+A (Select all)
+                if (e.ctrlKey && e.key === 'a') {
+                    e.preventDefault();
+                    showEducationalAlert();
+                    return false;
+                }
+                
+                // Disable F12 (Developer tools)
+                if (e.key === 'F12') {
+                    e.preventDefault();
+                    showEducationalAlert();
+                    return false;
+                }
+                
+                // Disable Ctrl+Shift+I (Developer tools)
+                if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                    e.preventDefault();
+                    showEducationalAlert();
+                    return false;
+                }
+            });
+            
+            // Educational alert function
+            function showEducationalAlert() {
+                const alertHTML = `
+                <div style="
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: linear-gradient(135deg, #667eea, #764ba2);
+                    color: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+                    z-index: 10000;
+                    max-width: 500px;
+                    text-align: center;
+                    font-family: 'Segoe UI', Arial, sans-serif;
+                    border: 3px solid rgba(255,255,255,0.3);
+                " id="protectionAlert">
+                    <h3 style="margin: 0 0 25px 0; font-size: 1.6em; font-weight: 800;">
+                        🎓 Educational Content Protection
+                    </h3>
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p style="margin: 15px 0; line-height: 1.7; font-size: 1.1em;">
+                            <strong style="color: #4ecdc4;">✅ You CAN:</strong><br>
+                            • Study and learn online<br>
+                            • Use individual code snippets<br>
+                            • Reference in academic work<br>
+                            • Share knowledge with proper attribution
+                        </p>
+                        <p style="margin: 15px 0; line-height: 1.7; font-size: 1.1em;">
+                            <strong style="color: #ff6b6b;">❌ Please DON'T:</strong><br>
+                            • Download/clone entire repository<br>
+                            • Copy complete lectures<br>
+                            • Use for commercial purposes<br>
+                            • Remove author attribution
+                        </p>
+                    </div>
+                    <p style="margin: 25px 0 15px 0; font-style: italic; opacity: 0.95; font-size: 1.1em;">
+                        <strong>Respect the creator's hard work! 🙏</strong>
+                    </p>
+                    <p style="margin: 15px 0; font-size: 0.95em; opacity: 0.9;">
+                        Visit: <strong>https://www.drdayashankar.in</strong>
+                    </p>
+                    <button onclick="document.getElementById('protectionAlert').remove()" style="
+                        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+                        color: white;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 30px;
+                        cursor: pointer;
+                        font-weight: bold;
+                        font-size: 1em;
+                        margin-top: 20px;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(78, 205, 196, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 15px rgba(78, 205, 196, 0.3)'">
+                        ✅ I Understand & Respect
+                    </button>
+                </div>
+                `;
+                
+                // Remove existing alert if any
+                const existing = document.getElementById('protectionAlert');
+                if (existing) existing.remove();
+                
+                // Add new alert
+                document.body.insertAdjacentHTML('beforeend', alertHTML);
+                
+                // Auto-remove after 12 seconds
+                setTimeout(() => {
+                    const alert = document.getElementById('protectionAlert');
+                    if (alert) alert.remove();
+                }, 12000);
+            }
+            
+            // Add permanent copyright watermark
+            const watermark = document.createElement('div');
+            watermark.innerHTML = '© Prof. Dr. Daya Shankar - Educational Use Only';
+            watermark.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(0,0,0,0.85);
+                color: white;
+                padding: 10px 18px;
+                border-radius: 10px;
+                font-size: 12px;
+                z-index: 9999;
+                pointer-events: none;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-weight: 600;
+                box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255,255,255,0.2);
+            `;
+            document.body.appendChild(watermark);
+            
+            // Console messages for developers
+            console.log('%c🎓 Interactive Deep Learning Lectures', 'color: #667eea; font-size: 18px; font-weight: bold;');
+            console.log('%c© Prof. Dr. Daya Shankar - Woxsen University', 'color: #764ba2; font-size: 14px; font-weight: 600;');
+            console.log('%c📚 Educational viewing only - No downloading permitted', 'color: #ff6b6b; font-size: 12px;');
+            console.log('%c✅ Learn online • Use code snippets • Cite properly', 'color: #4ecdc4; font-size: 12px;');
+            console.log('%c🌐 Visit: https://www.drdayashankar.in', 'color: #45b7d1; font-size: 12px;');
+            console.log('%c🏥 Healthcare AI: https://vaidyaai.com', 'color: #27ae60; font-size: 12px;');
+            
+            // Mobile protection - disable long press
+            document.addEventListener('touchstart', function(e) {
+                if (e.touches.length > 1) {
+                    e.preventDefault();
+                }
+            });
+            
+            // Disable double-tap zoom
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function(e) {
+                const now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    e.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // Show protection notice on first visit
+            window.addEventListener('load', function() {
+                // Check if user has seen notice in this session
+                if (!sessionStorage.getItem('protectionNoticeShown')) {
+                    setTimeout(showEducationalAlert, 3000); // Show after 3 seconds
+                    sessionStorage.setItem('protectionNoticeShown', 'true');
+                }
+            });
+            
+            // Prevent iframe embedding
+            if (window.top !== window.self) {
+                window.top.location = window.self.location;
+            }
+            
+        })();
+
         // Smooth scrolling for internal links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -1748,7 +695,7 @@
             });
         });
 
-        // Add entrance animations
+        // Enhanced entrance animations with Intersection Observer
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
@@ -1759,25 +706,1033 @@
                 if (entry.isIntersecting) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
                 }
             });
         }, observerOptions);
 
-        // Observe lecture cards for animations
-        document.querySelectorAll('.lecture-card').forEach(card => {
+        // Observe elements for animations
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            observer.observe(el);
+        });
+
+        // Observe lecture cards for staggered animations
+        document.querySelectorAll('.lecture-card').forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(30px)';
-            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
             observer.observe(card);
         });
 
-        // External link handling
-        document.querySelectorAll('a[target="_blank"]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                // Allow external links to open normally
-                console.log('Opening external link:', this.href);
+        // Enhanced hover effects for interactive elements
+        document.querySelectorAll('.link-button').forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.05)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
             });
         });
+
+        // Progress bar animation on scroll
+        const progressBars = document.querySelectorAll('.progress-fill');
+        const progressObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bar = entry.target;
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 500);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        progressBars.forEach(bar => {
+            progressObserver.observe(bar);
+        });
+
+        // External link tracking (for analytics)
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                console.log('External link clicked:', this.href);
+                // You can add analytics tracking here if needed
+            });
+        });
+
+        // Keyboard navigation accessibility
+        document.addEventListener('keydown', function(e) {
+            // Allow normal navigation keys even with protection
+            if (e.key === 'Tab' || e.key === 'Enter' || e.key === ' ') {
+                return true; // Allow these keys
+            }
+        });
+
+        // Enhanced mobile experience
+        if ('ontouchstart' in window) {
+            document.body.classList.add('touch-device');
+            
+            // Add touch-friendly styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .touch-device .lecture-card:hover {
+                    transform: none;
+                }
+                .touch-device .lecture-card:active {
+                    transform: scale(0.98);
+                }
+                .touch-device .link-button:active {
+                    transform: scale(0.95);
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Performance optimization - lazy load images
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            observer.unobserve(img);
+                        }
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+
+        // Add loading animation completion
+        window.addEventListener('load', function() {
+            document.body.classList.add('loaded');
+            
+            // Remove any loading spinners or placeholders
+            const loadingElements = document.querySelectorAll('.loading');
+            loadingElements.forEach(el => el.remove());
+            
+            console.log('🚀 Interactive Deep Learning Lectures - Fully Loaded!');
+        });
+
+        // Accessibility improvements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add skip navigation link
+            const skipLink = document.createElement('a');
+            skipLink.href = '#main-content';
+            skipLink.textContent = 'Skip to main content';
+            skipLink.style.cssText = `
+                position: absolute;
+                top: -40px;
+                left: 6px;
+                background: #000;
+                color: #fff;
+                padding: 8px;
+                text-decoration: none;
+                z-index: 10000;
+            `;
+            skipLink.addEventListener('focus', function() {
+                this.style.top = '6px';
+            });
+            skipLink.addEventListener('blur', function() {
+                this.style.top = '-40px';
+            });
+            document.body.insertBefore(skipLink, document.body.firstChild);
+
+            // Add main content landmark
+            const mainContent = document.querySelector('.course-header');
+            if (mainContent) {
+                mainContent.id = 'main-content';
+                mainContent.setAttribute('role', 'main');
+            }
+        });
+
+    </script>
+
+    <!-- Schema.org structured data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": "Interactive Deep Learning Lectures",
+        "description": "Comprehensive 45-lecture interactive deep learning course covering neural networks from fundamentals to advanced applications",
+        "provider": {
+            "@type": "Organization",
+            "name": "Woxsen University",
+            "url": "https://woxsen.edu.in"
+        },
+        "instructor": {
+            "@type": "Person",
+            "name": "Prof. Dr. Daya Shankar",
+            "jobTitle": "Dean, School of Sciences",
+            "affiliation": "Woxsen University",
+            "url": "https://www.drdayashankar.in"
+        },
+        "courseCode": "CS/AI 4XX",
+        "numberOfCredits": 4,
+        "timeRequired": "PT45H",
+        "educationalLevel": "UndergraduateLevel",
+        "inLanguage": "en",
+        "coursePrerequisites": "Programming fundamentals, Linear algebra, Basic statistics",
+        "teaches": [
+            "Deep Learning Foundations",
+            "Convolutional Neural Networks",
+            "Recurrent Neural Networks",
+            "Advanced Deep Learning Techniques"
+        ]
+    }
     </script>
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Deep Learning Lectures - Prof. Dr. Daya Shankar</title>
+    <meta name="description" content="Comprehensive 45-lecture interactive deep learning course by Prof. Dr. Daya Shankar. Master neural networks from fundamentals to advanced applications with hands-on labs.">
+    <meta name="keywords" content="deep learning, neural networks, AI course, machine learning, interactive lectures, Daya Shankar, Woxsen University">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundShift 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.02); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Enhanced Instructor Profile Section */
+        .instructor-profile-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 25px;
+            margin: 30px 0;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(102, 126, 234, 0.4);
+            position: relative;
+            overflow: hidden;
+            animation: profileEntrance 1s ease-out;
+        }
+
+        @keyframes profileEntrance {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating Animation Elements */
+        .instructor-profile-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: floatPattern 25s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes floatPattern {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(180deg); }
+        }
+
+        .profile-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Profile Image with Advanced Effects */
+        .profile-image-container {
+            display: inline-block;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .profile-image {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 8px solid rgba(255,255,255,0.9);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.08) rotate(3deg);
+            box-shadow: 0 35px 80px rgba(0,0,0,0.5);
+            border-color: rgba(255,255,255,1);
+        }
+
+        /* Achievement Badge */
+        .achievement-badge {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+            animation: badgePulse 3s infinite ease-in-out;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Name and Titles with Advanced Typography */
+        .instructor-name {
+            font-size: 3.2em;
+            margin: 0 0 15px 0;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffffff, #f0f8ff, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: nameShimmer 4s ease-in-out infinite;
+            font-weight: 800;
+        }
+
+        @keyframes nameShimmer {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .instructor-title {
+            font-size: 1.5em;
+            margin: 15px 0;
+            opacity: 0.95;
+            font-weight: 300;
+            letter-spacing: 1px;
+            line-height: 1.4;
+        }
+
+        .instructor-subtitle {
+            font-size: 1.3em;
+            margin: 15px 0;
+            opacity: 0.9;
+            font-style: italic;
+        }
+
+        /* Professional Highlights Grid */
+        .highlights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .highlight-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.4s ease;
+            text-align: left;
+        }
+
+        .highlight-card:hover {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .highlight-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .highlight-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .highlight-description {
+            font-size: 1em;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+
+        /* About Section with Glass Effect */
+        .about-section {
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 25px;
+            margin: 40px auto;
+            max-width: 900px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: left;
+        }
+
+        .about-title {
+            text-align: center;
+            margin: 0 0 30px 0;
+            font-size: 1.8em;
+            color: #ffffff;
+        }
+
+        .about-text {
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin: 20px 0;
+            text-align: justify;
+            opacity: 0.95;
+        }
+
+        /* Enhanced Professional Links */
+        .professional-links {
+            margin: 50px 0 30px 0;
+        }
+
+        .links-title {
+            margin: 0 0 30px 0;
+            opacity: 0.9;
+            font-size: 1.4em;
+        }
+
+        .link-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 18px 30px;
+            margin: 12px;
+            border-radius: 35px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .link-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .link-button:hover::before {
+            left: 100%;
+        }
+
+        .link-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(255, 107, 107, 0.4);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .link-button.website { background: linear-gradient(45deg, #ff6b6b, #ee5a6f); }
+        .link-button.vaidyaai { background: linear-gradient(45deg, #4ecdc4, #44a08d); }
+        .link-button.university { background: linear-gradient(45deg, #667eea, #764ba2); }
+        .link-button.linkedin { background: linear-gradient(45deg, #0077b5, #005885); }
+
+        /* Philosophy Quote */
+        .philosophy-quote {
+            margin: 50px auto 30px auto;
+            padding: 30px;
+            background: rgba(255,255,255,0.12);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.2);
+            max-width: 800px;
+            font-style: italic;
+            font-size: 1.3em;
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .quote-badge {
+            position: absolute;
+            top: -20px;
+            left: 40px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        /* Course Header */
+        .course-header {
+            text-align: center;
+            color: white;
+            margin: 60px 0 40px 0;
+            animation: headerEntrance 1.2s ease-out 0.3s both;
+        }
+
+        @keyframes headerEntrance {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .course-header h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #ffffff, #f0f8ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .course-info {
+            font-size: 1.5em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        .course-description {
+            font-size: 1.2em;
+            opacity: 0.85;
+            max-width: 1000px;
+            margin: 0 auto 30px;
+            line-height: 1.7;
+        }
+
+        /* Enhanced Course Stats */
+        .course-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 30px;
+            margin: 50px 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            padding: 25px 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 800;
+            display: block;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        /* Module Sections */
+        .modules-container {
+            margin: 60px 0;
+        }
+
+        .module-section {
+            background: rgba(255,255,255,0.96);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 50px 0;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: moduleEntrance 0.8s ease-out;
+        }
+
+        @keyframes moduleEntrance {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .module-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .module-header h2 {
+            color: #2c3e50;
+            font-size: 2.8em;
+            margin-bottom: 15px;
+            font-weight: 800;
+        }
+
+        .module-subtitle {
+            color: #667eea;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .module-header p {
+            color: #666;
+            font-size: 1.2em;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Progress Bar */
+        .module-progress {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #dee2e6;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            transition: width 1s ease;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        @keyframes progressShine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* Lecture Cards Grid */
+        .lectures-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .lecture-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: inherit;
+            position: relative;
+            overflow: hidden;
+            border-top: 5px solid;
+        }
+
+        .lecture-card.available { border-top-color: #28a745; }
+        .lecture-card.coming-soon { border-top-color: #ffc107; opacity: 0.9; }
+        .lecture-card.planned { border-top-color: #6c757d; opacity: 0.7; }
+
+        .lecture-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+        }
+
+        .lecture-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .status-available { background: #d4edda; color: #155724; }
+        .status-coming-soon { background: #fff3cd; color: #856404; }
+        .status-planned { background: #f8f9fa; color: #6c757d; }
+
+        .lecture-number {
+            font-size: 1em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .lecture-title {
+            font-size: 1.4em;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            line-height: 1.3;
+        }
+
+        .lecture-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 1em;
+        }
+
+        .lecture-topics {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .topics-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .topic-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+        }
+
+        .lecture-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .lecture-duration {
+            color: #28a745;
+            font-weight: 700;
+            font-size: 0.9em;
+        }
+
+        .launch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .launch-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .launch-btn.disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .launch-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Labs Section */
+        .labs-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 50px 0;
+            border: 3px solid #667eea;
+        }
+
+        .labs-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .labs-header h2 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .labs-subtitle {
+            font-size: 1.3em;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .lab-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-top: 5px solid #27ae60;
+            transition: all 0.3s ease;
+            margin-bottom: 25px;
+        }
+
+        .lab-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-top: 80px;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .footer h3 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .footer p {
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .references {
+            background: rgba(255,255,255,0.15);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .copyright {
+            font-size: 0.95em;
+            opacity: 0.8;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .instructor-profile-banner { padding: 40px 25px; }
+            .profile-image { width: 180px; height: 180px; }
+            .instructor-name { font-size: 2.5em; }
+            .course-header h1 { font-size: 2.8em; }
+            .lectures-grid { grid-template-columns: 1fr; gap: 25px; }
+            .course-stats { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+            .highlights-grid { grid-template-columns: 1fr; }
+            .module-section { padding: 30px 25px; }
+            .labs-section { padding: 30px 25px; }
+            
+            .link-button {
+                display: block;
+                margin: 15px auto;
+                max-width: 280px;
+            }
+        }
+
+        /* Additional Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Enhanced Instructor Profile Banner -->
+        <div class="instructor-profile-banner">
+            <div class="profile-content">
+                <!-- Profile Image with Hover Effect -->
+                <div class="profile-image-container">
+                    <img src="images/profile.jpg" alt="Prof. Dr. Daya Shankar" class="profile-image">
+                    <!-- Achievement Badge -->
+                    <div class="achievement-badge">🏆 Dean</div>
+                </div>
+                
+                <!-- Name and Credentials -->
+                <div>
+                    <h1 class="instructor-name">Prof. Dr. Daya Shankar</h1>
+                    <p class="instructor-title">Dean, School of Sciences | Woxsen University</p>
+                    <p class="instructor-subtitle">Founder & AI Innovator | VaidyaAI Healthcare Solutions</p>
+                </div>
+                
+                <!-- Professional Highlights -->
+                <div class="highlights-grid">
+                    <div class="highlight-card">
+                        <span class="highlight-icon">🧠</span>
+                        <h4 class="highlight-title">AI Research Excellence</h4>
+                        <p class="highlight-description">Deep Learning • Computer Vision • NLP • Healthcare AI</p>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <span class="highlight-icon">🏥</span>
+                        <h4 class="highlight-title">HealthTech Innovation</h4>
+                        <p class="highlight-description">Medical AI • Clinical Decision Support • VaidyaAI Platform</p>
+                    </div>
+                    
+                    <div class="highlight-card">
+                        <span class="highlight-icon">🎓</span>
+                        <h4 class="highlight-title">Academic Leadership</h4>
+                        <p class="highlight-description">Leading 5 Departments • 500+ Students • Educational Innovation</p>
+                    </div>
+                </div>
+                
+                <!-- About Section -->
+                <div class="about-section">
+                    <h3 class="about-title">🌟 About the Instructor</h3>
+                    <p class="about-text">
+                        <strong>Prof. Dr. Daya Shankar</strong> serves as the Dean of School of Sciences at Woxsen University, overseeing five departments: Physics, Chemistry, Mathematics, Biotechnology, Computer Science, and AI & Data Science. With a Ph.D. in Mechanical Engineering, he specializes in applying rigorous quantitative analysis to solve complex data challenges.
+                    </p>
+                    <p class="about-text">
+                        As the founder of <strong>VaidyaAI</strong>, he's revolutionizing healthcare through artificial intelligence, creating medical intelligence systems that transform complex medical data into actionable insights for clinicians and patients. His work bridges the gap between cutting-edge AI research and practical healthcare applications.
+                    </p>
+                    <p class="about-text">
+                        Dr. Shankar's educational philosophy centers on making complex AI concepts accessible through interactive, hands-on learning experiences. This course represents months of careful preparation, combining theoretical rigor with practical application to create the ultimate deep learning educational resource.
+                    </p>
+                </div>
+                
+                <!-- Professional Links -->
+                <div class="professional-links">
+                    <h3 class="links-title">🌐 Connect & Explore</h3>
+                    
+                    <a href="https://www.drdayashankar.in/" target="_blank" class="link-button website">
+                        🌐 Personal Website
+                    </a>
+                    
+                    <a href="https://vaidyaai.com" target="_blank" class="link-button vaidyaai">
+                        🏥 VaidyaAI Platform
+                    </a>
+                    
+                    <a href="https://woxsen.edu.in" target="_blank" class="link-button university">
+                        🎓 Woxsen University
+                    </a>
+                    
+                    <a href="https://www.linkedin.com/in/daya-shankar-tiwary/" target="_blank" class="link-button linkedin">
+                        💼 LinkedIn Profile
+                    </a>
+                </div>
+                
+                <!-- Philosophy Quote -->
+                <div class="philosophy-quote">
+                    <div class="quote-badge">💭 Philosophy</div>
+                    <p>
+                        "Transforming complex AI concepts into intuitive, interactive learning experiences that empower the next generation of practitioners to solve humanity's greatest challenges."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Course Header -->
+        <div class="course-header">
+            <h1>🧠 Interactive Deep Learning Lectures</h1>
+            <div class="course-info">Comprehensive 45-Lecture Interactive Course</div>
+            <div class="course-description">
+                Master deep neural networks from fundamental concepts to cutting-edge applications. 
+                This comprehensive course covers theory, implementation, and real-world applications 
+                with hands-on interactive lectures designed for undergraduate and graduate students.
+            </div>
+            
+            <div class="course-stats">
+                <div class="stat-item">
+                    <span class="stat-number">45</span>
+                    <div class="stat-label">Interactive Lectures
