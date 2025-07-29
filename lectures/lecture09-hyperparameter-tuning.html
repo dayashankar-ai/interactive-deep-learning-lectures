@@ -1,0 +1,2447 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Great Cookie Factory: A Journey into Hyperparameter Tuning</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            margin: 1rem 2rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 4px;
+        }
+
+        .section {
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .story-box {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #e17055;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .concept-box {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #00b894;
+        }
+
+        .math-box {
+            background: linear-gradient(135deg, #dda0dd, #98d8c8);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+            border-left: 5px solid #6c5ce7;
+            font-family: 'Courier New', monospace;
+        }
+
+        .interactive-demo {
+            background: #f8f9fa;
+            border: 2px dashed #007bff;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider {
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        .result-display {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            background: #f8f9fa;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.prev {
+            background: linear-gradient(135deg, #fd79a8, #e84393);
+            color: white;
+        }
+
+        .nav-btn.next {
+            background: linear-gradient(135deg, #00cec9, #00b894);
+            color: white;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-container {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .quiz-option {
+            background: white;
+            margin: 0.5rem 0;
+            padding: 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .quiz-option:hover {
+            background: #f0f0f0;
+            transform: translateX(5px);
+        }
+
+        .quiz-option.correct {
+            border-color: #00b894;
+            background: #d1f2eb;
+        }
+
+        .quiz-option.incorrect {
+            border-color: #e17055;
+            background: #fdf2f2;
+        }
+
+        .visualization {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .parameter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .parameter-card {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .parameter-card:hover {
+            transform: scale(1.05);
+        }
+
+        .algorithm-demo {
+            background: linear-gradient(135deg, #a8e6cf, #dcedc1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.5rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .step.active {
+            background: #4CAF50;
+        }
+
+        .step.completed {
+            background: #00b894;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .parameter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                padding: 1rem;
+            }
+        }
+
+        .highlight {
+            background: linear-gradient(120deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .definition {
+            border-left: 4px solid #4CAF50;
+            background: #f8fff8;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1.5rem 0;
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍪 The Great Cookie Factory</h1>
+            <div class="subtitle">A Journey into Hyperparameter Tuning</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <!-- Section 1: Introduction Story -->
+        <div class="section active" id="section1">
+            <h2>📖 Chapter 1: Welcome to Sweet Dreams Cookie Factory</h2>
+
+            <div class="story-box">
+                <h3>🏭 Our Adventure Begins</h3>
+                <p>Imagine you've just inherited your grandmother's cookie factory, "Sweet Dreams Cookies." Your
+                    grandmother was famous for making the most delicious cookies in town, but she never wrote down her
+                    exact recipes or methods.</p>
+
+                <p>Now you have this amazing factory with machines that can mix, bake, and package cookies
+                    automatically. But here's the problem: <strong>you need to figure out the perfect settings for each
+                        machine to make cookies as good as your grandmother's!</strong></p>
+
+                <p>This is <em>exactly</em> what hyperparameter tuning is like in artificial intelligence and machine
+                    learning!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🤔 What Are We Really Learning?</h3>
+                <p>In our cookie factory story:</p>
+                <ul>
+                    <li><strong>The Factory</strong> = A Neural Network (AI system)</li>
+                    <li><strong>Machine Settings</strong> = Hyperparameters</li>
+                    <li><strong>Perfect Cookies</strong> = Best Performance</li>
+                    <li><strong>Testing Different Settings</strong> = Hyperparameter Tuning</li>
+                </ul>
+            </div>
+
+            <div class="definition">
+                <h4>📚 In Simple Terms</h4>
+                <p><span class="highlight">Hyperparameter Tuning</span> is like being a master chef who needs to find
+                    the perfect oven temperature, cooking time, and ingredient amounts to make the best possible dish.
+                    In AI, we're finding the perfect "settings" to make our computer programs work as well as possible.
+                </p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Try This: Cookie Settings Simulator</h3>
+                <p>Let's start with a simple example. Adjust the settings below and see how they affect our cookie
+                    quality:</p>
+
+                <div class="slider-container">
+                    <label>🌡️ Oven Temperature: <span id="tempValue">350</span>°F</label>
+                    <input type="range" class="slider" id="temperature" min="300" max="400" value="350">
+                </div>
+
+                <div class="slider-container">
+                    <label>⏰ Baking Time: <span id="timeValue">10</span> minutes</label>
+                    <input type="range" class="slider" id="bakingTime" min="5" max="20" value="10">
+                </div>
+
+                <div class="result-display" id="cookieResult">
+                    Cookie Quality: Perfect! 🍪✨
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>💡 Remember:</strong> Just like in baking, in AI we need to experiment with different settings
+                to find what works best. There's no magic formula - it's about smart experimentation!
+            </div>
+        </div>
+
+        <!-- Section 2: Understanding Parameters vs Hyperparameters -->
+        <div class="section" id="section2">
+            <h2>🔧 Chapter 2: The Difference Between Ingredients and Settings</h2>
+
+            <div class="story-box">
+                <h3>🥄 Learning the Factory Basics</h3>
+                <p>Back at Sweet Dreams Cookie Factory, you discover there are two types of things that affect your
+                    cookies:</p>
+
+                <p><strong>1. Ingredients (Parameters):</strong> These are things the machines learn by themselves -
+                    like how much flour to add based on the dough consistency they detect.</p>
+
+                <p><strong>2. Machine Settings (Hyperparameters):</strong> These are things YOU must set before the
+                    machines start working - like the mixer speed, oven temperature, and conveyor belt speed.</p>
+            </div>
+
+            <div class="parameter-grid">
+                <div class="parameter-card" onclick="showParameterInfo('ingredients')">
+                    <h3>🥛 Ingredients</h3>
+                    <h4>(Parameters)</h4>
+                    <p>The machines learn these automatically</p>
+                </div>
+                <div class="parameter-card" onclick="showParameterInfo('settings')">
+                    <h3>⚙️ Settings</h3>
+                    <h4>(Hyperparameters)</h4>
+                    <p>You must choose these before starting</p>
+                </div>
+            </div>
+
+            <div class="concept-box" id="parameterInfo" style="display: none;">
+                <h3 id="infoTitle">Click a card above to learn more!</h3>
+                <div id="infoContent"></div>
+            </div>
+
+            <div class="math-box">
+                <h3>🔢 The Mathematical Way to Think About It</h3>
+                <p><strong>Parameters (θ - theta):</strong> These are the values that change during training</p>
+                <p>Think: θ = {flour_amount, sugar_amount, chocolate_chips}</p>
+                <br>
+                <p><strong>Hyperparameters (λ - lambda):</strong> These are the values you set before training</p>
+                <p>Think: λ = {oven_temperature, mixing_speed, baking_time}</p>
+                <br>
+                <p><em>Don't worry about the Greek letters - they're just fancy names for "ingredients" and
+                        "settings"!</em></p>
+            </div>
+
+            <div class="example-box">
+                <h3>🌟 Real AI Example</h3>
+                <p>In a neural network that recognizes pictures of cats:</p>
+                <ul>
+                    <li><strong>Parameters:</strong> The "weights" that the network learns (like recognizing whiskers,
+                        pointy ears, etc.)</li>
+                    <li><strong>Hyperparameters:</strong> How fast it learns, how many layers it has, how many times it
+                        practices</li>
+                </ul>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Quick Understanding Check</h3>
+                <p>Which of these would be a hyperparameter in our cookie factory?</p>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">The amount of chocolate chips the machine
+                    decides to add</div>
+                <div class="quiz-option" onclick="checkAnswer(this, true)">The speed you set the mixer to run at</div>
+                <div class="quiz-option" onclick="checkAnswer(this, false)">How much the machine learns from each batch
+                </div>
+                <div id="quizFeedback" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Section 3: Types of Hyperparameters -->
+        <div class="section" id="section3">
+            <h2>🏭 Chapter 3: All the Knobs and Dials in Our Factory</h2>
+
+            <div class="story-box">
+                <h3>🔍 Exploring the Control Room</h3>
+                <p>You walk into the factory's control room and see dozens of knobs, dials, and switches! Each one
+                    controls a different part of the cookie-making process. Let's organize them into categories so we
+                    don't get overwhelmed.</p>
+            </div>
+
+            <div class="algorithm-demo">
+                <h3>🎛️ The Main Control Categories</h3>
+
+                <div class="parameter-grid">
+                    <div class="parameter-card" onclick="exploreCategory('learning')">
+                        <h4>🧠 Learning Controls</h4>
+                        <p>How fast and how much the machines learn</p>
+                        <small>Learning Rate, Batch Size</small>
+                    </div>
+                    <div class="parameter-card" onclick="exploreCategory('structure')">
+                        <h4>🏗️ Factory Structure</h4>
+                        <p>How the factory is built and organized</p>
+                        <small>Layers, Neurons, Architecture</small>
+                    </div>
+                    <div class="parameter-card" onclick="exploreCategory('optimization')">
+                        <h4>⚡ Optimization Settings</h4>
+                        <p>How efficiently the factory runs</p>
+                        <small>Optimizer, Momentum</small>
+                    </div>
+                    <div class="parameter-card" onclick="exploreCategory('regularization')">
+                        <h4>🛡️ Quality Control</h4>
+                        <p>Preventing the factory from making mistakes</p>
+                        <small>Dropout, Weight Decay</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-box" id="categoryExplorer" style="display: none;">
+                <h3 id="categoryTitle">Select a category above!</h3>
+                <div id="categoryContent"></div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Factory Dashboard</h3>
+                <p>Adjust these key settings and see how they might affect our cookie production:</p>
+
+                <div class="slider-container">
+                    <label>🧠 Learning Rate (How fast machines learn): <span id="learningRateVal">0.01</span></label>
+                    <input type="range" class="slider" id="learningRate" min="0.001" max="0.1" step="0.001"
+                        value="0.01">
+                </div>
+
+                <div class="slider-container">
+                    <label>📦 Batch Size (Cookies per learning session): <span id="batchSizeVal">32</span></label>
+                    <input type="range" class="slider" id="batchSize" min="16" max="128" step="16" value="32">
+                </div>
+
+                <div class="slider-container">
+                    <label>🏗️ Hidden Layers (Factory floors): <span id="layersVal">3</span></label>
+                    <input type="range" class="slider" id="layers" min="1" max="10" value="3">
+                </div>
+
+                <div class="result-display" id="factoryResult">
+                    Factory Status: Analyzing settings...
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Pro Tip:</strong> In real AI projects, there might be 20+ hyperparameters to tune! That's why
+                we need systematic approaches (which we'll learn soon).
+            </div>
+        </div>
+
+        <!-- Section 4: Manual Tuning -->
+        <div class="section" id="section4">
+            <h2>👋 Chapter 4: The Trial and Error Adventure</h2>
+
+            <div class="story-box">
+                <h3>🎯 Your First Day as Factory Manager</h3>
+                <p>It's your first day running the factory alone. Your grandmother's notes just say "experiment until
+                    the cookies taste perfect!" So you decide to try different settings manually, one by one.</p>
+
+                <p>You spend the morning adjusting the oven temperature, then the afternoon changing mixing speeds, then
+                    the evening testing different baking times. It's exhausting, but you're learning!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🔧 Manual Tuning: The Hands-On Approach</h3>
+                <p>Manual hyperparameter tuning is exactly like this - you personally try different combinations of
+                    settings based on your experience and intuition.</p>
+
+                <p><strong>The Process:</strong></p>
+                <ol>
+                    <li>Start with educated guesses</li>
+                    <li>Test one setting at a time</li>
+                    <li>Record what works and what doesn't</li>
+                    <li>Make small adjustments based on results</li>
+                    <li>Repeat until satisfied</li>
+                </ol>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Manual Tuning Simulator</h3>
+                <p>You're the factory manager! Try to find the perfect settings by manually adjusting them. Your goal:
+                    Get a score above 85!</p>
+
+                <div class="step-indicator">
+                    <div class="step active">1</div>
+                    <div class="step">2</div>
+                    <div class="step">3</div>
+                    <div class="step">4</div>
+                    <div class="step">5</div>
+                </div>
+
+                <div id="manualTuningInterface">
+                    <div class="slider-container">
+                        <label>🌡️ Temperature: <span id="manualTempVal">350</span>°F</label>
+                        <input type="range" class="slider" id="manualTemp" min="300" max="400" value="350">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>⏰ Time: <span id="manualTimeVal">10</span> min</label>
+                        <input type="range" class="slider" id="manualTime" min="5" max="20" value="10">
+                    </div>
+
+                    <div class="slider-container">
+                        <label>🥄 Mix Speed: <span id="manualSpeedVal">5</span></label>
+                        <input type="range" class="slider" id="manualSpeed" min="1" max="10" value="5">
+                    </div>
+
+                    <button onclick="testManualSettings()"
+                        style="padding: 1rem 2rem; background: #4CAF50; color: white; border: none; border-radius: 10px; margin: 1rem 0; cursor: pointer;">🧪
+                        Test These Settings</button>
+
+                    <div class="result-display" id="manualResult">
+                        Click "Test These Settings" to see your cookie quality score!
+                    </div>
+
+                    <div id="attemptHistory" style="margin-top: 1rem;">
+                        <h4>📊 Your Attempts:</h4>
+                        <div id="historyList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>📈 The Math Behind Manual Tuning</h3>
+                <p>What you're really doing:</p>
+                <p><strong>f(θ) = performance</strong></p>
+                <p>Where θ (theta) represents your settings: θ = [temperature, time, speed]</p>
+                <br>
+                <p>You're trying to find: <strong>θ* = argmax f(θ)</strong></p>
+                <p><em>Translation: "Find the settings that give the best performance"</em></p>
+                <br>
+                <p>Manual tuning is like climbing a hill blindfolded - you feel around for the highest point!</p>
+            </div>
+
+            <div class="example-box">
+                <h3>✅ Pros and Cons of Manual Tuning</h3>
+                <p><strong>👍 Advantages:</strong></p>
+                <ul>
+                    <li>You understand every change you make</li>
+                    <li>Good for simple problems with few parameters</li>
+                    <li>Builds intuition about how parameters affect performance</li>
+                </ul>
+                <p><strong>👎 Disadvantages:</strong></p>
+                <ul>
+                    <li>Very time-consuming</li>
+                    <li>Might miss the best combinations</li>
+                    <li>Doesn't work well with many parameters</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5: Grid Search -->
+        <div class="section" id="section5">
+            <h2>📋 Chapter 5: The Systematic Checklist Method</h2>
+
+            <div class="story-box">
+                <h3>📊 Getting Organized</h3>
+                <p>After days of random experimenting, you realize you need a better system. You decide to create a
+                    checklist: test EVERY possible combination of your main settings systematically.</p>
+
+                <p>You make a chart: "Temperature: 325°F, 350°F, 375°F" and "Time: 8 min, 10 min, 12 min" and "Speed: 3,
+                    5, 7". That's 3 × 3 × 3 = 27 different combinations to test!</p>
+
+                <p>This organized approach is called <strong>Grid Search</strong>!</p>
+            </div>
+
+            <div class="visualization">
+                <h3>🗂️ Understanding Grid Search Visually</h3>
+                <div id="gridVisualization">
+                    <p>Imagine a 3D grid where each point represents a combination of settings:</p>
+                    <div style="text-align: center; margin: 2rem 0;">
+                        <div style="display: inline-block; background: #f0f0f0; padding: 2rem; border-radius: 15px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem;">
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">325°F, 8min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">325°F, 10min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">325°F, 12min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">350°F, 8min</div>
+                                <div class="parameter-card"
+                                    style="margin: 0; padding: 0.5rem; background: linear-gradient(135deg, #00b894, #00cec9);">
+                                    350°F, 10min ⭐</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">350°F, 12min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">375°F, 8min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">375°F, 10min</div>
+                                <div class="parameter-card" style="margin: 0; padding: 0.5rem;">375°F, 12min</div>
+                            </div>
+                            <p><small>⭐ = Best combination found</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Grid Search Simulator</h3>
+                <p>Let's run a grid search! Click "Start Grid Search" and watch as we systematically test every
+                    combination:</p>
+
+                <div id="gridSearchInterface">
+                    <button onclick="startGridSearch()" id="gridSearchBtn"
+                        style="padding: 1rem 2rem; background: #6c5ce7; color: white; border: none; border-radius: 10px; margin: 1rem 0; cursor: pointer; font-size: 1.1rem;">🚀
+                        Start Grid Search</button>
+
+                    <div id="gridProgress" style="display: none;">
+                        <p>Testing combination <span id="currentCombo">1</span> of 27...</p>
+                        <div class="progress-bar" style="margin: 1rem 0;">
+                            <div class="progress-fill" id="gridProgressBar"></div>
+                        </div>
+                        <div class="result-display" id="currentTest">
+                            Preparing to test...
+                        </div>
+                    </div>
+
+                    <div id="gridResults" style="display: none;">
+                        <h4>🏆 Grid Search Complete!</h4>
+                        <div class="result-display" id="bestCombo"></div>
+                        <div id="allResults"
+                            style="max-height: 200px; overflow-y: auto; background: #f8f9fa; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>🔢 The Mathematics of Grid Search</h3>
+                <p><strong>Problem:</strong> Find the best hyperparameters θ*</p>
+                <p><strong>Method:</strong> Test all combinations in a grid</p>
+                <br>
+                <p>If we have:</p>
+                <ul>
+                    <li>Parameter 1: n₁ values</li>
+                    <li>Parameter 2: n₂ values</li>
+                    <li>Parameter 3: n₃ values</li>
+                </ul>
+                <p><strong>Total combinations = n₁ × n₂ × n₃</strong></p>
+                <br>
+                <p><em>In our cookie example: 3 × 3 × 3 = 27 combinations</em></p>
+                <p><strong>θ* = argmax f(θ) for all θ in Grid</strong></p>
+            </div>
+
+            <div class="example-box">
+                <h3>🎯 When to Use Grid Search</h3>
+                <p><strong>👍 Great for:</strong></p>
+                <ul>
+                    <li>Small number of hyperparameters (2-4)</li>
+                    <li>When you want to be thorough</li>
+                    <li>When computational resources aren't limited</li>
+                    <li>Understanding how parameters interact</li>
+                </ul>
+                <p><strong>👎 Not ideal for:</strong></p>
+                <ul>
+                    <li>Many hyperparameters (curse of dimensionality!)</li>
+                    <li>Continuous parameters with wide ranges</li>
+                    <li>Limited time or computing power</li>
+                </ul>
+            </div>
+
+            <div class="tip-box">
+                <strong>🧠 Think About It:</strong> With 5 parameters, each having 10 possible values, you'd need to
+                test 10⁵ = 100,000 combinations! That's why we need smarter methods for complex problems.
+            </div>
+        </div>
+
+        <!-- Section 6: Random Search -->
+        <div class="section" id="section6">
+            <h2>🎲 Chapter 6: The Lucky Draw Method</h2>
+
+            <div class="story-box">
+                <h3>🎰 A Surprising Discovery</h3>
+                <p>One day, your little cousin visits the factory and starts randomly pulling levers and pressing
+                    buttons while you're not looking! You panic, but then notice something amazing - some of the random
+                    combinations she tried actually work better than your careful grid search!</p>
+
+                <p>This gives you an idea: what if instead of testing EVERY combination systematically, you just test
+                    random combinations? You could cover more ground with fewer tests!</p>
+
+                <p>Welcome to <strong>Random Search</strong> - sometimes being a little chaotic is exactly what you
+                    need!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🎯 Why Random Search Works</h3>
+                <p>Imagine you're looking for treasure in a field:</p>
+                <ul>
+                    <li><strong>Grid Search:</strong> Walk in perfectly straight lines, checking every spot in a pattern
+                    </li>
+                    <li><strong>Random Search:</strong> Wander around randomly, checking spots wherever you feel like it
+                    </li>
+                </ul>
+                <p>Surprisingly, the random wanderer often finds treasure faster, especially when the field is big and
+                    the treasure could be anywhere!</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Random vs Grid Search Comparison</h3>
+                <p>Let's see Random Search in action! Watch how it explores the parameter space differently:</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0;">
+                    <div>
+                        <h4>📋 Grid Search (Systematic)</h4>
+                        <div id="gridSearchSpace"
+                            style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 10px; position: relative; overflow: hidden;">
+                        </div>
+                        <p><small>Tests every point in order</small></p>
+                    </div>
+                    <div>
+                        <h4>🎲 Random Search (Chaotic)</h4>
+                        <div id="randomSearchSpace"
+                            style="width: 100%; height: 200px; background: #f0f0f0; border-radius: 10px; position: relative; overflow: hidden;">
+                        </div>
+                        <p><small>Tests random points</small></p>
+                    </div>
+                </div>
+
+                <button onclick="runSearchComparison()"
+                    style="padding: 1rem 2rem; background: #e17055; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem;">🚀
+                    Run Comparison</button>
+
+                <div class="result-display" id="searchComparison" style="display: none;">
+                    Search results will appear here...
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>📊 The Science Behind Random Search</h3>
+                <p><strong>Key Insight:</strong> Many hyperparameters don't affect performance equally!</p>
+                <br>
+                <p>Imagine temperature is VERY important, but mixing speed barely matters:</p>
+                <ul>
+                    <li><strong>Grid Search:</strong> Wastes time testing every mixing speed value</li>
+                    <li><strong>Random Search:</strong> Naturally tests more temperature values</li>
+                </ul>
+                <br>
+                <p><strong>Mathematical Advantage:</strong></p>
+                <p>For n parameters, Random Search gives you n independent 1D searches!</p>
+                <p><em>Translation: You're more likely to hit the sweet spot for the important parameters</em></p>
+            </div>
+
+            <div class="algorithm-demo">
+                <h3>🎲 Random Search Algorithm Step-by-Step</h3>
+                <div id="randomAlgorithmDemo">
+                    <div class="step-indicator">
+                        <div class="step" id="randomStep1">1</div>
+                        <div class="step" id="randomStep2">2</div>
+                        <div class="step" id="randomStep3">3</div>
+                        <div class="step" id="randomStep4">4</div>
+                        <div class="step" id="randomStep5">5</div>
+                    </div>
+
+                    <div id="algorithmSteps">
+                        <div class="concept-box">
+                            <h4>Step 1: Define Your Search Space</h4>
+                            <p>Temperature: 300°F to 400°F, Time: 5 to 20 minutes, Speed: 1 to 10</p>
+                        </div>
+                    </div>
+
+                    <button onclick="nextRandomStep()" id="randomStepBtn"
+                        style="padding: 1rem 2rem; background: #00cec9; color: white; border: none; border-radius: 10px; cursor: pointer;">Next
+                        Step ➡️</button>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>🔬 Real-World Random Search Example</h3>
+                <p><strong>Neural Network Training:</strong></p>
+                <p>Instead of testing learning rates [0.01, 0.1, 1.0], Random Search might test [0.0234, 0.156, 0.891] -
+                    and accidentally discover that 0.0234 works amazingly well!</p>
+
+                <p><strong>The Magic:</strong> Random Search explores values you might never think to try manually.</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Understanding Check</h3>
+                <p>When would Random Search be better than Grid Search?</p>
+                <div class="quiz-option" onclick="checkRandomAnswer(this, false)">When you have only 2 hyperparameters
+                </div>
+                <div class="quiz-option" onclick="checkRandomAnswer(this, true)">When some hyperparameters are much more
+                    important than others</div>
+                <div class="quiz-option" onclick="checkRandomAnswer(this, false)">When you want to test every possible
+                    combination</div>
+                <div id="randomQuizFeedback" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Section 7: Bayesian Optimization -->
+        <div class="section" id="section7">
+            <h2>🧠 Chapter 7: The Smart Learning Method</h2>
+
+            <div class="story-box">
+                <h3>🎓 Hiring a Cookie Scientist</h3>
+                <p>After months of running the factory, you decide to hire Dr. Smart, a cookie scientist who claims she
+                    can find the perfect settings faster than any method you've tried.</p>
+
+                <p>"Here's my secret," she says. "Instead of testing randomly or systematically, I'll make educated
+                    guesses based on what we've learned so far. Each test will teach us something that helps us make an
+                    even better guess next time!"</p>
+
+                <p>This brilliant approach is called <strong>Bayesian Optimization</strong> - it's like having a
+                    super-smart assistant who learns from every experiment!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🤖 How Bayesian Optimization Thinks</h3>
+                <p>Imagine you're blindfolded, trying to find the highest hill in a landscape by feeling around:</p>
+
+                <ol>
+                    <li><strong>Start with a guess</strong> about where hills might be</li>
+                    <li><strong>Feel around</strong> at a few spots to test your guess</li>
+                    <li><strong>Update your mental map</strong> based on what you felt</li>
+                    <li><strong>Make a smarter guess</strong> about where to feel next</li>
+                    <li><strong>Repeat</strong>, getting smarter each time!</li>
+                </ol>
+
+                <p>This is exactly how Bayesian Optimization finds the best hyperparameters!</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Bayesian Optimization Simulator</h3>
+                <p>Watch Dr. Smart in action! See how she makes increasingly better guesses:</p>
+
+                <div id="bayesianDemo">
+                    <div style="background: white; border-radius: 15px; padding: 2rem; margin: 1rem 0;">
+                        <h4>🗺️ Dr. Smart's Mental Map</h4>
+                        <div id="bayesianVisualization"
+                            style="width: 100%; height: 300px; background: linear-gradient(135deg, #ddd 0%, #fff 50%, #ddd 100%); border-radius: 10px; position: relative; border: 2px solid #ccc;">
+                            <div
+                                style="position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; border-radius: 5px; font-size: 0.9rem;">
+                                🎯 Target: Find the peak!
+                            </div>
+                        </div>
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                            <button onclick="nextBayesianStep()" id="bayesianBtn"
+                                style="padding: 1rem 2rem; background: #6c5ce7; color: white; border: none; border-radius: 10px; cursor: pointer;">🔬
+                                Next Smart Guess</button>
+                            <div id="bayesianStats" style="background: #f8f9fa; padding: 1rem; border-radius: 10px;">
+                                <strong>Attempts: <span id="attemptCount">0</span></strong><br>
+                                <strong>Best Score: <span id="bestScore">0</span></strong>
+                            </div>
+                        </div>
+
+                        <div class="result-display" id="bayesianResult">
+                            Click "Next Smart Guess" to start!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>🔢 The Mathematical Magic</h3>
+                <p><strong>Bayesian Optimization uses two key components:</strong></p>
+                <br>
+                <p><strong>1. Surrogate Model (The Mental Map):</strong></p>
+                <p>f(θ) ≈ GP(μ(θ), k(θ, θ'))</p>
+                <p><em>Translation: "We model the unknown function as a Gaussian Process"</em></p>
+                <br>
+                <p><strong>2. Acquisition Function (The Decision Maker):</strong></p>
+                <p>α(θ) = Expected Improvement</p>
+                <p><em>Translation: "Choose the point that's most likely to be better than what we've seen"</em></p>
+                <br>
+                <p><strong>Don't worry about the complex math - the key idea is:</strong> Learn from every test to make
+                    better decisions!</p>
+            </div>
+
+            <div class="algorithm-demo">
+                <h3>🎯 Bayesian Optimization Step-by-Step</h3>
+                <div id="bayesianAlgorithm">
+                    <div class="step-indicator">
+                        <div class="step active" id="bayesStep1">1</div>
+                        <div class="step" id="bayesStep2">2</div>
+                        <div class="step" id="bayesStep3">3</div>
+                        <div class="step" id="bayesStep4">4</div>
+                        <div class="step" id="bayesStep5">5</div>
+                    </div>
+
+                    <div id="bayesianStepContent">
+                        <div class="concept-box">
+                            <h4>🚀 Step 1: Initial Exploration</h4>
+                            <p>"Let me try a few random settings first to get a feel for how this factory works..."</p>
+                            <p><strong>Result:</strong> Temperature 350°F, Time 10min → Score: 75</p>
+                            <p><strong>Result:</strong> Temperature 375°F, Time 8min → Score: 68</p>
+                        </div>
+                    </div>
+
+                    <button onclick="nextBayesianAlgorithmStep()" id="bayesAlgorithmBtn"
+                        style="padding: 1rem 2rem; background: #00cec9; color: white; border: none; border-radius: 10px; cursor: pointer;">Next
+                        Step ➡️</button>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>🏆 Why Bayesian Optimization is Powerful</h3>
+                <p><strong>🎯 Efficiency:</strong> Often finds great results in 10-50 evaluations instead of hundreds!
+                </p>
+                <p><strong>🧠 Intelligence:</strong> Learns from every single test</p>
+                <p><strong>⚖️ Balance:</strong> Explores new areas while exploiting promising regions</p>
+                <p><strong>🔧 Flexibility:</strong> Works with any type of hyperparameter (continuous, discrete,
+                    categorical)</p>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎓 Real-World Impact:</strong> Companies like Google and Facebook use Bayesian Optimization to
+                automatically tune their massive AI systems, saving thousands of hours of manual work!
+            </div>
+        </div>
+
+        <!-- Section 8: Advanced Techniques -->
+        <div class="section" id="section8">
+            <h2>🚀 Chapter 8: The Future of Cookie Science</h2>
+
+            <div class="story-box">
+                <h3>🌟 The Factory Revolution</h3>
+                <p>Word spreads about your amazing cookie factory, and soon other advanced cookie scientists arrive with
+                    even more incredible techniques!</p>
+
+                <p>Dr. Evolution brings "Genetic Algorithms" - inspired by how nature evolves the perfect creatures. Dr.
+                    Swarm introduces "Particle Swarm Optimization" - inspired by how birds find food together. And Dr.
+                    Multi-Task shows you how to optimize multiple cookie types simultaneously!</p>
+
+                <p>The future of hyperparameter tuning is full of exciting possibilities!</p>
+            </div>
+
+            <div class="parameter-grid">
+                <div class="parameter-card" onclick="exploreAdvanced('genetic')">
+                    <h4>🧬 Genetic Algorithms</h4>
+                    <p>Evolution-inspired optimization</p>
+                    <small>Mutation, Crossover, Selection</small>
+                </div>
+                <div class="parameter-card" onclick="exploreAdvanced('pso')">
+                    <h4>🐦 Particle Swarm</h4>
+                    <p>Swarm intelligence methods</p>
+                    <small>Social learning, Velocity updates</small>
+                </div>
+                <div class="parameter-card" onclick="exploreAdvanced('multi')">
+                    <h4>🎯 Multi-Objective</h4>
+                    <p>Optimizing multiple goals</p>
+                    <small>Pareto fronts, Trade-offs</small>
+                </div>
+                <div class="parameter-card" onclick="exploreAdvanced('meta')">
+                    <h4>🤖 Meta-Learning</h4>
+                    <p>Learning to learn faster</p>
+                    <small>Transfer learning, Warm starts</small>
+                </div>
+            </div>
+
+            <div class="concept-box" id="advancedExplorer" style="display: none;">
+                <h3 id="advancedTitle">Select a technique above!</h3>
+                <div id="advancedContent"></div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Evolution Simulator</h3>
+                <p>Watch how Genetic Algorithms evolve the perfect cookie recipe over generations!</p>
+
+                <div id="geneticDemo">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0;">
+                        <div class="parameter-card" id="individual1">
+                            <h5>🍪 Recipe A</h5>
+                            <p>Temp: <span class="temp">350</span>°F</p>
+                            <p>Time: <span class="time">10</span>min</p>
+                            <p>Score: <span class="score">0</span></p>
+                        </div>
+                        <div class="parameter-card" id="individual2">
+                            <h5>🍪 Recipe B</h5>
+                            <p>Temp: <span class="temp">325</span>°F</p>
+                            <p>Time: <span class="time">12</span>min</p>
+                            <p>Score: <span class="score">0</span></p>
+                        </div>
+                        <div class="parameter-card" id="individual3">
+                            <h5>🍪 Recipe C</h5>
+                            <p>Temp: <span class="temp">375</span>°F</p>
+                            <p>Time: <span class="time">8</span>min</p>
+                            <p>Score: <span class="score">0</span></p>
+                        </div>
+                        <div class="parameter-card" id="individual4">
+                            <h5>🍪 Recipe D</h5>
+                            <p>Temp: <span class="temp">360</span>°F</p>
+                            <p>Time: <span class="time">11</span>min</p>
+                            <p>Score: <span class="score">0</span></p>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <button onclick="runGeneration()" id="evolutionBtn"
+                            style="padding: 1rem 2rem; background: #e17055; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1rem;">🧬
+                            Evolve Next Generation</button>
+                        <p>Generation: <span id="generation">0</span></p>
+                    </div>
+
+                    <div class="result-display" id="evolutionResult">
+                        Click "Evolve Next Generation" to start the evolution process!
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>🔬 The Science of Advanced Optimization</h3>
+                <p><strong>Genetic Algorithm Process:</strong></p>
+                <ol>
+                    <li><strong>Selection:</strong> Choose the best "parents" (P(selection) ∝ fitness)</li>
+                    <li><strong>Crossover:</strong> Combine parents to create "children" (θ_child = α*θ_parent1 +
+                        (1-α)*θ_parent2)</li>
+                    <li><strong>Mutation:</strong> Add random changes (θ_new = θ + ε, where ε ~ N(0,σ²))</li>
+                    <li><strong>Repeat:</strong> Evolution over generations</li>
+                </ol>
+                <br>
+                <p><em>It's like breeding the perfect cookie recipe through artificial evolution!</em></p>
+            </div>
+
+            <div class="algorithm-demo">
+                <h3>📊 Comparing All Methods</h3>
+                <div id="methodComparison">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #74b9ff, #0984e3); color: white;">
+                                    <th style="padding: 1rem; border: 1px solid #ddd;">Method</th>
+                                    <th style="padding: 1rem; border: 1px solid #ddd;">Speed</th>
+                                    <th style="padding: 1rem; border: 1px solid #ddd;">Accuracy</th>
+                                    <th style="padding: 1rem; border: 1px solid #ddd;">Complexity</th>
+                                    <th style="padding: 1rem; border: 1px solid #ddd;">Best For</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid #ddd; font-weight: bold;">Manual</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">Learning & Simple problems</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid #ddd; font-weight: bold;">Grid Search
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">Few parameters & thoroughness
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid #ddd; font-weight: bold;">Random Search
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">Many parameters & exploration
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid #ddd; font-weight: bold;">Bayesian</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">Expensive evaluations &
+                                        efficiency</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid #ddd; font-weight: bold;">Genetic</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">⭐⭐⭐</td>
+                                    <td style="padding: 1rem; border: 1px solid #ddd;">Complex landscapes & populations
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <strong>🎯 Choosing the Right Method:</strong> Like choosing the right tool for a job, the best
+                hyperparameter tuning method depends on your specific situation, resources, and goals!
+            </div>
+        </div>
+
+        <!-- Section 9: Practical Implementation -->
+        <div class="section" id="section9">
+            <h2>🛠️ Chapter 9: Building Your Own Tuning System</h2>
+
+            <div class="story-box">
+                <h3>🔧 From Theory to Practice</h3>
+                <p>Now that you understand all these amazing techniques, it's time to actually build your own
+                    hyperparameter tuning system! You'll learn how to implement these methods in real code and apply
+                    them to real problems.</p>
+
+                <p>Think of this as building your own "Smart Factory Control System" that other cookie factories around
+                    the world can use!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🏗️ Implementation Roadmap</h3>
+                <ol>
+                    <li><strong>Define your problem:</strong> What are you trying to optimize?</li>
+                    <li><strong>Choose your parameters:</strong> Which settings can you adjust?</li>
+                    <li><strong>Select your method:</strong> Based on your constraints and goals</li>
+                    <li><strong>Implement evaluation:</strong> How do you measure success?</li>
+                    <li><strong>Run and monitor:</strong> Execute and track your tuning process</li>
+                    <li><strong>Analyze results:</strong> Learn from what worked and what didn't</li>
+                </ol>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Build Your Tuning System</h3>
+                <p>Let's create a complete hyperparameter tuning system step by step!</p>
+
+                <div id="implementationDemo">
+                    <div class="step-indicator">
+                        <div class="step active" id="implStep1">1</div>
+                        <div class="step" id="implStep2">2</div>
+                        <div class="step" id="implStep3">3</div>
+                        <div class="step" id="implStep4">4</div>
+                        <div class="step" id="implStep5">5</div>
+                        <div class="step" id="implStep6">6</div>
+                    </div>
+
+                    <div id="implementationSteps">
+                        <div class="concept-box">
+                            <h4>🎯 Step 1: Define Your Problem</h4>
+                            <p>What type of machine learning problem are you solving?</p>
+                            <select id="problemType"
+                                style="padding: 0.5rem; margin: 1rem 0; width: 100%; border-radius: 5px; border: 1px solid #ddd;">
+                                <option value="classification">Image Classification (recognizing pictures)</option>
+                                <option value="regression">Price Prediction (predicting numbers)</option>
+                                <option value="nlp">Text Analysis (understanding language)</option>
+                                <option value="recommendation">Recommendation System (suggesting items)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onclick="nextImplementationStep()" id="implBtn"
+                        style="padding: 1rem 2rem; background: #00cec9; color: white; border: none; border-radius: 10px; cursor: pointer;">Next
+                        Step ➡️</button>
+                </div>
+
+                <div class="result-display" id="implementationResult" style="display: none;">
+                    Your custom tuning system will be built here!
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>💻 Code Implementation Framework</h3>
+                <p><strong>Basic Structure (in Python-like pseudocode):</strong></p>
+                <pre style="background: #f8f9fa; padding: 1rem; border-radius: 5px; overflow-x: auto;">
+class HyperparameterTuner:
+    def __init__(self, method="bayesian"):
+        self.method = method
+        self.results = []
+    
+    def define_search_space(self, params):
+        # Temperature: [300, 400]
+        # Time: [5, 20]  
+        # Speed: [1, 10]
+        self.search_space = params
+    
+    def objective_function(self, params):
+        # Train model with these parameters
+        # Return performance score
+        return score
+    
+    def optimize(self, n_trials=50):
+        for i in range(n_trials):
+            # Choose next parameters to try
+            next_params = self.suggest_next(i)
+            
+            # Evaluate these parameters
+            score = self.objective_function(next_params)
+            
+            # Learn from this result
+            self.update_knowledge(next_params, score)
+            
+        return self.get_best_parameters()
+                </pre>
+            </div>
+
+            <div class="example-box">
+                <h3>🛠️ Popular Tools and Libraries</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div style="background: rgb(19, 19, 19); padding: 1rem; border-radius: 10px;">
+                        <h4>🐍 Python Libraries</h4>
+                        <ul>
+                            <li><strong>Optuna:</strong> Modern Bayesian optimization</li>
+                            <li><strong>Hyperopt:</strong> Popular and flexible</li>
+                            <li><strong>Scikit-optimize:</strong> Simple and effective</li>
+                            <li><strong>Ray Tune:</strong> Distributed tuning</li>
+                        </ul>
+                    </div>
+                    <div style="background: rgb(12, 12, 12); padding: 1rem; border-radius: 10px;">
+                        <h4>🌐 Cloud Platforms</h4>
+                        <ul>
+                            <li><strong>Google Vertex AI:</strong> AutoML tuning</li>
+                            <li><strong>AWS SageMaker:</strong> Automatic tuning</li>
+                            <li><strong>Azure ML:</strong> HyperDrive service</li>
+                            <li><strong>Weights & Biases:</strong> Experiment tracking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🧠 Implementation Challenge</h3>
+                <p>You're tuning a neural network with 5 hyperparameters, and each training run takes 2 hours. You have
+                    48 hours total. Which method would be most practical?</p>
+                <div class="quiz-option" onclick="checkImplementationAnswer(this, false)">Grid Search with 5 values per
+                    parameter (3125 combinations)</div>
+                <div class="quiz-option" onclick="checkImplementationAnswer(this, true)">Bayesian Optimization with 24
+                    trials</div>
+                <div class="quiz-option" onclick="checkImplementationAnswer(this, false)">Random Search with 100 trials
+                </div>
+                <div id="implementationQuizFeedback" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <!-- Section 10: Best Practices and Final Project -->
+        <div class="section" id="section10">
+            <h2>🏆 Chapter 10: Mastering the Art of Hyperparameter Tuning</h2>
+
+            <div class="story-box">
+                <h3>🎓 Graduation Day</h3>
+                <p>Congratulations! You've transformed from someone who inherited a mysterious cookie factory into a
+                    master of hyperparameter optimization! Your factory now produces the most consistent, delicious
+                    cookies in the world, and other factories come to learn from your systematic approach.</p>
+
+                <p>But like any true master, you know that learning never stops. Let's explore the advanced best
+                    practices and tackle a final comprehensive project that will cement your expertise!</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>🎯 The Master's Best Practices</h3>
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                    <div class="parameter-card">
+                        <h4>📊 Always Start Simple</h4>
+                        <p>Begin with manual tuning or random search to understand your problem before using complex
+                            methods.</p>
+                    </div>
+                    <div class="parameter-card">
+                        <h4>📏 Define Clear Metrics</h4>
+                        <p>Know exactly what "success" means. Is it accuracy? Speed? A combination?</p>
+                    </div>
+                    <div class="parameter-card">
+                        <h4>⏱️ Set Time Budgets</h4>
+                        <p>Decide upfront how much time/computation you can afford for tuning.</p>
+                    </div>
+                    <div class="parameter-card">
+                        <h4>🔄 Use Cross-Validation</h4>
+                        <p>Don't trust a single test - validate your results across multiple data splits.</p>
+                    </div>
+                    <div class="parameter-card">
+                        <h4>📝 Document Everything</h4>
+                        <p>Keep detailed records of what you tried and what worked.</p>
+                    </div>
+                    <div class="parameter-card">
+                        <h4>🎪 Avoid the Curse</h4>
+                        <p>Be strategic about which parameters to tune - more isn't always better!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Final Master Project: Complete AI System Tuning</h3>
+                <p>Apply everything you've learned to tune a complete AI system for image recognition!</p>
+
+                <div id="finalProject">
+                    <div class="algorithm-demo">
+                        <h4>🏭 Your AI Cookie Classification System</h4>
+                        <p>Your factory now needs an AI system to automatically classify different types of cookies. You
+                            need to tune multiple components:</p>
+
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                            <div class="concept-box" style="margin: 0;">
+                                <h5>🧠 Neural Network</h5>
+                                <ul style="font-size: 0.9rem;">
+                                    <li>Learning rate: 0.001-0.1</li>
+                                    <li>Batch size: 16-128</li>
+                                    <li>Hidden layers: 2-8</li>
+                                    <li>Neurons per layer: 64-512</li>
+                                </ul>
+                            </div>
+                            <div class="concept-box" style="margin: 0;">
+                                <h5>🖼️ Image Processing</h5>
+                                <ul style="font-size: 0.9rem;">
+                                    <li>Image size: 32x32 to 224x224</li>
+                                    <li>Augmentation: rotation, flip</li>
+                                    <li>Normalization: yes/no</li>
+                                    <li>Color space: RGB/Grayscale</li>
+                                </ul>
+                            </div>
+                            <div class="concept-box" style="margin: 0;">
+                                <h5>⚙️ Training Setup</h5>
+                                <ul style="font-size: 0.9rem;">
+                                    <li>Optimizer: Adam/SGD/RMSprop</li>
+                                    <li>Epochs: 10-100</li>
+                                    <li>Dropout: 0.0-0.5</li>
+                                    <li>Weight decay: 0.0001-0.01</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div style="text-align: center; margin: 2rem 0;">
+                            <button onclick="startFinalProject()" id="finalProjectBtn"
+                                style="padding: 1.5rem 3rem; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; border: none; border-radius: 15px; cursor: pointer; font-size: 1.2rem; font-weight: bold;">🚀
+                                Start Master Project</button>
+                        </div>
+                    </div>
+
+                    <div id="projectProgress" style="display: none;">
+                        <div class="visualization">
+                            <h4>🔬 Tuning Progress</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <div>
+                                    <h5>📊 Current Best Performance</h5>
+                                    <div
+                                        style="background: linear-gradient(135deg, #00b894, #00cec9); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                                        <div style="font-size: 2rem; font-weight: bold;" id="bestAccuracy">0%</div>
+                                        <div>Accuracy</div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5>🎯 Trials Completed</h5>
+                                    <div
+                                        style="background: linear-gradient(135deg, #fd79a8, #fdcb6e); color: white; padding: 2rem; border-radius: 15px; text-align: center;">
+                                        <div style="font-size: 2rem; font-weight: bold;" id="trialsCompleted">0</div>
+                                        <div>of 50 trials</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="margin: 2rem 0;">
+                                <h5>📈 Performance Over Time</h5>
+                                <div id="performanceChart"
+                                    style="width: 100%; height: 200px; background: #f8f9fa; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 2px dashed #ddd;">
+                                    Chart will appear here as tuning progresses...
+                                </div>
+                            </div>
+
+                            <div class="result-display" id="projectStatus">
+                                Initializing hyperparameter tuning system...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="projectResults" style="display: none;">
+                        <div class="example-box">
+                            <h4>🏆 Final Results Summary</h4>
+                            <div id="finalResults"></div>
+
+                            <h4>🎓 What You've Accomplished</h4>
+                            <ul>
+                                <li>✅ Mastered manual, grid, random, and Bayesian optimization</li>
+                                <li>✅ Understood the mathematics behind each method</li>
+                                <li>✅ Applied advanced techniques like genetic algorithms</li>
+                                <li>✅ Built a complete hyperparameter tuning system</li>
+                                <li>✅ Optimized a real-world AI application</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tip-box">
+                <h3>🌟 Your Journey Continues</h3>
+                <p><strong>Congratulations, Master of Hyperparameter Tuning!</strong> You now have the knowledge and
+                    skills to optimize any AI system. Remember:</p>
+                <ul>
+                    <li>Start with understanding your problem deeply</li>
+                    <li>Choose the right tool for the right job</li>
+                    <li>Always validate your results properly</li>
+                    <li>Keep learning and experimenting</li>
+                </ul>
+                <p>The field of hyperparameter optimization is constantly evolving, with new methods and tools being
+                    developed. Stay curious, keep practicing, and share your knowledge with others!</p>
+            </div>
+
+            <div class="quiz-container">
+                <h3>🎓 Final Mastery Assessment</h3>
+                <p>A startup asks you to optimize their recommendation system. They have limited time and resources.
+                    What's your approach?</p>
+                <div class="quiz-option" onclick="checkMasteryAnswer(this, false)">Immediately start with the most
+                    advanced Bayesian optimization</div>
+                <div class="quiz-option" onclick="checkMasteryAnswer(this, true)">First understand the problem, then
+                    start simple and progressively use more sophisticated methods</div>
+                <div class="quiz-option" onclick="checkMasteryAnswer(this, false)">Use grid search to be absolutely
+                    thorough</div>
+                <div id="masteryQuizFeedback" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn prev" onclick="previousSection()" id="prevBtn" disabled>⬅️ Previous</button>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span id="sectionIndicator">Section 1 of 10</span>
+                <button onclick="toggleTableOfContents()"
+                    style="padding: 8px 16px; background: #74b9ff; color: white; border: none; border-radius: 20px; cursor: pointer;">📚
+                    Contents</button>
+            </div>
+            <button class="nav-btn next" onclick="nextSection()" id="nextBtn">Next ➡️</button>
+        </div>
+
+        <!-- Table of Contents Modal -->
+        <div id="tocModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+            <div
+                style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 2rem; border-radius: 20px; max-width: 600px; width: 90%; max-height: 80%; overflow-y: auto;">
+                <h3 style="margin-bottom: 1rem;">📚 Table of Contents</h3>
+                <div id="tocList">
+                    <div class="quiz-option" onclick="goToSection(1); toggleTableOfContents();">Chapter 1: Welcome to
+                        Sweet Dreams Cookie Factory</div>
+                    <div class="quiz-option" onclick="goToSection(2); toggleTableOfContents();">Chapter 2: The
+                        Difference Between Ingredients and Settings</div>
+                    <div class="quiz-option" onclick="goToSection(3); toggleTableOfContents();">Chapter 3: All the Knobs
+                        and Dials in Our Factory</div>
+                    <div class="quiz-option" onclick="goToSection(4); toggleTableOfContents();">Chapter 4: The Trial and
+                        Error Adventure</div>
+                    <div class="quiz-option" onclick="goToSection(5); toggleTableOfContents();">Chapter 5: The
+                        Systematic Checklist Method</div>
+                    <div class="quiz-option" onclick="goToSection(6); toggleTableOfContents();">Chapter 6: The Lucky
+                        Draw Method</div>
+                    <div class="quiz-option" onclick="goToSection(7); toggleTableOfContents();">Chapter 7: The Smart
+                        Learning Method</div>
+                    <div class="quiz-option" onclick="goToSection(8); toggleTableOfContents();">Chapter 8: The Future of
+                        Cookie Science</div>
+                    <div class="quiz-option" onclick="goToSection(9); toggleTableOfContents();">Chapter 9: Building Your
+                        Own Tuning System</div>
+                    <div class="quiz-option" onclick="goToSection(10); toggleTableOfContents();">Chapter 10: Mastering
+                        the Art of Hyperparameter Tuning</div>
+                </div>
+                <button onclick="toggleTableOfContents()"
+                    style="margin-top: 1rem; padding: 0.5rem 1rem; background: #e17055; color: white; border: none; border-radius: 10px; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSection = 1;
+        const totalSections = 10;
+        let manualAttempts = [];
+        let currentRandomStep = 1;
+        let currentBayesianStep = 1;
+        let currentBayesianAlgorithmStep = 1;
+        let currentImplementationStep = 1;
+        let generation = 0;
+        let individuals = [
+            { temp: 350, time: 10, score: 0 },
+            { temp: 325, time: 12, score: 0 },
+            { temp: 375, time: 8, score: 0 },
+            { temp: 360, time: 11, score: 0 }
+        ];
+        let bayesianPoints = [];
+        let projectTrials = 0;
+        let bestProjectScore = 0;
+        let projectRunning = false;
+
+        // Initialize sliders
+        document.addEventListener('DOMContentLoaded', function () {
+            updateSliderValues();
+            updateProgress();
+        });
+
+        function updateSliderValues() {
+            // Section 1 sliders
+            const tempSlider = document.getElementById('temperature');
+            const timeSlider = document.getElementById('bakingTime');
+            if (tempSlider && timeSlider) {
+                tempSlider.oninput = function () {
+                    document.getElementById('tempValue').textContent = this.value;
+                    updateCookieQuality();
+                };
+                timeSlider.oninput = function () {
+                    document.getElementById('timeValue').textContent = this.value;
+                    updateCookieQuality();
+                };
+            }
+
+            // Section 3 sliders
+            const learningRate = document.getElementById('learningRate');
+            const batchSize = document.getElementById('batchSize');
+            const layers = document.getElementById('layers');
+
+            if (learningRate) {
+                learningRate.oninput = function () {
+                    document.getElementById('learningRateVal').textContent = this.value;
+                    updateFactoryStatus();
+                };
+            }
+            if (batchSize) {
+                batchSize.oninput = function () {
+                    document.getElementById('batchSizeVal').textContent = this.value;
+                    updateFactoryStatus();
+                };
+            }
+            if (layers) {
+                layers.oninput = function () {
+                    document.getElementById('layersVal').textContent = this.value;
+                    updateFactoryStatus();
+                };
+            }
+
+            // Manual tuning sliders
+            const manualTemp = document.getElementById('manualTemp');
+            const manualTime = document.getElementById('manualTime');
+            const manualSpeed = document.getElementById('manualSpeed');
+
+            if (manualTemp) {
+                manualTemp.oninput = function () {
+                    document.getElementById('manualTempVal').textContent = this.value;
+                };
+            }
+            if (manualTime) {
+                manualTime.oninput = function () {
+                    document.getElementById('manualTimeVal').textContent = this.value;
+                };
+            }
+            if (manualSpeed) {
+                manualSpeed.oninput = function () {
+                    document.getElementById('manualSpeedVal').textContent = this.value;
+                };
+            }
+        }
+
+        function updateCookieQuality() {
+            const temp = parseInt(document.getElementById('temperature').value);
+            const time = parseInt(document.getElementById('bakingTime').value);
+
+            let quality = "Perfect! 🍪✨";
+            if (temp < 325 || temp > 375) quality = "Needs adjustment 🤔";
+            if (time < 8 || time > 12) quality = "Could be better 📝";
+            if ((temp < 325 || temp > 375) && (time < 8 || time > 12)) quality = "Try different settings 🔧";
+
+            document.getElementById('cookieResult').textContent = `Cookie Quality: ${quality}`;
+        }
+
+        function updateFactoryStatus() {
+            const lr = parseFloat(document.getElementById('learningRate').value);
+            const batch = parseInt(document.getElementById('batchSize').value);
+            const layers = parseInt(document.getElementById('layers').value);
+
+            let status = "Optimal performance! 🚀";
+            if (lr < 0.005 || lr > 0.05) status = "Learning rate needs adjustment ⚙️";
+            if (batch < 32 || batch > 64) status = "Consider adjusting batch size 📦";
+            if (layers < 3 || layers > 6) status = "Layer count could be optimized 🏗️";
+
+            document.getElementById('factoryResult').textContent = `Factory Status: ${status}`;
+        }
+
+        function showParameterInfo(type) {
+            const infoBox = document.getElementById('parameterInfo');
+            const title = document.getElementById('infoTitle');
+            const content = document.getElementById('infoContent');
+
+            if (type === 'ingredients') {
+                title.textContent = '🥛 Ingredients (Parameters)';
+                content.innerHTML = `
+                    <p><strong>These are learned automatically by the machines:</strong></p>
+                    <ul>
+                        <li><strong>Flour amount:</strong> The machine learns how much flour makes the best dough</li>
+                        <li><strong>Sugar ratio:</strong> Adjusts sweetness based on feedback</li>
+                        <li><strong>Chocolate chip density:</strong> Learns optimal distribution</li>
+                    </ul>
+                    <p><em>In AI: These are the "weights" that the neural network learns during training.</em></p>
+                `;
+            } else {
+                title.textContent = '⚙️ Settings (Hyperparameters)';
+                content.innerHTML = `
+                    <p><strong>These must be set by YOU before the machines start:</strong></p>
+                    <ul>
+                        <li><strong>Oven temperature:</strong> You decide what temperature to use</li>
+                        <li><strong>Mixing speed:</strong> You control how fast the mixer runs</li>
+                        <li><strong>Baking time:</strong> You set the timer</li>
+                    </ul>
+                    <p><em>In AI: These are settings like learning rate, number of layers, etc.</em></p>
+                `;
+            }
+
+            infoBox.style.display = 'block';
+        }
+
+        function checkAnswer(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt === element) {
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('quizFeedback');
+            if (isCorrect) {
+                feedback.innerHTML = '<div style="color: #00b894; font-weight: bold;">🎉 Correct! The mixer speed is a setting YOU control - that\'s a hyperparameter!</div>';
+            } else {
+                feedback.innerHTML = '<div style="color: #e17055; font-weight: bold;">🤔 Not quite. Remember: hyperparameters are settings you choose BEFORE the machine starts learning.</div>';
+            }
+        }
+
+        function exploreCategory(category) {
+            const explorer = document.getElementById('categoryExplorer');
+            const title = document.getElementById('categoryTitle');
+            const content = document.getElementById('categoryContent');
+
+            const categories = {
+                'learning': {
+                    title: '🧠 Learning Controls',
+                    content: `
+                        <p><strong>These control how your AI learns:</strong></p>
+                        <ul>
+                            <li><strong>Learning Rate:</strong> How big steps the AI takes when learning (like oven temperature adjustment speed)</li>
+                            <li><strong>Batch Size:</strong> How many examples the AI looks at before updating (like cookies per tray)</li>
+                            <li><strong>Epochs:</strong> How many times the AI goes through all the training data (like recipe practice rounds)</li>
+                        </ul>
+                        <p><em>Think of these as controlling the "pace and intensity" of learning.</em></p>
+                    `
+                },
+                'structure': {
+                    title: '🏗️ Factory Structure',
+                    content: `
+                        <p><strong>These determine how your AI is built:</strong></p>
+                        <ul>
+                            <li><strong>Number of Layers:</strong> How many floors your factory has (more layers = more complex processing)</li>
+                            <li><strong>Neurons per Layer:</strong> How many workers on each floor (more neurons = more processing power)</li>
+                            <li><strong>Architecture Type:</strong> The overall design (CNN for images, RNN for sequences, etc.)</li>
+                        </ul>
+                        <p><em>These are like the blueprint of your factory.</em></p>
+                    `
+                },
+                'optimization': {
+                    title: '⚡ Optimization Settings',
+                    content: `
+                        <p><strong>These control how efficiently your AI improves:</strong></p>
+                        <ul>
+                            <li><strong>Optimizer:</strong> The strategy for updating (Adam, SGD, RMSprop - like different improvement methods)</li>
+                            <li><strong>Momentum:</strong> How much the AI remembers previous changes (like inertia in physics)</li>
+                            <li><strong>Learning Rate Schedule:</strong> How the learning rate changes over time</li>
+                        </ul>
+                        <p><em>These are like the "improvement strategies" for your factory.</em></p>
+                    `
+                },
+                'regularization': {
+                    title: '🛡️ Quality Control',
+                    content: `
+                        <p><strong>These prevent your AI from making common mistakes:</strong></p>
+                        <ul>
+                            <li><strong>Dropout:</strong> Randomly "turning off" some neurons during training (prevents over-reliance)</li>
+                            <li><strong>Weight Decay:</strong> Keeping the AI's parameters from getting too large</li>
+                            <li><strong>Early Stopping:</strong> Stopping training when performance stops improving</li>
+                        </ul>
+                        <p><em>These are like quality control measures in your factory.</em></p>
+                    `
+                }
+            };
+
+            title.textContent = categories[category].title;
+            content.innerHTML = categories[category].content;
+            explorer.style.display = 'block';
+        }
+
+        function testManualSettings() {
+            const temp = parseInt(document.getElementById('manualTemp').value);
+            const time = parseInt(document.getElementById('manualTime').value);
+            const speed = parseInt(document.getElementById('manualSpeed').value);
+
+            // Calculate score (perfect is temp=365, time=9, speed=7)
+            const tempScore = Math.max(0, 100 - Math.abs(temp - 365) * 2);
+            const timeScore = Math.max(0, 100 - Math.abs(time - 9) * 5);
+            const speedScore = Math.max(0, 100 - Math.abs(speed - 7) * 3);
+            const totalScore = Math.round((tempScore + timeScore + speedScore) / 3);
+
+            manualAttempts.push({ temp, time, speed, score: totalScore });
+
+            const result = document.getElementById('manualResult');
+            let message = `Score: ${totalScore}% `;
+            if (totalScore >= 85) message += '🏆 Excellent!';
+            else if (totalScore >= 70) message += '👍 Good job!';
+            else if (totalScore >= 50) message += '🤔 Getting there...';
+            else message += '💪 Keep trying!';
+
+            result.textContent = message;
+
+            // Update attempts history
+            const historyList = document.getElementById('historyList');
+            const attemptDiv = document.createElement('div');
+            attemptDiv.style.cssText = 'background: #f8f9fa; padding: 0.5rem; border-radius: 5px; margin: 0.25rem 0; font-size: 0.9rem;';
+            attemptDiv.textContent = `Try ${manualAttempts.length}: ${temp}°F, ${time}min, speed ${speed} → ${totalScore}%`;
+            historyList.appendChild(attemptDiv);
+
+            // Update step indicator
+            const steps = document.querySelectorAll('.step');
+            if (manualAttempts.length <= 5) {
+                steps[manualAttempts.length - 1].classList.add('completed');
+                if (manualAttempts.length < 5) {
+                    steps[manualAttempts.length].classList.add('active');
+                }
+            }
+        }
+
+        function startGridSearch() {
+            const btn = document.getElementById('gridSearchBtn');
+            const progress = document.getElementById('gridProgress');
+            const results = document.getElementById('gridResults');
+
+            btn.style.display = 'none';
+            progress.style.display = 'block';
+            results.style.display = 'none';
+
+            let currentCombo = 0;
+            const totalCombos = 27;
+            let bestScore = 0;
+            let bestSettings = {};
+            let allResults = [];
+
+            const temps = [325, 350, 375];
+            const times = [8, 10, 12];
+            const speeds = [3, 5, 7];
+
+            function testNextCombo() {
+                if (currentCombo >= totalCombos) {
+                    // Grid search complete
+                    progress.style.display = 'none';
+                    results.style.display = 'block';
+
+                    document.getElementById('bestCombo').textContent =
+                        `🏆 Best Result: ${bestSettings.temp}°F, ${bestSettings.time}min, speed ${bestSettings.speed} → ${bestScore}%`;
+
+                    const resultsHtml = allResults.map(r =>
+                        `<div style="padding: 0.25rem; ${r.score === bestScore ? 'background: #d1f2eb; font-weight: bold;' : ''}">${r.temp}°F, ${r.time}min, speed ${r.speed} → ${r.score}%</div>`
+                    ).join('');
+                    document.getElementById('allResults').innerHTML = resultsHtml;
+                    return;
+                }
+
+                const tempIndex = Math.floor(currentCombo / 9);
+                const timeIndex = Math.floor((currentCombo % 9) / 3);
+                const speedIndex = currentCombo % 3;
+
+                const temp = temps[tempIndex];
+                const time = times[timeIndex];
+                const speed = speeds[speedIndex];
+
+                // Calculate score
+                const tempScore = Math.max(0, 100 - Math.abs(temp - 365) * 2);
+                const timeScore = Math.max(0, 100 - Math.abs(time - 9) * 5);
+                const speedScore = Math.max(0, 100 - Math.abs(speed - 7) * 3);
+                const totalScore = Math.round((tempScore + timeScore + speedScore) / 3);
+
+                if (totalScore > bestScore) {
+                    bestScore = totalScore;
+                    bestSettings = { temp, time, speed };
+                }
+
+                allResults.push({ temp, time, speed, score: totalScore });
+
+                currentCombo++;
+                document.getElementById('currentCombo').textContent = currentCombo;
+                document.getElementById('gridProgressBar').style.width = `${(currentCombo / totalCombos) * 100}%`;
+                document.getElementById('currentTest').textContent =
+                    `Testing: ${temp}°F, ${time}min, speed ${speed} → Score: ${totalScore}%`;
+
+                setTimeout(testNextCombo, 200); // Simulate testing time
+            }
+
+            testNextCombo();
+        }
+
+        function runSearchComparison() {
+            const gridSpace = document.getElementById('gridSearchSpace');
+            const randomSpace = document.getElementById('randomSearchSpace');
+            const comparison = document.getElementById('searchComparison');
+
+            // Clear previous results
+            gridSpace.innerHTML = '';
+            randomSpace.innerHTML = '';
+
+            // Grid search visualization
+            for (let i = 0; i < 25; i++) {
+                const dot = document.createElement('div');
+                dot.style.cssText = `
+                    position: absolute;
+                    width: 8px; height: 8px;
+                    background: #74b9ff;
+                    border-radius: 50%;
+                    left: ${15 + (i % 5) * 30}px;
+                    top: ${15 + Math.floor(i / 5) * 30}px;
+                `;
+                gridSpace.appendChild(dot);
+
+                setTimeout(() => {
+                    dot.style.background = '#00b894';
+                }, i * 100);
+            }
+
+            // Random search visualization
+            for (let i = 0; i < 25; i++) {
+                const dot = document.createElement('div');
+                dot.style.cssText = `
+                    position: absolute;
+                    width: 8px; height: 8px;
+                    background: #e17055;
+                    border-radius: 50%;
+                    left: ${Math.random() * 160 + 10}px;
+                    top: ${Math.random() * 160 + 10}px;
+                `;
+                randomSpace.appendChild(dot);
+
+                setTimeout(() => {
+                    dot.style.background = '#fd79a8';
+                }, i * 100);
+            }
+
+            setTimeout(() => {
+                comparison.style.display = 'block';
+                comparison.innerHTML = `
+                    <strong>🏆 Results:</strong><br>
+                    📋 Grid Search: Found best score of 87% (systematic but slow)<br>
+                    🎲 Random Search: Found best score of 91% (lucky find in less explored area!)
+                `;
+            }, 3000);
+        }
+
+        function checkRandomAnswer(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt === element) {
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('randomQuizFeedback');
+            if (isCorrect) {
+                feedback.innerHTML = '<div style="color: #00b894; font-weight: bold;">🎉 Exactly! When some parameters matter much more than others, Random Search explores the important dimensions more effectively!</div>';
+            } else {
+                feedback.innerHTML = '<div style="color: #e17055; font-weight: bold;">🤔 Think about this: Random Search naturally tests more values for ALL parameters, giving better coverage of the important ones.</div>';
+            }
+        }
+
+        function nextRandomStep() {
+            const steps = ['randomStep1', 'randomStep2', 'randomStep3', 'randomStep4', 'randomStep5'];
+            const algorithmSteps = document.getElementById('algorithmSteps');
+            const btn = document.getElementById('randomStepBtn');
+
+            if (currentRandomStep < 5) {
+                document.getElementById(steps[currentRandomStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentRandomStep - 1]).classList.add('completed');
+                document.getElementById(steps[currentRandomStep]).classList.add('active');
+                currentRandomStep++;
+
+                const stepContent = {
+                    2: `<div class="concept-box"><h4>Step 2: Set Number of Trials</h4><p>Decide how many random combinations to test: "I'll try 50 different random settings."</p></div>`,
+                    3: `<div class="concept-box"><h4>Step 3: Generate Random Settings</h4><p>Let the computer pick random values: Temperature = 342°F (random), Time = 11.3min (random), Speed = 6.7 (random)</p></div>`,
+                    4: `<div class="concept-box"><h4>Step 4: Test and Record</h4><p>Run each random combination and record the results. No pattern - just pure exploration!</p></div>`,
+                    5: `<div class="concept-box"><h4>Step 5: Pick the Winner</h4><p>After all trials, choose the random combination that performed best. Often surprisingly good!</p></div>`
+                };
+
+                algorithmSteps.innerHTML = stepContent[currentRandomStep];
+
+                if (currentRandomStep === 5) {
+                    btn.textContent = 'Algorithm Complete! ✅';
+                    btn.disabled = true;
+                }
+            }
+        }
+
+        function nextBayesianStep() {
+            const visualization = document.getElementById('bayesianVisualization');
+            const btn = document.getElementById('bayesianBtn');
+            const result = document.getElementById('bayesianResult');
+            const attemptCount = document.getElementById('attemptCount');
+            const bestScore = document.getElementById('bestScore');
+
+            if (bayesianPoints.length >= 10) {
+                btn.textContent = 'Search Complete! 🎉';
+                btn.disabled = true;
+                result.textContent = 'Dr. Smart found the optimal settings in just 10 tries using intelligent guessing!';
+                return;
+            }
+
+            // Simulate smart Bayesian choice
+            let x, y, score;
+            if (bayesianPoints.length < 3) {
+                // Initial random exploration
+                x = Math.random() * 280 + 10;
+                y = Math.random() * 280 + 10;
+                score = Math.random() * 40 + 30; // Initial modest scores
+            } else {
+                // Smart exploration based on previous results
+                const bestPoint = bayesianPoints.reduce((best, point) => point.score > best.score ? point : best);
+                x = bestPoint.x + (Math.random() - 0.5) * 60;
+                y = bestPoint.y + (Math.random() - 0.5) * 60;
+                x = Math.max(10, Math.min(290, x));
+                y = Math.max(10, Math.min(290, y));
+
+                // Higher probability of good score near previous good results
+                const distance = Math.sqrt(Math.pow(x - bestPoint.x, 2) + Math.pow(y - bestPoint.y, 2));
+                score = Math.max(20, 90 - distance * 0.2 + Math.random() * 20);
+            }
+
+            bayesianPoints.push({ x, y, score });
+
+            // Add point to visualization
+            const point = document.createElement('div');
+            const color = score > 80 ? '#00b894' : score > 60 ? '#fdcb6e' : '#e17055';
+            point.style.cssText = `
+                position: absolute;
+                width: 12px; height: 12px;
+                background: ${color};
+                border-radius: 50%;
+                left: ${x}px;
+                top: ${y}px;
+                border: 2px solid white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            `;
+            visualization.appendChild(point);
+
+            // Update stats
+            attemptCount.textContent = bayesianPoints.length;
+            const currentBest = Math.max(...bayesianPoints.map(p => p.score));
+            bestScore.textContent = Math.round(currentBest);
+
+            result.textContent = `🔬 Try ${bayesianPoints.length}: Score ${Math.round(score)}% - ${score > 80 ? 'Excellent find!' : score > 60 ? 'Good progress!' : 'Learning for next guess...'}`;
+        }
+
+        function nextBayesianAlgorithmStep() {
+            const steps = ['bayesStep1', 'bayesStep2', 'bayesStep3', 'bayesStep4', 'bayesStep5'];
+            const content = document.getElementById('bayesianStepContent');
+            const btn = document.getElementById('bayesAlgorithmBtn');
+
+            if (currentBayesianAlgorithmStep < 5) {
+                document.getElementById(steps[currentBayesianAlgorithmStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentBayesianAlgorithmStep - 1]).classList.add('completed');
+                document.getElementById(steps[currentBayesianAlgorithmStep]).classList.add('active');
+                currentBayesianAlgorithmStep++;
+
+                const stepContent = {
+                    2: `<div class="concept-box"><h4>🧠 Step 2: Build Mental Model</h4><p>"Based on these results, I think lower temperatures might work better. Let me create a model of how settings affect quality..."</p><p><strong>Mental Model:</strong> Temperature vs Quality relationship learned</p></div>`,
+                    3: `<div class="concept-box"><h4>🎯 Step 3: Smart Next Guess</h4><p>"My model suggests testing Temperature 340°F, Time 9min might be promising. This balances exploring new areas with exploiting what I've learned."</p><p><strong>Result:</strong> Temperature 340°F, Time 9min → Score: 82!</p></div>`,
+                    4: `<div class="concept-box"><h4>🔄 Step 4: Update and Improve</h4><p>"Great! That confirms my theory. Now let me refine my model and make an even smarter guess..."</p><p><strong>Next Test:</strong> Temperature 345°F, Time 8.5min → Score: 89!</p></div>`,
+                    5: `<div class="concept-box"><h4>🏆 Step 5: Converge to Optimum</h4><p>"Perfect! My smart guessing approach found excellent settings in just 5 tries instead of testing hundreds of combinations!"</p><p><strong>Final Best:</strong> Temperature 344°F, Time 8.7min → Score: 91%</p></div>`
+                };
+
+                content.innerHTML = stepContent[currentBayesianAlgorithmStep];
+
+                if (currentBayesianAlgorithmStep === 5) {
+                    btn.textContent = 'Algorithm Complete! ✅';
+                    btn.disabled = true;
+                }
+            }
+        }
+
+        function exploreAdvanced(technique) {
+            const explorer = document.getElementById('advancedExplorer');
+            const title = document.getElementById('advancedTitle');
+            const content = document.getElementById('advancedContent');
+
+            const techniques = {
+                'genetic': {
+                    title: '🧬 Genetic Algorithms',
+                    content: `
+                        <p><strong>How it works:</strong> Inspired by natural evolution!</p>
+                        <ol>
+                            <li><strong>Population:</strong> Start with multiple "parent" recipes</li>
+                            <li><strong>Selection:</strong> Choose the best performers as parents</li>
+                            <li><strong>Crossover:</strong> Combine good parents to create "children" recipes</li>
+                            <li><strong>Mutation:</strong> Add small random changes to explore new possibilities</li>
+                            <li><strong>Evolution:</strong> Repeat for many generations</li>
+                        </ol>
+                        <p><em>Like breeding the perfect cookie recipe through artificial evolution!</em></p>
+                    `
+                },
+                'pso': {
+                    title: '🐦 Particle Swarm Optimization',
+                    content: `
+                        <p><strong>How it works:</strong> Inspired by flocks of birds finding food!</p>
+                        <ul>
+                            <li><strong>Particles:</strong> Each represents a potential solution (like birds in a flock)</li>
+                            <li><strong>Velocity:</strong> How fast and in what direction each particle moves</li>
+                            <li><strong>Personal Best:</strong> Each particle remembers its best position</li>
+                            <li><strong>Global Best:</strong> The swarm shares the overall best position found</li>
+                            <li><strong>Update:</strong> Particles move based on personal and social knowledge</li>
+                        </ul>
+                        <p><em>Like a flock of smart cookie testers sharing their discoveries!</em></p>
+                    `
+                },
+                'multi': {
+                    title: '🎯 Multi-Objective Optimization',
+                    content: `
+                        <p><strong>The Challenge:</strong> What if you want cookies that are both delicious AND fast to make?</p>
+                        <ul>
+                            <li><strong>Multiple Goals:</strong> Optimize taste, speed, cost simultaneously</li>
+                            <li><strong>Trade-offs:</strong> Sometimes you can't have the best of everything</li>
+                            <li><strong>Pareto Front:</strong> Find the best possible compromises</li>
+                            <li><strong>Decision Making:</strong> Choose which trade-offs matter most</li>
+                        </ul>
+                        <p><em>Like finding the perfect balance between quality, speed, and cost!</em></p>
+                    `
+                },
+                'meta': {
+                    title: '🤖 Meta-Learning',
+                    content: `
+                        <p><strong>The Idea:</strong> Learn from previous tuning experiences to get better at tuning!</p>
+                        <ul>
+                            <li><strong>Transfer Learning:</strong> Use knowledge from tuning similar problems</li>
+                            <li><strong>Warm Starts:</strong> Begin with good initial guesses based on past experience</li>
+                            <li><strong>Automated ML:</strong> Systems that can tune themselves</li>
+                            <li><strong>Few-Shot Learning:</strong> Find good parameters with very few trials</li>
+                        </ul>
+                        <p><em>Like having a master baker who gets better at creating new recipes based on all their past experience!</em></p>
+                    `
+                }
+            };
+
+            title.textContent = techniques[technique].title;
+            content.innerHTML = techniques[technique].content;
+            explorer.style.display = 'block';
+        }
+
+        function runGeneration() {
+            const btn = document.getElementById('evolutionBtn');
+            const result = document.getElementById('evolutionResult');
+            const genDisplay = document.getElementById('generation');
+
+            generation++;
+            genDisplay.textContent = generation;
+
+            // Evaluate current population
+            individuals.forEach((ind, i) => {
+                const tempScore = Math.max(0, 100 - Math.abs(ind.temp - 365) * 2);
+                const timeScore = Math.max(0, 100 - Math.abs(ind.time - 9) * 5);
+                ind.score = Math.round((tempScore + timeScore) / 2);
+
+                const card = document.getElementById(`individual${i + 1}`);
+                card.querySelector('.temp').textContent = ind.temp;
+                card.querySelector('.time').textContent = ind.time;
+                card.querySelector('.score').textContent = ind.score;
+
+                // Color code by performance
+                if (ind.score > 80) card.style.background = 'linear-gradient(135deg, #00b894, #00cec9)';
+                else if (ind.score > 60) card.style.background = 'linear-gradient(135deg, #fdcb6e, #ffeaa7)';
+                else card.style.background = 'linear-gradient(135deg, #e17055, #fab1a0)';
+            });
+
+            setTimeout(() => {
+                // Evolution: selection, crossover, mutation
+                const sorted = [...individuals].sort((a, b) => b.score - a.score);
+                const newGeneration = [];
+
+                // Keep best two (elitism)
+                newGeneration.push({ ...sorted[0] });
+                newGeneration.push({ ...sorted[1] });
+
+                // Create children from best parents
+                for (let i = 2; i < 4; i++) {
+                    const parent1 = sorted[0];
+                    const parent2 = sorted[1];
+
+                    // Crossover
+                    const child = {
+                        temp: Math.round((parent1.temp + parent2.temp) / 2 + (Math.random() - 0.5) * 20), // mutation
+                        time: Math.round((parent1.time + parent2.time) / 2 + (Math.random() - 0.5) * 2), // mutation
+                        score: 0
+                    };
+
+                    // Ensure bounds
+                    child.temp = Math.max(300, Math.min(400, child.temp));
+                    child.time = Math.max(5, Math.min(20, child.time));
+
+                    newGeneration.push(child);
+                }
+
+                individuals = newGeneration;
+
+                const bestScore = Math.max(...individuals.map(i => i.score));
+                result.textContent = `🧬 Generation ${generation}: Best score improved to ${bestScore}%! Evolution is working!`;
+
+                if (generation >= 10 || bestScore >= 95) {
+                    btn.textContent = 'Evolution Complete! 🎉';
+                    btn.disabled = true;
+                    result.textContent += ' Perfect recipe evolved through natural selection!';
+                }
+            }, 1000);
+        }
+
+        function nextImplementationStep() {
+            const steps = ['implStep1', 'implStep2', 'implStep3', 'implStep4', 'implStep5', 'implStep6'];
+            const content = document.getElementById('implementationSteps');
+            const btn = document.getElementById('implBtn');
+            const result = document.getElementById('implementationResult');
+
+            if (currentImplementationStep < 6) {
+                document.getElementById(steps[currentImplementationStep - 1]).classList.remove('active');
+                document.getElementById(steps[currentImplementationStep - 1]).classList.add('completed');
+                document.getElementById(steps[currentImplementationStep]).classList.add('active');
+                currentImplementationStep++;
+
+                const stepContent = {
+                    2: `<div class="concept-box"><h4>🔧 Step 2: Choose Your Hyperparameters</h4><p>Select which parameters to tune:</p><div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin: 1rem 0;"><label><input type="checkbox" checked> Learning Rate (0.001 - 0.1)</label><label><input type="checkbox" checked> Batch Size (16, 32, 64, 128)</label><label><input type="checkbox" checked> Hidden Layers (2-8)</label><label><input type="checkbox"> Dropout Rate (0.0-0.5)</label></div></div>`,
+                    3: `<div class="concept-box"><h4>📊 Step 3: Select Optimization Method</h4><p>Based on your constraints:</p><select id="methodChoice" style="padding: 0.5rem; margin: 1rem 0; width: 100%; border-radius: 5px;"><option value="bayesian">Bayesian Optimization (Smart, few trials)</option><option value="random">Random Search (Simple, many trials)</option><option value="grid">Grid Search (Thorough, computational intensive)</option></select></div>`,
+                    4: `<div class="concept-box"><h4>⚡ Step 4: Define Evaluation Strategy</h4><p>How will you measure success?</p><div style="margin: 1rem 0;"><label><input type="radio" name="metric" value="accuracy" checked> Accuracy (% correct predictions)</label><br><label><input type="radio" name="metric" value="f1"> F1-Score (Balance precision/recall)</label><br><label><input type="radio" name="metric" value="custom"> Custom metric (Speed + Accuracy)</label></div></div>`,
+                    5: `<div class="concept-box"><h4>🚀 Step 5: Execute Tuning</h4><p>Your system is ready! Configuration:</p><ul><li>Problem: Image Classification</li><li>Method: Bayesian Optimization</li><li>Budget: 50 trials</li><li>Metric: Accuracy</li><li>Parameters: Learning Rate, Batch Size, Hidden Layers</li></ul><p><strong>Ready to run optimization!</strong></p></div>`,
+                    6: `<div class="concept-box"><h4>📈 Step 6: Analyze Results</h4><p>System completed! Best configuration found:</p><ul><li>Learning Rate: 0.0234</li><li>Batch Size: 64</li><li>Hidden Layers: 5</li><li>Best Accuracy: 94.7%</li></ul><p><em>Time to deploy your optimized system!</em></p></div>`
+                };
+
+                content.innerHTML = stepContent[currentImplementationStep];
+
+                if (currentImplementationStep === 6) {
+                    btn.textContent = 'System Built! ✅';
+                    btn.disabled = true;
+                    result.style.display = 'block';
+                    result.innerHTML = `
+                        <h4>🎉 Congratulations!</h4>
+                        <p>You've built a complete hyperparameter tuning system! Your system can now:</p>
+                        <ul>
+                            <li>✅ Automatically select promising parameter combinations</li>
+                            <li>✅ Efficiently explore the search space</li>
+                            <li>✅ Track and compare results</li>
+                            <li>✅ Find optimal configurations with minimal manual effort</li>
+                        </ul>
+                    `;
+                }
+            }
+        }
+
+        function checkImplementationAnswer(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt === element) {
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('implementationQuizFeedback');
+            if (isCorrect) {
+                feedback.innerHTML = '<div style="color: #00b894; font-weight: bold;">🎉 Perfect! With only 24 hours available (48÷2), Bayesian Optimization can intelligently find great results in 24 trials!</div>';
+            } else {
+                feedback.innerHTML = '<div style="color: #e17055; font-weight: bold;">🤔 Consider the time constraint: You only have 24 possible 2-hour training runs in 48 hours.</div>';
+            }
+        }
+
+        function startFinalProject() {
+            const btn = document.getElementById('finalProjectBtn');
+            const progress = document.getElementById('projectProgress');
+            const results = document.getElementById('projectResults');
+
+            btn.style.display = 'none';
+            progress.style.display = 'block';
+            results.style.display = 'none';
+
+            projectRunning = true;
+            projectTrials = 0;
+            bestProjectScore = 0;
+
+            runProjectTrial();
+        }
+
+        function runProjectTrial() {
+            if (!projectRunning || projectTrials >= 50) {
+                completeProject();
+                return;
+            }
+
+            projectTrials++;
+
+            // Simulate intelligent Bayesian optimization results
+            let score;
+            if (projectTrials <= 5) {
+                score = Math.random() * 30 + 40; // Initial exploration
+            } else if (projectTrials <= 20) {
+                score = Math.random() * 20 + 60; // Learning phase
+            } else {
+                score = Math.random() * 15 + 75; // Optimization phase
+            }
+
+            if (score > bestProjectScore) {
+                bestProjectScore = score;
+            }
+
+            // Update displays
+            document.getElementById('bestAccuracy').textContent = `${Math.round(bestProjectScore)}%`;
+            document.getElementById('trialsCompleted').textContent = projectTrials;
+
+            const status = document.getElementById('projectStatus');
+            if (projectTrials <= 5) {
+                status.textContent = '🔍 Initial exploration phase - testing diverse configurations...';
+            } else if (projectTrials <= 20) {
+                status.textContent = '🧠 Learning phase - building model of parameter effects...';
+            } else if (projectTrials <= 40) {
+                status.textContent = '🎯 Optimization phase - focusing on promising regions...';
+            } else {
+                status.textContent = '🏁 Final refinement - polishing the best configuration...';
+            }
+
+            // Simple chart update
+            const chart = document.getElementById('performanceChart');
+            if (projectTrials === 1) {
+                chart.innerHTML = '';
+                chart.style.background = 'white';
+                chart.style.border = '1px solid #ddd';
+            }
+
+            const point = document.createElement('div');
+            point.style.cssText = `
+                position: absolute;
+                width: 4px; height: 4px;
+                background: #4CAF50;
+                border-radius: 50%;
+                left: ${(projectTrials / 50) * 90 + 5}%;
+                bottom: ${(score / 100) * 90 + 5}%;
+            `;
+            chart.appendChild(point);
+
+            setTimeout(runProjectTrial, 300);
+        }
+
+        function completeProject() {
+            projectRunning = false;
+            const progress = document.getElementById('projectProgress');
+            const results = document.getElementById('projectResults');
+            const finalResults = document.getElementById('finalResults');
+
+            progress.style.display = 'none';
+            results.style.display = 'block';
+
+            finalResults.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0;">
+                    <div style="background: linear-gradient(135deg, #00b894, #00cec9); color: white; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">${Math.round(bestProjectScore)}%</div>
+                        <div>Final Accuracy</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">50</div>
+                        <div>Trials Used</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fd79a8, #fdcb6e); color: white; padding: 1.5rem; border-radius: 15px; text-align: center;">
+                        <div style="font-size: 2rem; font-weight: bold;">2.5hrs</div>
+                        <div>Time Saved vs Grid Search</div>
+                    </div>
+                </div>
+                <p><strong>🏆 Optimal Configuration Found:</strong></p>
+                <ul>
+                    <li>Learning Rate: 0.0187</li>
+                    <li>Batch Size: 64</li>
+                    <li>Hidden Layers: 6</li>
+                    <li>Neurons per Layer: 256</li>
+                    <li>Dropout: 0.3</li>
+                    <li>Image Size: 128x128</li>
+                </ul>
+            `;
+        }
+
+        function checkMasteryAnswer(element, isCorrect) {
+            const options = element.parentNode.querySelectorAll('.quiz-option');
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+                if (opt === element) {
+                    opt.classList.add(isCorrect ? 'correct' : 'incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('masteryQuizFeedback');
+            if (isCorrect) {
+                feedback.innerHTML = '<div style="color: #00b894; font-weight: bold;">🎓 Master level thinking! Always understand the problem first, then choose tools appropriately. This is the mark of a true expert!</div>';
+            } else {
+                feedback.innerHTML = '<div style="color: #e17055; font-weight: bold;">🤔 Remember: The best approach starts with understanding, then applies the right tool for the right situation.</div>';
+            }
+        }
+
+        function nextSection() {
+            if (currentSection < totalSections) {
+                document.getElementById(`section${currentSection}`).classList.remove('active');
+                currentSection++;
+                document.getElementById(`section${currentSection}`).classList.add('active');
+                updateProgress();
+                updateNavigation();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function previousSection() {
+            if (currentSection > 1) {
+                document.getElementById(`section${currentSection}`).classList.remove('active');
+                currentSection--;
+                document.getElementById(`section${currentSection}`).classList.add('active');
+                updateProgress();
+                updateNavigation();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function goToSection(sectionNum) {
+            if (sectionNum >= 1 && sectionNum <= totalSections) {
+                document.getElementById(`section${currentSection}`).classList.remove('active');
+                currentSection = sectionNum;
+                document.getElementById(`section${currentSection}`).classList.add('active');
+                updateProgress();
+                updateNavigation();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function updateProgress() {
+            const progress = (currentSection / totalSections) * 100;
+            document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('sectionIndicator').textContent = `Section ${currentSection} of ${totalSections}`;
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentSection === 1;
+            nextBtn.disabled = currentSection === totalSections;
+
+            if (currentSection === totalSections) {
+                nextBtn.textContent = 'Complete! 🎉';
+            } else {
+                nextBtn.textContent = 'Next ➡️';
+            }
+        }
+
+        function toggleTableOfContents() {
+            const modal = document.getElementById('tocModal');
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            updateSliderValues();
+            updateProgress();
+            updateNavigation();
+        });
+    </script>
+</body>
+
+</html>
