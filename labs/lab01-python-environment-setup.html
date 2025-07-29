@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 1: Python & Environment Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1rem 1.5rem;
+            margin-top: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 1: Python & Environment Setup</h1>
+            <p class="text-xl text-gray-600 mt-4">🐍 Your journey into AI starts here. Master the tools of the trade.
+            </p>
+            <p class="text-md text-gray-500 mt-2">Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: Environment Setup -->
+        <section id="environment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: Your AI Workbench - Jupyter & Colab</h2>
+            <p>Before writing code, we need to set up our workspace. We will use an interactive environment to
+                experiment, visualize, and share our work. This is where Jupyter notebooks shine.</p>
+
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">What is a Jupyter Notebook?</h4>
+                <p>A Jupyter Notebook is an interactive document that lets you mix live code, equations, visualizations,
+                    and narrative text in blocks called "cells". It's the standard for data science and AI because it's
+                    perfect for exploratory work.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">Google Colaboratory (Colab): Your Best Starting Point</h3>
+            <p><strong>Google Colab</strong> is a free Jupyter notebook environment that runs entirely in your browser.
+                No complex installation is required!</p>
+            <ul class="list-disc ml-6 space-y-2">
+                <li><strong>Zero Configuration:</strong> All major AI libraries (NumPy, Pandas, TensorFlow, PyTorch) are
+                    pre-installed.</li>
+                <li><strong>Free Hardware:</strong> You get access to powerful GPUs and TPUs for free, which can speed
+                    up model training by 10-50x.</li>
+                <li><strong>Easy Collaboration:</strong> Share your notebooks like a Google Doc.</li>
+            </ul>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">Getting Started with Colab</h3>
+            <ol class="list-decimal ml-6 space-y-2 mt-4">
+                <li>Go to <a href="https://colab.research.google.com/" target="_blank"
+                        class="text-indigo-600 hover:underline">colab.research.google.com</a> and sign in with a Google
+                    account.</li>
+                <li>Click <strong>"New notebook"</strong>.</li>
+                <li>You'll see your interactive workspace. At the top left, click <strong>"+ Code"</strong> to add a
+                    cell for Python code and <strong>"+ Text"</strong> to add a cell for notes (like this text you're
+                    reading).</li>
+                <li>Type code in a code cell and run it by clicking the play button on the left or pressing
+                    <strong>Shift + Enter</strong>.</li>
+            </ol>
+            <div class="exercise-box">
+                <h4 class="font-bold text-lg mb-2">🚀 Exercise: Your First Colab Notebook</h4>
+                <p>1. Open a new Google Colab notebook and name it "Lab 1".</p>
+                <p>2. Create a <strong>text cell</strong> and write "My First AI Lab".</p>
+                <p>3. Below it, create a <strong>code cell</strong> and type `a = 10; b = 20; print(f"The sum is
+                    {a+b}")`.</p>
+                <p>4. Run the code cell. The output should appear directly below it. This confirms your environment is
+                    working!</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Python Fundamentals for AI -->
+        <section id="python-fundamentals" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Python Fundamentals for AI</h2>
+            <p>Now that your environment is ready, let's learn the language of AI. Python's simple syntax lets you focus
+                on the logic, not the programming. Below, we'll cover the essentials you'll use every day. For each
+                example, read the explanation, study the code, and then try the "Your Turn" task to solidify your
+                understanding.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">2.1 Basic Data Types</h3>
+            <p>In AI, you're always dealing with different types of data. Numbers are used for pixel values or model
+                weights, text is used for natural language processing, and booleans are used to control program flow.
+            </p>
+            <div class="code-block">
+                <span class="comment"># Numbers can be whole (integers) or have decimals (floats)</span><br>
+                pixel_intensity = <span class="number">255</span> <span class="comment"># An integer, common in image
+                    data (0-255)</span><br>
+                learning_rate = <span class="number">0.001</span> <span class="comment"># A float, a key hyperparameter
+                    in model training</span><br><br>
+                <span class="comment"># Text data is stored in strings</span><br>
+                model_name = <span class="string">"ImageClassifier_v1"</span><br><br>
+                <span class="comment"># Booleans represent True or False states</span><br>
+                is_training = <span class="keyword">True</span><span class="comment"> # Useful for changing model
+                    behavior (e.g., turning on dropout)</span><br><br>
+
+                <span class="comment"># We can use an f-string to easily print variables</span><br>
+                <span class="keyword">print</span>(f<span class="string">"Model: {model_name}, LR:
+                    {learning_rate}"</span>)
+            </div>
+            <div class="output-box">Model: ImageClassifier_v1, LR: 0.001</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Declare a variable for `batch_size` (an integer) and another for `model_accuracy` (a float). Print
+                    them out in a formatted string.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">2.2 Data Structures: Lists & Dictionaries</h3>
+            <p><strong>Lists</strong> are ordered collections, perfect for storing a sequence of features or data
+                points. <strong>Dictionaries</strong> are unordered collections of key-value pairs, ideal for storing
+                model configurations or labeled data.</p>
+            <div class="code-block">
+                <span class="comment"># A list stores a sequence of items, accessed by a numerical index (starting from
+                    0).</span><br>
+                <span class="comment"># Imagine these are features for a house: [area_sq_ft, num_bedrooms,
+                    age_years]</span><br>
+                house_features = [<span class="number">1500</span>, <span class="number">3</span>, <span
+                    class="number">10</span>]<br>
+                <span class="keyword">print</span>(f<span class="string">"Number of bedrooms:
+                    {house_features[1]}"</span>) <span class="comment"># Access the second item</span><br><br>
+
+                <span class="comment"># A dictionary stores key-value pairs, accessed by the key.</span><br>
+                <span class="comment"># This is perfect for storing hyperparameters.</span><br>
+                hyperparameters = {<br>
+                &nbsp;&nbsp;<span class="string">"learning_rate"</span>: <span class="number">0.01</span>,<br>
+                &nbsp;&nbsp;<span class="string">"epochs"</span>: <span class="number">50</span>,<br>
+                &nbsp;&nbsp;<span class="string">"optimizer"</span>: <span class="string">"Adam"</span><br>
+                }<br>
+                <span class="keyword">print</span>(f<span class="string">"Optimizer:
+                    {hyperparameters['optimizer']}"</span>) <span class="comment"># Access the value associated with the
+                    'optimizer' key</span>
+            </div>
+            <div class="output-box">Number of bedrooms: 3
+                Optimizer: Adam</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Create a dictionary for a `student` with keys 'name', 'major', and a list of 'courses'. Print the
+                    student's name and their second course.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">2.3 Control Flow: Loops & Conditionals</h3>
+            <p>Training a model involves iterating through your dataset thousands of times (`for` loops) and making
+                decisions based on performance (`if/else` statements).</p>
+            <div class="code-block">
+                <span class="comment"># We often loop through a mini-batch of loss values from our model</span><br>
+                loss_values = [<span class="number">0.8</span>, <span class="number">0.5</span>, <span
+                    class="number">0.2</span>, <span class="number">0.1</span>]<br>
+                <span class="keyword">for</span> loss <span class="keyword">in</span> loss_values:<br>
+                &nbsp;&nbsp;<span class="comment"># Use an if/else statement to decide what to do</span><br>
+                &nbsp;&nbsp;<span class="keyword">if</span> loss &lt; <span class="number">0.5</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(f<span class="string">"Loss {loss:.2f} is
+                    good. Continuing training."</span>) <span class="comment"># .2f formats to 2 decimal
+                    places</span><br>
+                &nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(f<span class="string">"Loss {loss:.2f} is
+                    high. Check model."</span>)
+            </div>
+            <div class="output-box">Loss 0.80 is high. Check model.
+                Loss 0.50 is high. Check model.
+                Loss 0.20 is good. Continuing training.
+                Loss 0.10 is good. Continuing training.</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Create a list of accuracies (e.g., `[0.91, 0.85, 0.99]`). Loop through them and print "Excellent" if
+                    accuracy is > 0.9, "Good" if > 0.8, and "Needs Improvement" otherwise.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">2.4 Functions</h3>
+            <p>Functions are crucial for writing clean, reusable code. In AI, you'll write functions for data
+                preprocessing, model building, and training steps.</p>
+            <div class="code-block">
+                <span class="comment"># A function to preprocess an image (a common task)</span><br>
+                <span class="keyword">def</span> preprocess_image(image_data, target_size):<br>
+                &nbsp;&nbsp;<span class="comment">"""A placeholder function to demonstrate structure."""</span><br>
+                &nbsp;&nbsp;<span class="keyword">print</span>(f<span class="string">"Resizing image to
+                    {target_size}x{target_size}..."</span>)<br>
+                &nbsp;&nbsp;<span class="comment"># In a real scenario, code to resize and normalize would be
+                    here</span><br>
+                &nbsp;&nbsp;resized_image = <span class="string">"some_processed_data"</span><br>
+                &nbsp;&nbsp;<span class="keyword">return</span> resized_image<br><br>
+
+                <span class="comment"># Call the function</span><br>
+                my_image = <span class="string">"raw_image_data"</span><br>
+                processed = preprocess_image(my_image, target_size=<span class="number">224</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Function returned: {processed}"</span>)
+            </div>
+            <div class="output-box">Resizing image to 224x224...
+                Function returned: some_processed_data</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Write a function `calculate_average_loss` that takes a list of loss values and returns their average.
+                </p>
+            </div>
+        </section>
+
+
+        <!-- Section 3: Essential Libraries -->
+        <section id="libraries" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: The AI Power Tools</h2>
+            <p>Let's explore the three most important libraries for any AI practitioner. These are pre-installed in
+                Colab.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.1 NumPy: The Bedrock of AI Math</h3>
+            <p><strong>NumPy</strong> is critical because it provides the `ndarray` (N-dimensional array), the object on
+                which all modern AI frameworks (like TensorFlow and PyTorch) are built. Operations on NumPy arrays are
+                incredibly fast. Your image data, model weights, and feature vectors will all be NumPy arrays.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment">#
+                    'np' is the universal alias for numpy</span><br><br>
+
+                <span class="comment"># Create a 1D array (a vector)</span><br>
+                vector = np.array([<span class="number">1</span>, <span class="number">2</span>, <span
+                    class="number">3</span>])<br>
+                <span class="comment"># Create a 2D array (a matrix)</span><br>
+                matrix = np.array([ [<span class="number">1</span>, <span class="number">2</span>], [<span
+                    class="number">3</span>, <span class="number">4</span>] ])<br><br>
+
+                <span class="keyword">print</span>(f<span class="string">"Vector shape: {vector.shape}"</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Matrix shape: {matrix.shape}"</span>)<br><br>
+
+                <span class="comment"># Perform a "vectorized" operation - much faster than a Python loop!</span><br>
+                scaled_vector = vector * <span class="number">5</span><br>
+                <span class="keyword">print</span>(f<span class="string">"Scaled vector: {scaled_vector}"</span>)
+            </div>
+            <div class="output-box">Vector shape: (3,)
+                Matrix shape: (2, 2)
+                Scaled vector: [ 5 10 15]</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Create a 3x3 NumPy matrix of numbers from 1 to 9. Then, find the mean (average) of the entire matrix
+                    using `matrix.mean()`.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.2 Pandas: For Structuring and Cleaning Data</h3>
+            <p><strong>Pandas</strong> is your tool for data manipulation and analysis. Before you can train a model,
+                you need to load, explore, and clean your data. Pandas provides the <strong>DataFrame</strong>, a
+                powerful table-like structure, to make this easy.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#
+                    'pd' is the universal alias for pandas</span><br><br>
+
+                <span class="comment"># Create a DataFrame from a dictionary</span><br>
+                data = {<br>
+                &nbsp;&nbsp;<span class="string">'Model Name'</span>: [<span class="string">'ResNet50'</span>, <span
+                    class="string">'MobileNetV2'</span>, <span class="string">'EfficientNetB0'</span>],<br>
+                &nbsp;&nbsp;<span class="string">'Top-1 Accuracy'</span>: [<span class="number">0.76</span>, <span
+                    class="number">0.72</span>, <span class="number">0.77</span>],<br>
+                &nbsp;&nbsp;<span class="string">'Size (MB)'</span>: [<span class="number">102</span>, <span
+                    class="number">14</span>, <span class="number">21</span>]<br>
+                }<br>
+                df = pd.DataFrame(data)<br><br>
+                <span class="keyword">print</span>(<span class="string">"--- Full DataFrame ---"</span>)<br>
+                <span class="keyword">print</span>(df)<br><br>
+                <span class="comment"># Select a single column (returns a Pandas Series)</span><br>
+                <span class="keyword">print</span>(<span class="string">"\n--- Accuracy Column ---"</span>)<br>
+                <span class="keyword">print</span>(df[<span class="string">'Top-1 Accuracy'</span>])
+            </div>
+            <div class="output-box">--- Full DataFrame ---
+                Model Name Top-1 Accuracy Size (MB)
+                0 ResNet50 0.76 102
+                1 MobileNetV2 0.72 14
+                2 EfficientNetB0 0.77 21
+
+                --- Accuracy Column ---
+                0 0.76
+                1 0.72
+                2 0.77
+                Name: Top-1 Accuracy, dtype: float64</div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Add a new column to the DataFrame called `Performance` calculated as `Accuracy / Size`. Then, print
+                    the updated DataFrame.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.3 Matplotlib: Visualizing Your Results</h3>
+            <p><strong>Matplotlib</strong> is the classic library for creating plots and charts. Visualizing your
+                model's training progress (like loss over time) or your data's distribution is essential for
+                understanding and debugging.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span
+                    class="comment"># 'plt' is the standard alias</span><br><br>
+
+                <span class="comment"># Data for our plot: training vs validation loss</span><br>
+                epochs = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>,
+                <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]<br>
+                training_loss = [<span class="number">0.8</span>, <span class="number">0.6</span>, <span
+                    class="number">0.45</span>, <span class="number">0.3</span>, <span class="number">0.25</span>, <span
+                    class="number">0.22</span>]<br>
+                validation_loss = [<span class="number">0.85</span>, <span class="number">0.68</span>, <span
+                    class="number">0.55</span>, <span class="number">0.48</span>, <span class="number">0.46</span>,
+                <span class="number">0.45</span>]<br><br>
+
+                <span class="comment"># Create the plot</span><br>
+                plt.figure(figsize=(<span class="number">8</span>,<span class="number">5</span>)) <span
+                    class="comment"># Set the figure size</span><br>
+                plt.plot(epochs, training_loss, marker=<span class="string">'o'</span>, linestyle=<span
+                    class="string">'--'</span>, label=<span class="string">'Training Loss'</span>)<br>
+                plt.plot(epochs, validation_loss, marker=<span class="string">'s'</span>, linestyle=<span
+                    class="string">'-'</span>, label=<span class="string">'Validation Loss'</span>)<br>
+
+                <span class="comment"># Add labels and a title for clarity</span><br>
+                plt.title(<span class="string">'Model Loss Over Time'</span>, fontsize=<span
+                    class="number">16</span>)<br>
+                plt.xlabel(<span class="string">'Epoch'</span>)<br>
+                plt.ylabel(<span class="string">'Loss'</span>)<br>
+                plt.grid(<span class="keyword">True</span>)<br>
+                plt.legend() <span class="comment"># Display the labels for each line</span><br>
+                plt.show() <span class="comment"># This command renders the plot in your notebook</span>
+            </div>
+            <img src="https://placehold.co/600x400/eef2ff/6366f1?text=Example+Matplotlib+Plot"
+                alt="Example Matplotlib plot of training and validation loss"
+                class="w-full max-w-lg mx-auto mt-4 rounded-lg shadow-md">
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Using the Pandas DataFrame `df` from the previous section, create a bar chart comparing the 'Top-1
+                    Accuracy' of the different models. Use `plt.bar(df['Model Name'], df['Top-1 Accuracy'])` as a
+                    starting point.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Final Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Lab Assignment</h2>
+            <p>It's time to put everything together. This assignment requires you to perform a mini data analysis
+                project, combining all the skills you've learned above.</p>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Analyzing a Toy Dataset</h3>
+                <p class="mb-4">You are given a small dataset of used car information. Your task is to load it, perform
+                    some basic analysis, and visualize the results.</p>
+                <h4 class="font-semibold text-lg mt-4">Task 1: Setup and Data Loading</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-1">
+                    <li>In a new Colab cell, import NumPy, Pandas, and Matplotlib with their standard aliases.</li>
+                    <li>Create a Pandas DataFrame using the following code snippet:
+                        <div class="code-block text-sm">
+                            car_data = {<br>
+                            &nbsp;&nbsp;<span class="string">'Make'</span>: [<span class="string">'Honda'</span>, <span
+                                class="string">'Toyota'</span>, <span class="string">'Ford'</span>, <span
+                                class="string">'Honda'</span>, <span class="string">'Toyota'</span>, <span
+                                class="string">'Ford'</span>],<br>
+                            &nbsp;&nbsp;<span class="string">'Engine_Size_L'</span>: [<span class="number">1.5</span>,
+                            <span class="number">2.5</span>, <span class="number">5.0</span>, <span
+                                class="number">1.8</span>, <span class="number">2.4</span>, <span
+                                class="number">4.6</span>],<br>
+                            &nbsp;&nbsp;<span class="string">'Price_USD'</span>: [<span class="number">22000</span>,
+                            <span class="number">28000</span>, <span class="number">35000</span>, <span
+                                class="number">24000</span>, <span class="number">29000</span>, <span
+                                class="number">32000</span>]<br>
+                            }<br>
+                            car_df = pd.DataFrame(car_data)
+                        </div>
+                    </li>
+                    <li>Print the entire DataFrame to verify it loaded correctly.</li>
+                </ol>
+
+                <h4 class="font-semibold text-lg mt-4">Task 2: Data Analysis with NumPy & Pandas</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-1">
+                    <li>Calculate and print the average (mean) price of all cars.</li>
+                    <li>Calculate and print the average engine size.</li>
+                    <li>Find the car with the highest price using Pandas functions (hint: look up `.idxmax()`). Print
+                        the details of this car.</li>
+                </ol>
+
+                <h4 class="font-semibold text-lg mt-4">Task 3: Visualization with Matplotlib</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-1">
+                    <li>Create a <strong>scatter plot</strong> to visualize the relationship between 'Engine_Size_L'
+                        (x-axis) and 'Price_USD' (y-axis).</li>
+                    <li>Give your plot a clear title ("Car Price vs. Engine Size") and label the x and y axes.</li>
+                    <li>Create a <strong>bar chart</strong> that shows the average price for each car 'Make'. You will
+                        need to use the Pandas `.groupby()` function first. (Hint: `avg_price_by_make =
+                        car_df.groupby('Make')['Price_USD'].mean()`).</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 5: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Bonus - Your First Kaggle Project</h2>
+            <p>Ready to apply your skills to a world-famous dataset? This optional bonus section will guide you through
+                the first steps of a real data science project on Kaggle.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Kaggle & The Titanic Dataset</h4>
+                <p><strong>Kaggle</strong> is a platform where data scientists compete by building the best models for a
+                    given problem. The <a href="https://www.kaggle.com/c/titanic" target="_blank"
+                        class="text-indigo-600 hover:underline">"Titanic: Machine Learning from Disaster"</a>
+                    competition is the "Hello, World!" of data science. Your goal is to predict which passengers
+                    survived the shipwreck.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Task 1: Get the Data</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-1">
+                <li>Go to the <a href="https://www.kaggle.com/c/titanic/data" target="_blank"
+                        class="text-indigo-600 hover:underline">Titanic data page</a> on Kaggle. You will need to create
+                    a free account.</li>
+                <li>Download the `train.csv` and `test.csv` files to your computer.</li>
+                <li>In your Colab notebook, click the "Files" icon on the left sidebar and upload `train.csv`.</li>
+            </ol>
+
+            <h4 class="font-semibold text-lg mt-4">Task 2: Load and Explore</h4>
+            <p>Use Pandas to load the data and take your first look.</p>
+            <div class="code-block">
+                <span class="comment"># Load the training data from the uploaded file</span><br>
+                titanic_df = pd.read_csv(<span class="string">'train.csv'</span>)<br><br>
+
+                <span class="comment"># Display the first 5 rows to see the columns</span><br>
+                <span class="keyword">print</span>(<span class="string">"--- First 5 Rows ---"</span>)<br>
+                <span class="keyword">print</span>(titanic_df.head())<br><br>
+
+                <span class="comment"># Get a summary of the data types and non-null values</span><br>
+                <span class="keyword">print</span>(<span class="string">"\n--- Data Info ---"</span>)<br>
+                titanic_df.info()
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Task 3: Your Challenge - Exploratory Data Analysis</h4>
+            <p>Now, it's your turn to be the data detective. Answer the following questions using Pandas and Matplotlib.
+                There is no single correct answer for the code; your goal is to find the answer and visualize it.</p>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Survival Rate:</strong> What was the overall survival rate? Create a bar chart showing the
+                    raw counts of passengers who survived (1) vs. those who did not (0). (Hint: use `.value_counts()` on
+                    the 'Survived' column).</li>
+                <li><strong>Survival by Gender:</strong> Did gender play a role in survival? Create a bar chart showing
+                    the survival rate for males vs. females. (Hint: use `.groupby('Sex')['Survived'].mean()`).</li>
+                <li><strong>Survival by Class:</strong> What about passenger class ('Pclass')? Create a bar chart
+                    showing the survival rate for each of the three classes.</li>
+                <li><strong>Missing Data:</strong> Which important column has a lot of missing data? How might you
+                    handle this in a real project? (Just answer in a text cell).</li>
+            </ol>
+        </section>
+
+        <!-- Section 6: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Submission Guidelines</h2>
+            <p>To complete this lab, please follow these instructions carefully.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus, but we encourage you to try it!</li>
+                <li>Use <strong>Text Cells</strong> in your notebook to label each section (e.g., "Part 2.4 Your Turn",
+                    "Assignment Task 1", "Bonus Kaggle Project", etc.) to keep your work organized.</li>
+                <li>Ensure all your code cells have been run so that their outputs are visible below them. An unrun
+                    notebook is an incomplete notebook!</li>
+                <li>When you are finished, generate a shareable link. In Colab, click the <strong>"Share"</strong>
+                    button in the top right.</li>
+                <li>In the popup, under "General access", change "Restricted" to <strong>"Anyone with the link"</strong>
+                    and ensure the role is set to <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>
