@@ -1,1 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regularization Techniques: A Complete Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .section {
+            padding: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .concept-box {
+            background: #e8f4fd;
+            border-left: 4px solid #3498db;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .math-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .example-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .problem-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+        }
+
+        .demo {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .slider-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            outline: none;
+            border-radius: 5px;
+        }
+
+        .result {
+            background: #17a2b8;
+            color: white;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+
+        .nav a {
+            display: inline-block;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .nav a:hover {
+            background: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ Regularization Techniques</h1>
+            <div class="subtitle">Prevent Overfitting with Dropout, L1/L2 Regularization, Early Stopping, and Data
+                Augmentation</div>
+        </div>
+
+        <div class="nav">
+            <a href="#overfitting">Understanding Overfitting</a>
+            <a href="#dropout">Dropout</a>
+            <a href="#l1l2">L1/L2 Regularization</a>
+            <a href="#early-stopping">Early Stopping</a>
+            <a href="#data-augmentation">Data Augmentation</a>
+            <a href="#combining">Combining Techniques</a>
+        </div>
+
+        <!-- Section 1: Understanding Overfitting -->
+        <div class="section" id="overfitting">
+            <h2>🎯 Understanding Overfitting</h2>
+
+            <div class="problem-box">
+                <h3>The Problem</h3>
+                <p>Imagine a student who memorizes textbook answers perfectly but fails when asked slightly different
+                    questions on the exam. This is <strong>overfitting</strong> - when a model learns the training data
+                    too well but can't generalize to new, unseen data.</p>
+            </div>
+
+            <div class="concept-box">
+                <h3>What is Overfitting?</h3>
+                <p><strong>Overfitting</strong> occurs when a model:</p>
+                <ul>
+                    <li>Performs excellently on training data (high accuracy)</li>
+                    <li>Performs poorly on validation/test data (low accuracy)</li>
+                    <li>Has learned noise and specific details instead of general patterns</li>
+                </ul>
+                <p><strong>Key Sign:</strong> Large gap between training and validation performance</p>
+            </div>
+
+            <div class="math-box">
+                <h3>Mathematical Definition</h3>
+                <p><strong>Training Error:</strong> E_train = (1/n) × Σ(y_true - y_pred)²</p>
+                <p><strong>Test Error:</strong> E_test = (1/m) × Σ(y_true - y_pred)²</p>
+                <br>
+                <p><strong>Overfitting occurs when:</strong> E_test >> E_train</p>
+                <p><strong>Good generalization when:</strong> E_test ≈ E_train</p>
+            </div>
+
+            <div class="demo">
+                <h3>Interactive Overfitting Demo</h3>
+                <div class="slider-container">
+                    <label>Model Complexity: <span id="complexityVal">5</span></label>
+                    <input type="range" class="slider" id="complexitySlider" min="1" max="10" value="5">
+                </div>
+                <div class="grid">
+                    <div class="result">
+                        Training Accuracy: <span id="trainAcc">85%</span>
+                    </div>
+                    <div class="result">
+                        Test Accuracy: <span id="testAcc">82%</span>
+                    </div>
+                </div>
+                <div id="overfitStatus" class="result">Adjust complexity to see overfitting effect</div>
+            </div>
+
+            <div class="example-box">
+                <h3>Real-World Example</h3>
+                <p><strong>Image Classification Model:</strong></p>
+                <ul>
+                    <li><strong>Training:</strong> 10,000 cat photos → 99% accuracy</li>
+                    <li><strong>Testing:</strong> New cat photos → 65% accuracy</li>
+                </ul>
+                <p><strong>Problem:</strong> Model memorized specific cats, lighting, backgrounds instead of learning
+                    what makes a cat a cat.</p>
+            </div>
+        </div>
+
+        <!-- Section 2: Dropout -->
+        <div class="section" id="dropout">
+            <h2>🎲 Dropout: Random Neuron Deactivation</h2>
+
+            <div class="concept-box">
+                <h3>What is Dropout?</h3>
+                <p><strong>Dropout</strong> randomly turns off (sets to zero) a percentage of neurons during training.
+                    This prevents neurons from becoming too dependent on each other and forces the network to learn more
+                    robust features.</p>
+                <p><strong>Think of it as:</strong> Training a sports team where random players sit out each practice -
+                    everyone becomes more versatile!</p>
+            </div>
+
+            <div class="math-box">
+                <h3>Dropout Mathematics</h3>
+                <p><strong>During Training:</strong></p>
+                <p>For each neuron i with dropout probability p:</p>
+                <p>• Keep neuron: probability = (1-p)</p>
+                <p>• Drop neuron: probability = p</p>
+                <p>• If kept: output = input / (1-p) [scaling factor]</p>
+                <p>• If dropped: output = 0</p>
+                <br>
+                <p><strong>During Testing:</strong></p>
+                <p>• Use all neurons without dropout</p>
+                <p>• No scaling needed</p>
+            </div>
+
+            <div class="demo">
+                <h3>Dropout Visualization</h3>
+                <div class="slider-container">
+                    <label>Dropout Rate: <span id="dropoutVal">30</span>%</label>
+                    <input type="range" class="slider" id="dropoutSlider" min="0" max="80" value="30">
+                </div>
+                <div class="grid">
+                    <div class="result">
+                        Active Neurons: <span id="activeNeurons">70%</span>
+                    </div>
+                    <div class="result">
+                        Regularization Effect: <span id="regEffect">Medium</span>
+                    </div>
+                </div>
+                <div id="dropoutStatus" class="result">Neurons randomly deactivated during training</div>
+            </div>
+
+            <div class="example-box">
+                <h3>Dropout Implementation Example</h3>
+                <p><strong>Python Code:</strong></p>
+                <div class="math-box">
+                    <code>
+# Keras/TensorFlow<br>
+model.add(Dense(128, activation='relu'))<br>
+model.add(Dropout(0.3))  # 30% dropout<br>
+model.add(Dense(64, activation='relu'))<br>
+model.add(Dropout(0.5))  # 50% dropout<br>
+model.add(Dense(10, activation='softmax'))
+                    </code>
+                </div>
+                <p><strong>Best Practices:</strong></p>
+                <ul>
+                    <li>Input layers: 10-20% dropout</li>
+                    <li>Hidden layers: 20-50% dropout</li>
+                    <li>Output layers: No dropout</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 3: L1 and L2 Regularization -->
+        <div class="section" id="l1l2">
+            <h2>⚖️ L1 and L2 Regularization: Weight Control</h2>
+
+            <div class="concept-box">
+                <h3>What are L1 and L2 Regularization?</h3>
+                <p><strong>L1 and L2 regularization</strong> add penalty terms to the loss function to control model
+                    complexity:</p>
+                <ul>
+                    <li><strong>L1 (Lasso):</strong> Penalty = λ × Σ|weights| → Creates sparse models (many weights = 0)
+                    </li>
+                    <li><strong>L2 (Ridge):</strong> Penalty = λ × Σ(weights²) → Shrinks all weights proportionally</li>
+                </ul>
+                <p><strong>Goal:</strong> Prevent weights from becoming too large, reducing overfitting</p>
+            </div>
+
+            <div class="math-box">
+                <h3>Mathematical Formulation</h3>
+                <p><strong>Original Loss Function:</strong></p>
+                <p>L = (1/n) × Σ(y_true - y_pred)²</p>
+                <br>
+                <p><strong>L1 Regularized Loss:</strong></p>
+                <p>L_L1 = (1/n) × Σ(y_true - y_pred)² + λ₁ × Σ|wᵢ|</p>
+                <br>
+                <p><strong>L2 Regularized Loss:</strong></p>
+                <p>L_L2 = (1/n) × Σ(y_true - y_pred)² + λ₂ × Σwᵢ²</p>
+                <br>
+                <p><strong>Elastic Net (L1 + L2):</strong></p>
+                <p>L_EN = (1/n) × Σ(y_true - y_pred)² + λ₁×Σ|wᵢ| + λ₂×Σwᵢ²</p>
+            </div>
+
+            <div class="demo">
+                <h3>L1 vs L2 Comparison</h3>
+                <div class="slider-container">
+                    <label>Regularization Strength (λ): <span id="lambdaVal">0.1</span></label>
+                    <input type="range" class="slider" id="lambdaSlider" min="0" max="1" step="0.1" value="0.1">
+                </div>
+                <div class="grid">
+                    <div class="card">
+                        <h4>L1 Effect</h4>
+                        <p>Feature 1: <span id="l1w1">0.8</span></p>
+                        <p>Feature 2: <span id="l1w2">0.5</span></p>
+                        <p>Feature 3: <span id="l1w3">0.0</span></p>
+                        <small>Eliminates weak features</small>
+                    </div>
+                    <div class="card">
+                        <h4>L2 Effect</h4>
+                        <p>Feature 1: <span id="l2w1">0.7</span></p>
+                        <p>Feature 2: <span id="l2w2">0.4</span></p>
+                        <p>Feature 3: <span id="l2w3">0.2</span></p>
+                        <small>Shrinks all weights</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>When to Use Which?</h3>
+                <table>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Use L1 When</th>
+                        <th>Use L2 When</th>
+                    </tr>
+                    <tr>
+                        <td>Feature Selection</td>
+                        <td>✅ Want automatic feature selection</td>
+                        <td>❌ Want to keep all features</td>
+                    </tr>
+                    <tr>
+                        <td>Interpretability</td>
+                        <td>✅ Need sparse, interpretable model</td>
+                        <td>❌ Complexity is acceptable</td>
+                    </tr>
+                    <tr>
+                        <td>Stability</td>
+                        <td>❌ Can be unstable with correlated features</td>
+                        <td>✅ More stable, handles correlation well</td>
+                    </tr>
+                    <tr>
+                        <td>Computational Cost</td>
+                        <td>✅ Faster inference (sparse model)</td>
+                        <td>❌ All features computed</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="example-box">
+                <h3>Implementation Example</h3>
+                <div class="math-box">
+                    <code>
+# Scikit-learn<br>
+from sklearn.linear_model import Lasso, Ridge<br><br>
+# L1 Regularization<br>
+lasso = Lasso(alpha=0.01)  # alpha = λ<br>
+lasso.fit(X_train, y_train)<br><br>
+# L2 Regularization<br>
+ridge = Ridge(alpha=0.01)<br>
+ridge.fit(X_train, y_train)<br><br>
+# Neural Networks (Keras)<br>
+from keras.regularizers import l1, l2<br>
+model.add(Dense(64, kernel_regularizer=l2(0.01)))
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Early Stopping -->
+        <div class="section" id="early-stopping">
+            <h2>⏰ Early Stopping: Perfect Timing</h2>
+
+            <div class="concept-box">
+                <h3>What is Early Stopping?</h3>
+                <p><strong>Early stopping</strong> monitors validation performance during training and stops when it
+                    stops improving, preventing the model from overfitting.</p>
+                <p><strong>Think of it as:</strong> A wise coach who knows when the team has practiced enough!</p>
+            </div>
+
+            <div class="math-box">
+                <h3>Early Stopping Algorithm</h3>
+                <p><strong>Parameters:</strong></p>
+                <p>• patience = number of epochs to wait</p>
+                <p>• min_delta = minimum improvement required</p>
+                <br>
+                <p><strong>Algorithm:</strong></p>
+                <p>1. Initialize: best_loss = ∞, wait_count = 0</p>
+                <p>2. For each epoch:</p>
+                <p>&nbsp;&nbsp;&nbsp;a. Calculate validation_loss</p>
+                <p>&nbsp;&nbsp;&nbsp;b. If validation_loss < (best_loss - min_delta):</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;best_loss = validation_loss</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;wait_count = 0</p>
+                        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save_model()</p>
+                        <p>&nbsp;&nbsp;&nbsp;c. Else: wait_count += 1</p>
+                        <p>&nbsp;&nbsp;&nbsp;d. If wait_count >= patience: STOP</p>
+                        <p>3. Restore best model</p>
+            </div>
+
+            <div class="demo">
+                <h3>Training Progress Simulation</h3>
+                <button onclick="startTraining()" id="trainBtn"
+                    style="padding: 0.5rem 1rem; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">▶️
+                    Start Training</button>
+                <div class="grid" style="margin-top: 1rem;">
+                    <div class="result">
+                        Epoch: <span id="epoch">0</span>
+                    </div>
+                    <div class="result">
+                        Training Loss: <span id="trainLoss">0.00</span>
+                    </div>
+                    <div class="result">
+                        Validation Loss: <span id="valLoss">0.00</span>
+                    </div>
+                </div>
+                <div id="trainStatus" class="result">Click start to begin training simulation</div>
+            </div>
+
+            <div class="example-box">
+                <h3>Implementation Example</h3>
+                <div class="math-box">
+                    <code>
+# Keras Implementation<br>
+from keras.callbacks import EarlyStopping<br><br>
+early_stopping = EarlyStopping(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;monitor='val_loss',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;patience=10,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;min_delta=0.001,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;restore_best_weights=True<br>
+)<br><br>
+model.fit(X_train, y_train,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;validation_data=(X_val, y_val),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;callbacks=[early_stopping])
+                    </code>
+                </div>
+                <p><strong>Best Practices:</strong></p>
+                <ul>
+                    <li><strong>Patience:</strong> 5-20 epochs (larger for big datasets)</li>
+                    <li><strong>Monitor:</strong> Validation loss (not training loss)</li>
+                    <li><strong>Save:</strong> Always restore best weights</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 5: Data Augmentation -->
+        <div class="section" id="data-augmentation">
+            <h2>🎭 Data Augmentation: Creative Variations</h2>
+
+            <div class="concept-box">
+                <h3>What is Data Augmentation?</h3>
+                <p><strong>Data augmentation</strong> creates new training examples by applying label-preserving
+                    transformations to existing data. This increases dataset size and improves model robustness.</p>
+                <p><strong>Key principle:</strong> Transform the input while keeping the label the same</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Common Augmentation Techniques</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>🖼️ Images</h4>
+                        <ul>
+                            <li>Rotation (±15°)</li>
+                            <li>Horizontal/Vertical flip</li>
+                            <li>Zoom (0.8x - 1.2x)</li>
+                            <li>Brightness adjustment</li>
+                            <li>Gaussian noise</li>
+                            <li>Random cropping</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>📝 Text</h4>
+                        <ul>
+                            <li>Synonym replacement</li>
+                            <li>Random insertion</li>
+                            <li>Random deletion</li>
+                            <li>Random swap</li>
+                            <li>Back translation</li>
+                            <li>Paraphrasing</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>🎵 Audio</h4>
+                        <ul>
+                            <li>Speed change</li>
+                            <li>Pitch shifting</li>
+                            <li>Background noise</li>
+                            <li>Time stretching</li>
+                            <li>Volume adjustment</li>
+                            <li>Echo/reverb</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-box">
+                <h3>Mathematical Transformations</h3>
+                <p><strong>Geometric Transformations:</strong></p>
+                <p>• Rotation: [x', y'] = [x×cos(θ) - y×sin(θ), x×sin(θ) + y×cos(θ)]</p>
+                <p>• Scaling: [x', y'] = [s×x, s×y]</p>
+                <p>• Translation: [x', y'] = [x + dx, y + dy]</p>
+                <br>
+                <p><strong>Photometric Transformations:</strong></p>
+                <p>• Brightness: I' = I + β</p>
+                <p>• Contrast: I' = α × I</p>
+                <p>• Gamma correction: I' = I^γ</p>
+            </div>
+
+            <div class="demo">
+                <h3>Data Augmentation Effect</h3>
+                <div class="slider-container">
+                    <label>Augmentation Factor: <span id="augFactorVal">3</span>x</label>
+                    <input type="range" class="slider" id="augFactorSlider" min="1" max="10" value="3">
+                </div>
+                <div class="grid">
+                    <div class="result">
+                        Original Dataset: <span id="originalSize">1000</span> samples
+                    </div>
+                    <div class="result">
+                        Augmented Dataset: <span id="augmentedSize">3000</span> samples
+                    </div>
+                </div>
+                <div id="augStatus" class="result">More data leads to better generalization</div>
+            </div>
+
+            <div class="example-box">
+                <h3>Implementation Example</h3>
+                <div class="math-box">
+                    <code>
+# Keras ImageDataGenerator<br>
+from keras.preprocessing.image import ImageDataGenerator<br><br>
+datagen = ImageDataGenerator(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rotation_range=20,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;width_shift_range=0.2,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;height_shift_range=0.2,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;shear_range=0.2,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;zoom_range=0.2,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;horizontal_flip=True,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;fill_mode='nearest'<br>
+)<br><br>
+# Training with augmentation<br>
+model.fit(datagen.flow(X_train, y_train),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;steps_per_epoch=len(X_train)//batch_size,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;epochs=100)
+                    </code>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Combining Techniques -->
+        <div class="section" id="combining">
+            <h2>🤝 Combining Regularization Techniques</h2>
+
+            <div class="concept-box">
+                <h3>Why Combine Techniques?</h3>
+                <p>Different regularization techniques address different aspects of overfitting:</p>
+                <ul>
+                    <li><strong>Dropout:</strong> Reduces neuron co-adaptation</li>
+                    <li><strong>L1/L2:</strong> Controls weight magnitudes</li>
+                    <li><strong>Early Stopping:</strong> Prevents overtraining</li>
+                    <li><strong>Data Augmentation:</strong> Increases data diversity</li>
+                </ul>
+                <p><strong>Combined effect:</strong> More robust and generalizable models</p>
+            </div>
+
+            <div class="math-box">
+                <h3>Complete Regularized Loss Function</h3>
+                <p><strong>Full Formula:</strong></p>
+                <p>L_total = L_original + λ₁×Σ|wᵢ| + λ₂×Σwᵢ² + L_dropout_implicit</p>
+                <br>
+                <p><strong>Where:</strong></p>
+                <p>• L_original = Base prediction loss</p>
+                <p>• λ₁×Σ|wᵢ| = L1 penalty term</p>
+                <p>• λ₂×Σwᵢ² = L2 penalty term</p>
+                <p>• L_dropout_implicit = Regularization from dropout</p>
+                <p>• Early stopping + Data augmentation provide additional regularization</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Recommended Combinations</h3>
+                <table>
+                    <tr>
+                        <th>Problem Type</th>
+                        <th>Best Combination</th>
+                        <th>Reasoning</th>
+                    </tr>
+                    <tr>
+                        <td>Image Classification</td>
+                        <td>Data Aug + Dropout + L2 + Early Stop</td>
+                        <td>Images benefit from augmentation, CNNs from dropout</td>
+                    </tr>
+                    <tr>
+                        <td>Text Classification</td>
+                        <td>Dropout + L2 + Early Stop</td>
+                        <td>Text augmentation is tricky, focus on model regularization</td>
+                    </tr>
+                    <tr>
+                        <td>Small Dataset</td>
+                        <td>Heavy Data Aug + Light L2 + Early Stop</td>
+                        <td>Augmentation crucial when data is limited</td>
+                    </tr>
+                    <tr>
+                        <td>High-Dimensional</td>
+                        <td>L1 + L2 + Early Stop</td>
+                        <td>L1 for feature selection, L2 for stability</td>
+                    </tr>
+                    <tr>
+                        <td>Deep Networks</td>
+                        <td>Dropout + BatchNorm + L2 + Early Stop</td>
+                        <td>Deep networks need strong regularization</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="demo">
+                <h3>Complete Regularization Strategy</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Scenario Selection</h4>
+                        <select id="scenarioSelect" onchange="updateStrategy()" style="width: 100%; padding: 0.5rem;">
+                            <option value="image">Image Classification</option>
+                            <option value="text">Text Classification</option>
+                            <option value="small">Small Dataset</option>
+                            <option value="highdim">High-Dimensional Data</option>
+                            <option value="deep">Deep Network</option>
+                        </select>
+                    </div>
+                    <div class="card">
+                        <h4>Recommended Strategy</h4>
+                        <div id="strategyOutput">
+                            <strong>Data Augmentation:</strong> Heavy (5-10x)<br>
+                            <strong>Dropout:</strong> 0.2-0.5<br>
+                            <strong>L2 Regularization:</strong> 0.001<br>
+                            <strong>Early Stopping:</strong> patience=10
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>Complete Implementation Example</h3>
+                <div class="math-box">
+                    <code>
+# Complete regularized model<br>
+import tensorflow as tf<br>
+from tensorflow.keras import layers, regularizers<br>
+from tensorflow.keras.callbacks import EarlyStopping<br><br>
+# Model with all regularization techniques<br>
+model = tf.keras.Sequential([<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layers.Dense(128, activation='relu',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kernel_regularizer=regularizers.l1_l2(l1=0.01, l2=0.01)),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layers.Dropout(0.3),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layers.Dense(64, activation='relu',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;kernel_regularizer=regularizers.l2(0.01)),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layers.Dropout(0.5),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;layers.Dense(10, activation='softmax')<br>
+])<br><br>
+# Early stopping callback<br>
+early_stop = EarlyStopping(monitor='val_loss', patience=10,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;restore_best_weights=True)<br><br>
+# Data augmentation<br>
+datagen = ImageDataGenerator(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rotation_range=15,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;width_shift_range=0.1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;height_shift_range=0.1,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;horizontal_flip=True<br>
+)<br><br>
+# Training<br>
+model.compile(optimizer='adam', loss='categorical_crossentropy',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;metrics=['accuracy'])<br><br>
+history = model.fit(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;datagen.flow(X_train, y_train, batch_size=32),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;validation_data=(X_val, y_val),<br>
+&nbsp;&nbsp;&nbsp;&nbsp;epochs=100,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;callbacks=[early_stop]<br>
+)
+                    </code>
+                </div>
+            </div>
+
+            <div class="problem-box">
+                <h3>⚠️ Common Mistakes to Avoid</h3>
+                <ul>
+                    <li><strong>Over-regularization:</strong> Too much regularization can cause underfitting</li>
+                    <li><strong>Wrong dropout placement:</strong> Never use dropout on output layer</li>
+                    <li><strong>Ignoring validation:</strong> Early stopping must monitor validation, not training</li>
+                    <li><strong>Inconsistent augmentation:</strong> Don't apply augmentation to validation/test data
+                    </li>
+                    <li><strong>Wrong λ values:</strong> Start small (0.001-0.01) and tune carefully</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="section">
+            <h2>📋 Quick Reference Summary</h2>
+
+            <div class="concept-box">
+                <h3>When to Use Each Technique</h3>
+                <table>
+                    <tr>
+                        <th>Technique</th>
+                        <th>Best For</th>
+                        <th>Parameters</th>
+                        <th>Implementation</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Dropout</strong></td>
+                        <td>Deep neural networks</td>
+                        <td>0.2-0.5 for hidden layers</td>
+                        <td>Add Dropout() layers</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L1 Regularization</strong></td>
+                        <td>Feature selection needed</td>
+                        <td>λ = 0.001-0.01</td>
+                        <td>kernel_regularizer=l1(λ)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L2 Regularization</strong></td>
+                        <td>Weight control, stability</td>
+                        <td>λ = 0.001-0.01</td>
+                        <td>kernel_regularizer=l2(λ)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Early Stopping</strong></td>
+                        <td>All training scenarios</td>
+                        <td>patience = 5-20</td>
+                        <td>EarlyStopping callback</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Augmentation</strong></td>
+                        <td>Limited data, images</td>
+                        <td>2-10x increase</td>
+                        <td>ImageDataGenerator</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="example-box">
+                <h3>🎯 Key Takeaways</h3>
+                <ol>
+                    <li><strong>Overfitting = Memorization:</strong> Model learns training data too well</li>
+                    <li><strong>Multiple techniques work better:</strong> Combine different regularization methods</li>
+                    <li><strong>Start simple:</strong> Add regularization gradually and monitor performance</li>
+                    <li><strong>Validate properly:</strong> Always use separate validation set</li>
+                    <li><strong>Problem-specific:</strong> Choose techniques based on your specific use case</li>
+                </ol>
+            </div>
+
+            <div class="demo">
+                <h3>🧠 Final Self-Assessment</h3>
+                <div class="card">
+                    <p><strong>Question:</strong> You have a deep neural network with 95% training accuracy but only 70%
+                        validation accuracy. Which regularization techniques would you apply?</p>
+                    <button onclick="showAnswer()" id="answerBtn"
+                        style="padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 1rem;">Show
+                        Answer</button>
+                    <div id="answer"
+                        style="display: none; margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 5px;">
+                        <strong>Answer:</strong> This is a classic overfitting scenario (large gap between training and
+                        validation). Apply:
+                        <ul>
+                            <li><strong>Dropout:</strong> 0.3-0.5 in hidden layers</li>
+                            <li><strong>L2 Regularization:</strong> λ = 0.01</li>
+                            <li><strong>Early Stopping:</strong> patience = 10</li>
+                            <li><strong>Data Augmentation:</strong> If applicable to your data type</li>
+                        </ul>
+                        Monitor validation performance and adjust λ values if needed.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav">
+            <p style="margin: 1rem 0; color: #666;">🎓 <strong>Congratulations!</strong> You now understand how to
+                prevent overfitting using regularization techniques. Practice implementing these methods in your own
+                projects!</p>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let trainingActive = false;
+        let epoch = 0;
+
+        // Initialize sliders when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            updateComplexityDemo();
+            updateDropoutDemo();
+            updateRegularizationDemo();
+            updateAugmentationDemo();
+            updateStrategy();
+        });
+
+        // Complexity demo
+        document.getElementById('complexitySlider').addEventListener('input', updateComplexityDemo);
+
+        function updateComplexityDemo() {
+            const complexity = parseInt(document.getElementById('complexitySlider').value);
+            document.getElementById('complexityVal').textContent = complexity;
+
+            // Simple simulation of bias-variance tradeoff
+            const trainAcc = Math.min(100, 70 + complexity * 3);
+            const testAcc = Math.max(50, trainAcc - Math.max(0, (complexity - 5) * 6));
+
+            document.getElementById('trainAcc').textContent = trainAcc + '%';
+            document.getElementById('testAcc').textContent = testAcc + '%';
+
+            const gap = trainAcc - testAcc;
+            let status = '';
+            if (gap < 5) status = '✅ Good generalization';
+            else if (gap < 15) status = '⚠️ Some overfitting';
+            else status = '❌ Severe overfitting!';
+
+            document.getElementById('overfitStatus').textContent = status;
+        }
+
+        // Dropout demo
+        document.getElementById('dropoutSlider').addEventListener('input', updateDropoutDemo);
+
+        function updateDropoutDemo() {
+            const dropout = parseInt(document.getElementById('dropoutSlider').value);
+            document.getElementById('dropoutVal').textContent = dropout;
+
+            const active = 100 - dropout;
+            document.getElementById('activeNeurons').textContent = active + '%';
+
+            let effect = '';
+            if (dropout < 20) effect = 'Low';
+            else if (dropout < 50) effect = 'Medium';
+            else effect = 'High';
+
+            document.getElementById('regEffect').textContent = effect;
+
+            let status = '';
+            if (dropout === 0) status = 'No regularization - risk of overfitting';
+            else if (dropout < 30) status = 'Light regularization';
+            else if (dropout < 60) status = 'Good regularization balance';
+            else status = 'Heavy regularization - may cause underfitting';
+
+            document.getElementById('dropoutStatus').textContent = status;
+        }
+
+        // L1/L2 regularization demo
+        document.getElementById('lambdaSlider').addEventListener('input', updateRegularizationDemo);
+
+        function updateRegularizationDemo() {
+            const lambda = parseFloat(document.getElementById('lambdaSlider').value);
+            document.getElementById('lambdaVal').textContent = lambda;
+
+            // L1 effect (creates sparsity)
+            const l1w1 = Math.max(0, 0.8 - lambda * 0.6);
+            const l1w2 = Math.max(0, 0.5 - lambda * 0.4);
+            const l1w3 = Math.max(0, 0.2 - lambda * 0.3);
+
+            document.getElementById('l1w1').textContent = l1w1.toFixed(1);
+            document.getElementById('l1w2').textContent = l1w2.toFixed(1);
+            document.getElementById('l1w3').textContent = l1w3.toFixed(1);
+
+            // L2 effect (proportional shrinkage)
+            const l2w1 = 0.8 / (1 + lambda);
+            const l2w2 = 0.5 / (1 + lambda);
+            const l2w3 = 0.2 / (1 + lambda);
+
+            document.getElementById('l2w1').textContent = l2w1.toFixed(1);
+            document.getElementById('l2w2').textContent = l2w2.toFixed(1);
+            document.getElementById('l2w3').textContent = l2w3.toFixed(1);
+        }
+
+        // Training simulation
+        function startTraining() {
+            const btn = document.getElementById('trainBtn');
+            if (trainingActive) return;
+
+            btn.textContent = '⏸️ Training...';
+            btn.disabled = true;
+            trainingActive = true;
+            epoch = 0;
+
+            const interval = setInterval(() => {
+                epoch++;
+                const trainLoss = Math.max(0.1, 2.0 - epoch * 0.05 + Math.random() * 0.1);
+                const valLoss = epoch < 15 ?
+                    Math.max(0.2, 2.2 - epoch * 0.08 + Math.random() * 0.1) :
+                    Math.min(2.0, 0.5 + (epoch - 15) * 0.03 + Math.random() * 0.1);
+
+                document.getElementById('epoch').textContent = epoch;
+                document.getElementById('trainLoss').textContent = trainLoss.toFixed(3);
+                document.getElementById('valLoss').textContent = valLoss.toFixed(3);
+
+                let status = '';
+                if (epoch < 10) status = '📈 Both losses decreasing - healthy training';
+                else if (epoch < 20) status = '⚠️ Validation loss plateauing - watch closely';
+                else status = '🛑 Early stopping triggered! Validation loss increasing';
+
+                document.getElementById('trainStatus').textContent = status;
+
+                if (epoch >= 25 || (epoch > 15 && valLoss > 1.0)) {
+                    clearInterval(interval);
+                    btn.textContent = '✅ Training Complete';
+                    trainingActive = false;
+                    document.getElementById('trainStatus').textContent =
+                        '🎯 Training stopped at epoch ' + epoch + ' to prevent overfitting';
+                }
+            }, 200);
+        }
+
+        // Data augmentation demo
+        document.getElementById('augFactorSlider').addEventListener('input', updateAugmentationDemo);
+
+        function updateAugmentationDemo() {
+            const factor = parseInt(document.getElementById('augFactorSlider').value);
+            document.getElementById('augFactorVal').textContent = factor;
+
+            const original = 1000;
+            const augmented = original * factor;
+
+            document.getElementById('originalSize').textContent = original;
+            document.getElementById('augmentedSize').textContent = augmented;
+
+            let status = '';
+            if (factor === 1) status = 'No augmentation - limited data diversity';
+            else if (factor <= 3) status = 'Light augmentation - some improvement';
+            else if (factor <= 6) status = 'Good augmentation - better generalization';
+            else status = 'Heavy augmentation - maximum data diversity';
+
+            document.getElementById('augStatus').textContent = status;
+        }
+
+        // Strategy selector
+        function updateStrategy() {
+            const scenario = document.getElementById('scenarioSelect').value;
+            const output = document.getElementById('strategyOutput');
+
+            const strategies = {
+                'image': {
+                    aug: 'Heavy (5-10x)',
+                    dropout: '0.2-0.5',
+                    l2: '0.001',
+                    early: 'patience=10'
+                },
+                'text': {
+                    aug: 'Light (synonym replacement)',
+                    dropout: '0.3-0.6',
+                    l2: '0.01',
+                    early: 'patience=5'
+                },
+                'small': {
+                    aug: 'Very Heavy (10x+)',
+                    dropout: '0.1-0.3',
+                    l2: '0.001',
+                    early: 'patience=15'
+                },
+                'highdim': {
+                    aug: 'Minimal',
+                    dropout: '0.4-0.7',
+                    l2: '0.01 + L1=0.001',
+                    early: 'patience=10'
+                },
+                'deep': {
+                    aug: 'Medium (3-5x)',
+                    dropout: '0.3-0.5',
+                    l2: '0.001 + BatchNorm',
+                    early: 'patience=20'
+                }
+            };
+
+            const strategy = strategies[scenario];
+            output.innerHTML = `
+                <strong>Data Augmentation:</strong> ${strategy.aug}<br>
+                <strong>Dropout:</strong> ${strategy.dropout}<br>
+                <strong>L2 Regularization:</strong> ${strategy.l2}<br>
+                <strong>Early Stopping:</strong> ${strategy.early}
+            `;
+        }
+
+        // Show answer function
+        function showAnswer() {
+            document.getElementById('answer').style.display = 'block';
+            document.getElementById('answerBtn').style.display = 'none';
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
