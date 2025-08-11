@@ -1,1 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Scoring Championship: Loss Functions & Metrics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Comic Sans MS", cursive;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ffd23f 100%);
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #ff6b35, #f7931e, #ffd23f, #06ffa5, #00d4ff, #7b68ee);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header::before {
+            content: "🏆🎯📊";
+            font-size: 3em;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            opacity: 0.3;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0% {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            50% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+
+            100% {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: normal;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff4757;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b35, #ffd23f, #06ffa5);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .nav {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #ff6b35;
+        }
+
+        .nav a {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ff6b35, #ffd23f);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .nav a:hover {
+            transform: translateY(-2px) scale(1.05);
+            background: linear-gradient(45deg, #06ffa5, #00d4ff);
+        }
+
+        .section {
+            padding: 30px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        h2 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #ff6b35;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        h3 {
+            color: #06ffa5;
+            font-size: 1.6em;
+            margin: 20px 0 15px 0;
+        }
+
+        .story-box {
+            background: linear-gradient(135deg, #ff6b35, #ffd23f);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .simple-explanation {
+            background: linear-gradient(135deg, #ffd23f, #06ffa5);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 6px solid #ff6b35;
+            color: #2c3e50;
+        }
+
+        .simple-explanation::before {
+            content: "👶 Simple Words: ";
+            font-weight: bold;
+            color: #ff4757;
+            font-size: 1.1em;
+        }
+
+        .math-container {
+            background: #1a1a1a;
+            color: #06ffa5;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            border: 3px solid #06ffa5;
+            position: relative;
+        }
+
+        .math-container::before {
+            content: "🧮 MATH MAGIC";
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #1a1a1a;
+            padding: 0 10px;
+            color: #06ffa5;
+            font-weight: bold;
+        }
+
+        .equation {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ffd23f;
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(255, 210, 63, 0.1);
+            border-radius: 8px;
+        }
+
+        .equation-breakdown {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .symbol-meaning {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .symbol {
+            color: #ffd23f;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .meaning {
+            color: #ffffff;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #ffd23f, #06ffa5);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px dashed #ff6b35;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            outline: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .stadium-visual {
+            text-align: center;
+            font-size: 2.5em;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        .loss-demo {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .metric-demo {
+            background: linear-gradient(135deg, #06ffa5, #00d4ff);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .code-playground {
+            background: #2d3748;
+            color: #06ffa5;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            border-left: 5px solid #ffd23f;
+        }
+
+        .highlight {
+            background: #ffd23f;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #1a1a1a;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #ff6b35;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .comparison-table th {
+            background: #ff6b35;
+            color: white;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .step-by-step {
+            counter-reset: step-counter;
+        }
+
+        .step {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding: 20px;
+            background: rgba(6, 255, 165, 0.1);
+            border-radius: 10px;
+            border-left: 5px solid #06ffa5;
+        }
+
+        .step::before {
+            content: "Step " counter(step-counter) ": ";
+            font-weight: bold;
+            color: #06ffa5;
+            font-size: 1.2em;
+        }
+
+        .advanced-concept {
+            background: linear-gradient(135deg, #7b68ee, #9b59b6);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border-left: 6px solid #ffd23f;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .game-scoreboard {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .score-display {
+            font-size: 2em;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .trophy-case {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .trophy {
+            background: linear-gradient(135deg, #ffd23f, #ff6b35);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="timer" id="timer">60:00</div>
+    <div class="container">
+        <div class="header">
+            <h1>🏆 The Scoring Championship</h1>
+            <div class="subtitle">Master Loss Functions & Metrics: From Zero to Hero Scorer!</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="nav">
+            <a href="#intro">Championship Story</a>
+            <a href="#classification">Classification Scoring</a>
+            <a href="#regression">Regression Scoring</a>
+            <a href="#metrics">Evaluation Metrics</a>
+            <a href="#advanced">Pro Techniques</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🏟️ Welcome to the AI Scoring Championship!</h2>
+            <div class="story-box">
+                <h3>⚽ Meet Coach Max: The Ultimate AI Scorer</h3>
+                <p>Welcome to the most exciting championship in the AI world! 🎉 Coach Max runs the <strong>AI Scoring
+                        Championship</strong> where different AI models compete to see who can predict things the best!
+                </p>
+                <div class="stadium-visual">🏟️⚽🏆</div>
+                <p>But here's the thing - just like in real sports, you need <span class="highlight">different ways to
+                        keep score</span> depending on what game you're playing! 🎯</p>
+                <ul>
+                    <li>🎯 <strong>Bullseye Game</strong> (Classification): Hit the exact target - cat, dog, or bird?
+                    </li>
+                    <li>📏 <strong>Distance Game</strong> (Regression): Get as close as possible to the exact number
+                    </li>
+                    <li>🏅 <strong>Medal Ceremony</strong> (Metrics): Who performed the best overall?</li>
+                </ul>
+            </div>
+
+            <div class="simple-explanation">
+                A <strong>Loss Function</strong> is like a game's scoring system that tells us HOW WRONG our AI's guess
+                was. A <strong>Metric</strong> is like the final report card that tells us HOW GOOD our AI performed
+                overall. Think of loss functions as "mistake measurers" and metrics as "success celebrators"!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎲 Prediction Accuracy Simulator</h3>
+                <div class="slider-container">
+                    <label>AI Confidence Level: <span id="confidenceVal">85</span>%</label>
+                    <input type="range" class="slider" id="confidenceSlider" min="0" max="100" value="85">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Prediction Quality: <span id="predQuality">Good</span></div>
+                    <div class="result-card">Loss Value: <span id="lossValue">0.23</span></div>
+                    <div class="result-card">Coach's Rating: <span id="coachRating">B+</span></div>
+                </div>
+                <div id="confidence-explanation" class="result-card">Adjust confidence to see how it affects scoring!
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="classification">
+            <h2>🎯 Classification: The Bullseye Championship</h2>
+            <div class="story-box">
+                <h3>🏹 The Great Bullseye Tournament</h3>
+                <p>In Coach Max's Bullseye Tournament, AI players must hit the exact right category! Is it a cat? A dog?
+                    A bird? There's no "almost right" - you either hit the bullseye or you don't! 🎯</p>
+                <div class="stadium-visual">🏹➡️🎯</div>
+            </div>
+
+            <div class="math-container">
+                <h3>🎯 Cross-Entropy Loss: The Master Scorer</h3>
+                <div class="equation">Loss = -Σ(y_true × log(y_predicted))</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">y_true</div>
+                        <div class="meaning">= The real answer (1 if correct category, 0 if wrong)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">y_predicted</div>
+                        <div class="meaning">= AI's confidence (0.85 = 85% sure)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">log</div>
+                        <div class="meaning">= Logarithm (makes penalties grow fast for bad guesses)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Σ</div>
+                        <div class="meaning">= Add up all the penalties for each category</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                <strong>Cross-Entropy Loss</strong> is like a strict teacher who gives you more punishment the more
+                confident you are about a wrong answer! If you say "I'm 90% sure it's a cat" but it's actually a dog,
+                you get a bigger penalty than if you said "I'm only 60% sure it's a cat."
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Cross-Entropy Calculator</h3>
+                <div class="slider-container">
+                    <label>AI says "Cat" with confidence: <span id="catConfidenceVal">80</span>%</label>
+                    <input type="range" class="slider" id="catConfidenceSlider" min="1" max="99" value="80">
+                </div>
+                <div class="slider-container">
+                    <label>Reality: <span id="realityVal">Cat</span></label>
+                    <select id="realitySelect" style="width: 100%; padding: 8px; border-radius: 5px;">
+                        <option value="cat">Cat (Correct!)</option>
+                        <option value="dog">Dog (Wrong!)</option>
+                        <option value="bird">Bird (Wrong!)</option>
+                    </select>
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Cross-Entropy Loss: <span id="crossEntropyLoss">0.22</span></div>
+                    <div class="result-card">Penalty Level: <span id="penaltyLevel">Low</span></div>
+                    <div class="result-card">Coach's Feedback: <span id="coachFeedback">Good job!</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Coach Max's Cross-Entropy Calculator</h3>
+                <pre># Coach Max's Simple Cross-Entropy Loss Calculator
+import math
+
+def cross_entropy_loss(true_category, predicted_confidence):
+    """
+    Calculate how much penalty the AI gets for its guess
+    true_category: What it really is (0=cat, 1=dog, 2=bird)
+    predicted_confidence: List of AI's confidence for each [cat, dog, bird]
+    """
+    
+    # Make sure confidences add up to 100%
+    total = sum(predicted_confidence)
+    normalized = [conf / total for conf in predicted_confidence]
+    
+    # Calculate the penalty - only the true category matters for the loss
+    true_confidence = normalized[true_category]
+    
+    # Cross-entropy formula: -log(confidence in true answer)
+    loss = -math.log(true_confidence + 1e-10)  # Add tiny number to avoid log(0)
+    
+    return loss
+
+# Examples from Coach Max's tournament:
+print("🎯 Classification Tournament Results:")
+
+# Perfect prediction
+perfect = cross_entropy_loss(0, [0.95, 0.03, 0.02])
+print(f"Perfect guess: Loss = {perfect:.3f} (Excellent! 🏆)")
+
+# Good prediction  
+good = cross_entropy_loss(0, [0.80, 0.15, 0.05])
+print(f"Good guess: Loss = {good:.3f} (Well done! 👍)")
+
+# Bad prediction
+bad = cross_entropy_loss(0, [0.30, 0.60, 0.10])
+print(f"Uncertain guess: Loss = {bad:.3f} (Need more confidence! 😕)")
+
+print("📚 Coach Max's Wisdom: Lower loss = better performance!")</pre>
+            </div>
+        </div>
+
+        <div class="section" id="regression">
+            <h2>📏 Regression: The Distance Championship</h2>
+            <div class="story-box">
+                <h3>🎯 The Great Distance Challenge</h3>
+                <p>In Coach Max's Distance Championship, AI players must guess exact numbers! "How tall is this person?
+                    175.3 cm or 180.7 cm?" The closer you get to the real number, the better your score! 📏</p>
+                <div class="stadium-visual">📏➡️🎯➡️📊</div>
+            </div>
+
+            <div class="math-container">
+                <h3>📐 Mean Squared Error (MSE): The Distance King</h3>
+                <div class="equation">MSE = (1/n) × Σ(y_true - y_predicted)²</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">y_true</div>
+                        <div class="meaning">= The real answer (actual height: 175.3 cm)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">y_predicted</div>
+                        <div class="meaning">= AI's guess (AI guessed: 180.0 cm)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">(y_true - y_predicted)²</div>
+                        <div class="meaning">= Difference squared (175.3 - 180.0)² = 22.09</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">1/n</div>
+                        <div class="meaning">= Average over all guesses</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                <strong>Mean Squared Error (MSE)</strong> is like measuring how far your darts land from the bullseye,
+                but it punishes big misses EXTRA hard by squaring the distance! Miss by 1 inch = penalty of 1. Miss by 2
+                inches = penalty of 4. Miss by 3 inches = penalty of 9!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Regression Loss Playground</h3>
+                <div class="slider-container">
+                    <label>True Value: <span id="trueVal">175</span> cm</label>
+                    <input type="range" class="slider" id="trueSlider" min="150" max="200" value="175">
+                </div>
+                <div class="slider-container">
+                    <label>AI Prediction: <span id="predVal">180</span> cm</label>
+                    <input type="range" class="slider" id="predSlider" min="150" max="200" value="180">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Error: <span id="errorVal">5</span> cm</div>
+                    <div class="result-card">MSE: <span id="mseVal">25</span></div>
+                    <div class="result-card">MAE: <span id="maeVal">5</span></div>
+                    <div class="result-card">Performance: <span id="perfRating">Good</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Coach Max's Regression Loss Calculator</h3>
+                <pre># Coach Max's Complete Regression Loss Toolkit
+import math
+
+class RegressionLossCalculator:
+    """Coach Max's ultimate toolkit for measuring distance-based performance"""
+    
+    def mean_squared_error(self, true_values, predictions):
+        """MSE: Harsh punishment for big mistakes"""
+        errors = [(true - pred) ** 2 for true, pred in zip(true_values, predictions)]
+        mse = sum(errors) / len(errors)
+        return mse
+    
+    def mean_absolute_error(self, true_values, predictions):
+        """MAE: Fair and gentle punishment"""
+        errors = [abs(true - pred) for true, pred in zip(true_values, predictions)]
+        mae = sum(errors) / len(errors)
+        return mae
+    
+    def root_mean_squared_error(self, true_values, predictions):
+        """RMSE: MSE but in the same units as your data"""
+        mse = self.mean_squared_error(true_values, predictions)
+        rmse = math.sqrt(mse)
+        return rmse
+    
+    def evaluate_performance(self, true_values, predictions):
+        """Complete performance report card"""
+        mse = self.mean_squared_error(true_values, predictions)
+        mae = self.mean_absolute_error(true_values, predictions)
+        rmse = self.root_mean_squared_error(true_values, predictions)
+        
+        print("📊 PERFORMANCE REPORT CARD:")
+        print(f"MSE (Mean Squared Error): {mse:.2f}")
+        print(f"MAE (Mean Absolute Error): {mae:.2f}")
+        print(f"RMSE (Root Mean Squared Error): {rmse:.2f}")
+        
+        # Coach's overall rating
+        if rmse < 2:
+            rating = "🏆 CHAMPION! Outstanding performance!"
+        elif rmse < 5:
+            rating = "🥈 EXCELLENT! Great job!"
+        elif rmse < 10:
+            rating = "🥉 GOOD! Room for improvement"
+        else:
+            rating = "📚 NEEDS PRACTICE! Keep training!"
+        
+        print(f"Coach Max's Rating: {rating}")
+        return {'mse': mse, 'mae': mae, 'rmse': rmse}
+
+# Example: Height prediction tournament
+coach = RegressionLossCalculator()
+true_heights = [175, 180, 165, 190, 170]
+ai_predictions = [177, 178, 167, 185, 172]
+
+print("🏟️ Height Prediction Tournament Results:")
+results = coach.evaluate_performance(true_heights, ai_predictions)</pre>
+            </div>
+        </div>
+
+        <div class="section" id="metrics">
+            <h2>🏅 Evaluation Metrics: The Medal Ceremony</h2>
+            <div class="story-box">
+                <h3>🏆 The Grand Medal Ceremony</h3>
+                <p>After all the competitions, Coach Max holds a grand <strong>Medal Ceremony</strong> where he gives
+                    out awards! Different competitions need different types of medals and scoring systems! 🥇🥈🥉</p>
+                <div class="stadium-visual">🏆➡️📊➡️🏅</div>
+            </div>
+
+            <div class="trophy-case">
+                <div class="trophy">
+                    <h4>🎯 Accuracy</h4>
+                    <p>How often you're exactly right</p>
+                    <p><strong>80%</strong> = Got 8 out of 10 correct</p>
+                </div>
+                <div class="trophy">
+                    <h4>🔍 Precision</h4>
+                    <p>When you say "cat," how often is it really a cat?</p>
+                    <p><strong>90%</strong> = 9 out of 10 "cat" guesses are right</p>
+                </div>
+                <div class="trophy">
+                    <h4>📡 Recall</h4>
+                    <p>How many real cats did you actually find?</p>
+                    <p><strong>85%</strong> = Found 85 out of 100 cats</p>
+                </div>
+                <div class="trophy">
+                    <h4>⚖️ F1-Score</h4>
+                    <p>Perfect balance of Precision and Recall</p>
+                    <p><strong>87%</strong> = Great all-around performance</p>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🏆 The Medal Ceremony Math</h3>
+
+                <div class="equation">Accuracy = (Correct Predictions) / (Total Predictions)</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Correct Predictions</div>
+                        <div class="meaning">= Number of times AI got it exactly right</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Total Predictions</div>
+                        <div class="meaning">= How many guesses the AI made total</div>
+                    </div>
+                </div>
+
+                <div class="equation">Precision = TP / (TP + FP)</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">TP (True Positives)</div>
+                        <div class="meaning">= Said "cat" and it WAS a cat ✅</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">FP (False Positives)</div>
+                        <div class="meaning">= Said "cat" but it was NOT a cat ❌</div>
+                    </div>
+                </div>
+
+                <div class="equation">Recall = TP / (TP + FN)</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">FN (False Negatives)</div>
+                        <div class="meaning">= Said "not cat" but it WAS a cat ❌</div>
+                    </div>
+                </div>
+
+                <div class="equation">F1-Score = 2 × (Precision × Recall) / (Precision + Recall)</div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Confusion Matrix Builder</h3>
+                <div class="slider-container">
+                    <label>True Positives (Correct "Cat" predictions): <span id="tpVal">80</span></label>
+                    <input type="range" class="slider" id="tpSlider" min="0" max="100" value="80">
+                </div>
+                <div class="slider-container">
+                    <label>False Positives (Wrong "Cat" predictions): <span id="fpVal">10</span></label>
+                    <input type="range" class="slider" id="fpSlider" min="0" max="50" value="10">
+                </div>
+                <div class="slider-container">
+                    <label>False Negatives (Missed real cats): <span id="fnVal">15</span></label>
+                    <input type="range" class="slider" id="fnSlider" min="0" max="50" value="15">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Accuracy: <span id="accuracyVal">89%</span></div>
+                    <div class="result-card">Precision: <span id="precisionVal">89%</span></div>
+                    <div class="result-card">Recall: <span id="recallVal">84%</span></div>
+                    <div class="result-card">F1-Score: <span id="f1Val">87%</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Coach Max's Metrics Calculator</h3>
+                <pre># Coach Max's Complete Metrics Toolkit
+class MetricsCalculator:
+    """The ultimate toolkit for measuring AI performance"""
+    
+    def calculate_confusion_matrix(self, y_true, y_pred):
+        """Calculate the four important numbers"""
+        tp = sum(1 for true, pred in zip(y_true, y_pred) if true == 1 and pred == 1)
+        tn = sum(1 for true, pred in zip(y_true, y_pred) if true == 0 and pred == 0)
+        fp = sum(1 for true, pred in zip(y_true, y_pred) if true == 0 and pred == 1)
+        fn = sum(1 for true, pred in zip(y_true, y_pred) if true == 1 and pred == 0)
+        
+        return tp, tn, fp, fn
+    
+    def accuracy(self, tp, tn, fp, fn):
+        """How often we're exactly right"""
+        return (tp + tn) / (tp + tn + fp + fn)
+    
+    def precision(self, tp, fp):
+        """When we say 'yes', how often are we right?"""
+        if tp + fp == 0:
+            return 0
+        return tp / (tp + fp)
+    
+    def recall(self, tp, fn):
+        """How many real 'yes' cases did we catch?"""
+        if tp + fn == 0:
+            return 0
+        return tp / (tp + fn)
+    
+    def f1_score(self, precision, recall):
+        """Perfect balance of precision and recall"""
+        if precision + recall == 0:
+            return 0
+        return 2 * (precision * recall) / (precision + recall)
+    
+    def complete_evaluation(self, y_true, y_pred):
+        """Full performance report with all medals!"""
+        tp, tn, fp, fn = self.calculate_confusion_matrix(y_true, y_pred)
+        
+        acc = self.accuracy(tp, tn, fp, fn)
+        prec = self.precision(tp, fp)
+        rec = self.recall(tp, fn)
+        f1 = self.f1_score(prec, rec)
+        
+        print("🏅 MEDAL CEREMONY RESULTS:")
+        print(f"🎯 Accuracy: {acc:.3f} ({acc*100:.1f}%)")
+        print(f"🔍 Precision: {prec:.3f} ({prec*100:.1f}%)")
+        print(f"📡 Recall: {rec:.3f} ({rec*100:.1f}%)")
+        print(f"⚖️ F1-Score: {f1:.3f} ({f1*100:.1f}%)")
+        
+        # Award ceremony!
+        if f1 > 0.9:
+            award = "🥇 GOLD MEDAL! World Champion!"
+        elif f1 > 0.8:
+            award = "🥈 SILVER MEDAL! Excellent performer!"
+        elif f1 > 0.7:
+            award = "🥉 BRONZE MEDAL! Good job!"
+        else:
+            award = "📚 PARTICIPATION TROPHY! Keep practicing!"
+        
+        print(f"🏆 Coach Max's Award: {award}")
+        return {'accuracy': acc, 'precision': prec, 'recall': rec, 'f1': f1}
+
+# Example: Cat detection tournament
+coach = MetricsCalculator()
+true_labels = [1, 1, 0, 1, 0, 1, 0, 0, 1, 1]
+ai_predictions = [1, 1, 0, 0, 0, 1, 0, 0, 1, 1]
+
+print("🐱 Cat Detection Championship:")
+results = coach.complete_evaluation(true_labels, ai_predictions)</pre>
+            </div>
+        </div>
+
+        <div class="section" id="advanced">
+            <h2>🎓 Pro Techniques: Advanced Championship Strategies</h2>
+            <div class="story-box">
+                <h3>🏆 Coach Max's Master Class</h3>
+                <p>Congratulations! You've learned the basics of the AI Scoring Championship! Now Coach Max wants to
+                    share his <span class="highlight">secret professional techniques</span> that only the greatest AI
+                    champions know! 🌟</p>
+                <div class="stadium-visual">🏆➡️🎓➡️⚡</div>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>⚡ Secret #1: Class Imbalance - The Unfair Tournament</h3>
+                <div class="simple-explanation">
+                    Imagine a tournament where there are 1000 "not cats" but only 10 real cats. If your AI just says
+                    "not cat" for everything, it gets 99% accuracy! But it never finds any cats! This is why accuracy
+                    alone can be misleading.
+                </div>
+
+                <div class="metric-demo">
+                    <h4>🎯 Solutions for Unfair Tournaments:</h4>
+                    <ul>
+                        <li><strong>Weighted Loss Functions:</strong> Punish mistakes on rare categories more</li>
+                        <li><strong>F1-Score:</strong> Better than accuracy for imbalanced data</li>
+                        <li><strong>ROC-AUC:</strong> Measures performance across all confidence levels</li>
+                        <li><strong>Precision-Recall Curves:</strong> See the trade-offs clearly</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <tr>
+                    <th>Problem Type</th>
+                    <th>Loss Function</th>
+                    <th>Best Metrics</th>
+                    <th>Example</th>
+                </tr>
+                <tr>
+                    <td>Balanced Classification</td>
+                    <td>Cross-Entropy</td>
+                    <td>Accuracy, F1-Score</td>
+                    <td>Equal cats and dogs</td>
+                </tr>
+                <tr>
+                    <td>Imbalanced Classification</td>
+                    <td>Weighted Cross-Entropy</td>
+                    <td>Precision, Recall, F1</td>
+                    <td>Rare disease detection</td>
+                </tr>
+                <tr>
+                    <td>Regression</td>
+                    <td>MSE, MAE, Huber</td>
+                    <td>RMSE, MAE, R²</td>
+                    <td>House price prediction</td>
+                </tr>
+                <tr>
+                    <td>Multi-Label</td>
+                    <td>Binary Cross-Entropy</td>
+                    <td>Hamming Loss, Jaccard</td>
+                    <td>Multiple tags per image</td>
+                </tr>
+                </table>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Advanced Strategy Selector</h3>
+                    <div class="slider-container">
+                        <label>Dataset Balance (% positive examples): <span id="balanceVal">50</span>%</label>
+                        <input type="range" class="slider" id="balanceSlider" min="1" max="50" value="50">
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-card">Recommended Loss: <span id="recLoss">Cross-Entropy</span></div>
+                        <div class="result-card">Primary Metric: <span id="primMetric">Accuracy</span></div>
+                        <div class="result-card">Secondary Metric: <span id="secMetric">F1-Score</span></div>
+                        <div class="result-card">Strategy: <span id="strategy">Standard</span></div>
+                    </div>
+                </div>
+
+                <div class="code-playground">
+                    <h3>🏆 Coach Max's Advanced Toolkit</h3>
+                    <pre># Coach Max's Professional Championship Toolkit
+import math
+
+class AdvancedChampionshipTools:
+    """Professional-grade tools for AI champions"""
+    
+    def weighted_cross_entropy(self, y_true, y_pred, class_weights):
+        """Cross-entropy that cares more about rare classes"""
+        total_loss = 0
+        for true, pred, weight in zip(y_true, y_pred, class_weights):
+            loss = -weight * (true * math.log(pred + 1e-10) + 
+                             (1-true) * math.log(1-pred + 1e-10))
+            total_loss += loss
+        return total_loss / len(y_true)
+    
+    def classification_report(self, y_true, y_pred):
+        """Complete championship report for classification"""
+        tp = sum(1 for t, p in zip(y_true, y_pred) if t == 1 and p == 1)
+        tn = sum(1 for t, p in zip(y_true, y_pred) if t == 0 and p == 0)
+        fp = sum(1 for t, p in zip(y_true, y_pred) if t == 0 and p == 1)
+        fn = sum(1 for t, p in zip(y_true, y_pred) if t == 1 and p == 0)
+        
+        accuracy = (tp + tn) / (tp + tn + fp + fn)
+        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+        f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+        
+        return {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1,
+            'confusion_matrix': {'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
+        }
+    
+    def choose_best_strategy(self, positive_ratio):
+        """Coach Max's strategy selector"""
+        if positive_ratio < 0.1:
+            return {
+                'loss': 'Heavily Weighted Cross-Entropy',
+                'primary_metric': 'Recall',
+                'secondary_metric': 'Precision',
+                'strategy': 'Focus on finding rare cases',
+                'class_weight': 10.0
+            }
+        elif positive_ratio < 0.3:
+            return {
+                'loss': 'Weighted Cross-Entropy',
+                'primary_metric': 'F1-Score',
+                'secondary_metric': 'ROC-AUC',
+                'strategy': 'Balanced approach with bias correction',
+                'class_weight': 3.0
+            }
+        else:
+            return {
+                'loss': 'Standard Cross-Entropy',
+                'primary_metric': 'Accuracy',
+                'secondary_metric': 'F1-Score',
+                'strategy': 'Standard balanced training',
+                'class_weight': 1.0
+            }
+    
+    def championship_evaluation(self, y_true, y_pred, positive_ratio=None):
+        """Coach Max's complete championship evaluation"""
+        if positive_ratio is None:
+            positive_ratio = sum(y_true) / len(y_true)
+        
+        strategy = self.choose_best_strategy(positive_ratio)
+        report = self.classification_report(y_true, y_pred)
+        
+        print("🏆 COACH MAX'S CHAMPIONSHIP EVALUATION 🏆")
+        print("=" * 60)
+        print(f"📊 Dataset Balance: {positive_ratio:.1%} positive examples")
+        print(f"🎯 Recommended Strategy: {strategy['strategy']}")
+        print(f"⚖️ Best Loss Function: {strategy['loss']}")
+        print(f"🥇 Primary Metric: {strategy['primary_metric']}")
+        print(f"🥈 Secondary Metric: {strategy['secondary_metric']}")
+        
+        print(f"\n📈 PERFORMANCE RESULTS:")
+        print(f"🎯 Accuracy: {report['accuracy']:.3f} ({report['accuracy']*100:.1f}%)")
+        print(f"🔍 Precision: {report['precision']:.3f} ({report['precision']*100:.1f}%)")
+        print(f"📡 Recall: {report['recall']:.3f} ({report['recall']*100:.1f}%)")
+        print(f"⚖️ F1-Score: {report['f1_score']:.3f} ({report['f1_score']*100:.1f}%)")
+        
+        # Final championship verdict
+        primary_score = report[strategy['primary_metric'].lower().replace('-', '_')]
+        if primary_score > 0.9:
+            verdict = "🥇 WORLD CHAMPION! Absolutely incredible!"
+        elif primary_score > 0.8:
+            verdict = "🥈 CHAMPION! Outstanding performance!"
+        elif primary_score > 0.7:
+            verdict = "🥉 MEDALIST! Great job!"
+        else:
+            verdict = "📚 TRAINEE! Keep practicing!"
+        
+        print(f"\n🏆 FINAL VERDICT: {verdict}")
+        return report
+
+# Example usage
+coach_advanced = AdvancedChampionshipTools()
+
+# Imbalanced dataset example
+print("🏥 Medical Diagnosis Championship (Imbalanced):")
+true_labels = [0]*95 + [1]*5  # 5% positive cases
+predictions = [0]*90 + [1]*5 + [0]*5  # AI's predictions
+coach_advanced.championship_evaluation(true_labels, predictions)</pre>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🏆 The Final Championship: Master Test!</h2>
+                <div class="story-box">
+                    <h3>🎓 Graduation from Coach Max's Academy</h3>
+                    <p>Incredible! You've completed Coach Max's entire Scoring Championship course! From simple accuracy
+                        to advanced metrics, you now understand how to measure AI performance like a true professional!
+                        🌟</p>
+                    <div class="stadium-visual">🎓➡️🏆➡️🌟</div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🧠 Master-Level Final Challenge</h3>
+                    <div class="simple-explanation">
+                        <h4>🎯 The Ultimate Scenario</h4>
+                        <p><strong>Challenge:</strong> You're building an AI system to detect rare diseases in medical
+                            scans. The disease appears in only 1% of scans, but missing it could be life-threatening.
+                            Design the perfect loss function and evaluation strategy!</p>
+
+                        <button onclick="revealFinalSolution()" id="finalSolutionBtn"
+                            style="padding: 10px 20px; background: #ff4757; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px 0;">🔍
+                            Reveal Coach Max's Master Solution</button>
+
+                        <div id="final-solution" style="display: none;">
+                            <h4>🏆 Coach Max's Master Strategy:</h4>
+                            <ul>
+                                <li><strong>Loss Function:</strong> Weighted Binary Cross-Entropy (weight rare disease
+                                    class 99:1)</li>
+                                <li><strong>Primary Metric:</strong> Recall (must catch 95%+ of diseases!)</li>
+                                <li><strong>Secondary Metric:</strong> Precision (avoid too many false alarms)</li>
+                                <li><strong>Balance Metric:</strong> F1-Score (overall performance)</li>
+                                <li><strong>Advanced:</strong> ROC-AUC (performance across all thresholds)</li>
+                                <li><strong>Threshold Tuning:</strong> Lower decision threshold to catch more diseases
+                                </li>
+                                <li><strong>Success Criteria:</strong> Recall > 95%, Precision > 10%</li>
+                            </ul>
+                            <p style="color: #06ffa5; font-weight: bold; margin-top: 15px;">
+                                🎉 You're now a Loss Functions & Metrics Master like Coach Max!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-concept">
+                    <h3>🚀 What You Can Do Now</h3>
+                    <div class="result-grid">
+                        <div class="result-card">
+                            <strong>🎯 Choose Perfect Loss</strong><br>
+                            Select the right loss function for any AI problem
+                        </div>
+                        <div class="result-card">
+                            <strong>📊 Evaluate Like a Pro</strong><br>
+                            Use multiple metrics to get the full picture
+                        </div>
+                        <div class="result-card">
+                            <strong>⚖️ Handle Imbalance</strong><br>
+                            Deal with unfair datasets using advanced techniques
+                        </div>
+                        <div class="result-card">
+                            <strong>🔍 Debug Performance</strong><br>
+                            Understand why your AI isn't working and fix it
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stadium-visual">🏟️➡️🎓➡️🏆➡️⚡➡️🌟</div>
+
+                <div class="simple-explanation"
+                    style="text-align: center; font-size: 1.2em; background: linear-gradient(135deg, #ff6b35, #ffd23f); color: white; padding: 30px; border-radius: 15px;">
+                    <strong>🎊 CONGRATULATIONS! 🎊</strong><br>
+                    You've completed Coach Max's Championship Academy and become a true Loss Functions & Metrics expert!
+                    You now have the skills to evaluate and improve any AI system like a professional data
+                    scientist!<br><br>
+                    <span style="font-size: 1.5em;">🏆 Welcome to the champions' hall of fame! 🏆</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let timeLeft = 60 * 60;
+
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                const progress = ((60 * 60 - timeLeft) / (60 * 60)) * 100;
+                document.getElementById('progress').style.width = progress + '%';
+
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    document.getElementById('timer').textContent = 'Complete!';
+                    document.getElementById('timer').style.background = '#06ffa5';
+                }
+            }
+
+            // Prediction Accuracy Simulator
+            document.getElementById('confidenceSlider').addEventListener('input', function () {
+                const confidence = parseInt(this.value);
+                document.getElementById('confidenceVal').textContent = confidence;
+
+                let quality, lossValue, rating, explanation;
+
+                if (confidence >= 90) {
+                    quality = 'Excellent'; lossValue = '0.05'; rating = 'A+';
+                    explanation = 'High confidence in correct prediction - minimal loss!';
+                } else if (confidence >= 70) {
+                    quality = 'Good'; lossValue = '0.23'; rating = 'B+';
+                    explanation = 'Good confidence level - reasonable loss value.';
+                } else if (confidence >= 50) {
+                    quality = 'Fair'; lossValue = '0.69'; rating = 'C';
+                    explanation = 'Low confidence - higher loss penalty.';
+                } else {
+                    quality = 'Poor'; lossValue = '1.39'; rating = 'D';
+                    explanation = 'Very low confidence - large loss penalty!';
+                }
+
+                document.getElementById('predQuality').textContent = quality;
+                document.getElementById('lossValue').textContent = lossValue;
+                document.getElementById('coachRating').textContent = rating;
+                document.getElementById('confidence-explanation').textContent = explanation;
+            });
+
+            // Cross-Entropy Calculator
+            document.getElementById('catConfidenceSlider').addEventListener('input', updateCrossEntropy);
+            document.getElementById('realitySelect').addEventListener('change', updateCrossEntropy);
+
+            function updateCrossEntropy() {
+                const confidence = parseInt(document.getElementById('catConfidenceSlider').value);
+                const reality = document.getElementById('realitySelect').value;
+
+                document.getElementById('catConfidenceVal').textContent = confidence;
+                document.getElementById('realityVal').textContent = reality.charAt(0).toUpperCase() + reality.slice(1);
+
+                let loss, penalty, feedback;
+
+                if (reality === 'cat') {
+                    const prob = confidence / 100;
+                    loss = -Math.log(prob);
+
+                    if (confidence >= 80) {
+                        penalty = 'Very Low'; feedback = 'Excellent! High confidence + Correct = Low loss!';
+                    } else if (confidence >= 60) {
+                        penalty = 'Low'; feedback = 'Good! Correct prediction with decent confidence.';
+                    } else {
+                        penalty = 'Medium'; feedback = 'Correct but not confident enough.';
+                    }
+                } else {
+                    const prob = confidence / 100;
+                    loss = -Math.log(1 - prob);
+
+                    if (confidence >= 80) {
+                        penalty = 'Very High'; feedback = 'Ouch! Very confident but wrong = huge penalty!';
+                    } else if (confidence >= 60) {
+                        penalty = 'High'; feedback = 'Wrong prediction with high confidence.';
+                    } else {
+                        penalty = 'Medium'; feedback = 'Wrong but not too confident.';
+                    }
+                }
+
+                document.getElementById('crossEntropyLoss').textContent = loss.toFixed(2);
+                document.getElementById('penaltyLevel').textContent = penalty;
+                document.getElementById('coachFeedback').textContent = feedback;
+            }
+
+            // Regression Loss Playground
+            document.getElementById('trueSlider').addEventListener('input', updateRegressionDemo);
+            document.getElementById('predSlider').addEventListener('input', updateRegressionDemo);
+
+            function updateRegressionDemo() {
+                const trueVal = parseInt(document.getElementById('trueSlider').value);
+                const predVal = parseInt(document.getElementById('predSlider').value);
+
+                document.getElementById('trueVal').textContent = trueVal;
+                document.getElementById('predVal').textContent = predVal;
+
+                const error = Math.abs(trueVal - predVal);
+                const mse = error * error;
+                const mae = error;
+
+                document.getElementById('errorVal').textContent = error;
+                document.getElementById('mseVal').textContent = mse;
+                document.getElementById('maeVal').textContent = mae;
+
+                let performance;
+                if (error <= 2) {
+                    performance = 'Excellent';
+                } else if (error <= 5) {
+                    performance = 'Good';
+                } else if (error <= 10) {
+                    performance = 'Fair';
+                } else {
+                    performance = 'Poor';
+                }
+
+                document.getElementById('perfRating').textContent = performance;
+            }
+
+            // Confusion Matrix Builder
+            document.getElementById('tpSlider').addEventListener('input', updateMetrics);
+            document.getElementById('fpSlider').addEventListener('input', updateMetrics);
+            document.getElementById('fnSlider').addEventListener('input', updateMetrics);
+
+            function updateMetrics() {
+                const tp = parseInt(document.getElementById('tpSlider').value);
+                const fp = parseInt(document.getElementById('fpSlider').value);
+                const fn = parseInt(document.getElementById('fnSlider').value);
+                const tn = 100 - fp;
+
+                document.getElementById('tpVal').textContent = tp;
+                document.getElementById('fpVal').textContent = fp;
+                document.getElementById('fnVal').textContent = fn;
+
+                const accuracy = ((tp + tn) / (tp + tn + fp + fn)) * 100;
+                const precision = tp / (tp + fp) * 100;
+                const recall = tp / (tp + fn) * 100;
+                const f1 = 2 * (precision * recall) / (precision + recall);
+
+                document.getElementById('accuracyVal').textContent = accuracy.toFixed(0) + '%';
+                document.getElementById('precisionVal').textContent = precision.toFixed(0) + '%';
+                document.getElementById('recallVal').textContent = recall.toFixed(0) + '%';
+                document.getElementById('f1Val').textContent = f1.toFixed(0) + '%';
+            }
+
+            // Advanced Strategy Selector
+            document.getElementById('balanceSlider').addEventListener('input', function () {
+                const balance = parseInt(this.value);
+                document.getElementById('balanceVal').textContent = balance;
+
+                let recLoss, primMetric, secMetric, strategy;
+
+                if (balance < 10) {
+                    recLoss = 'Weighted Cross-Entropy'; primMetric = 'Recall';
+                    secMetric = 'Precision'; strategy = 'Focus on rare cases';
+                } else if (balance < 30) {
+                    recLoss = 'Balanced Cross-Entropy'; primMetric = 'F1-Score';
+                    secMetric = 'ROC-AUC'; strategy = 'Balanced approach';
+                } else {
+                    recLoss = 'Standard Cross-Entropy'; primMetric = 'Accuracy';
+                    secMetric = 'F1-Score'; strategy = 'Standard training';
+                }
+
+                document.getElementById('recLoss').textContent = recLoss;
+                document.getElementById('primMetric').textContent = primMetric;
+                document.getElementById('secMetric').textContent = secMetric;
+                document.getElementById('strategy').textContent = strategy;
+            });
+
+            function revealFinalSolution() {
+                document.getElementById('final-solution').style.display = 'block';
+                document.getElementById('finalSolutionBtn').style.display = 'none';
+            }
+
+            // Initialize
+            updateTimer();
+            updateCrossEntropy();
+            updateRegressionDemo();
+            updateMetrics();
+
+            // Smooth scrolling
+            document.querySelectorAll('.nav a').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+            });
+
+            // Add championship magic
+            function addChampionshipMagic() {
+                const trophies = ['🏆', '🥇', '🎯', '⚡', '🌟'];
+                const trophy = trophies[Math.floor(Math.random() * trophies.length)];
+
+                const sparkle = document.createElement('div');
+                sparkle.textContent = trophy;
+                sparkle.style.position = 'fixed';
+                sparkle.style.left = Math.random() * 100 + 'vw';
+                sparkle.style.top = Math.random() * 100 + 'vh';
+                sparkle.style.fontSize = '2em';
+                sparkle.style.pointerEvents = 'none';
+                sparkle.style.zIndex = '999';
+                sparkle.style.opacity = '0.7';
+                sparkle.style.animation = 'fadeIn 2s ease-out forwards';
+
+                document.body.appendChild(sparkle);
+
+                setTimeout(() => {
+                    if (sparkle.parentNode) {
+                        sparkle.parentNode.removeChild(sparkle);
+                    }
+                }, 3000);
+            }
+
+            setInterval(addChampionshipMagic, 8000);
+            setTimeout(addChampionshipMagic, 1500);
+        </script>
+</body>
+
+</html>
