@@ -1,1 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 10: Regularization Techniques - The Garden Story</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Comic Sans MS", cursive, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #27ae60;
+            font-size: 1.8em;
+            margin: 25px 0 15px 0;
+            border-bottom: 3px solid #27ae60;
+            padding-bottom: 5px;
+        }
+        
+        h3 {
+            color: #e74c3c;
+            font-size: 1.4em;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .story-box {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #3498db;
+        }
+        
+        .math-box {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #ffc107;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+        
+        .equation {
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+        
+        .explanation {
+            background: #d4edda;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        .example {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px dashed #6c757d;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .garden-visual {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ecf0f1;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #2ecc71);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">60:00</div>
+    
+    <div class="container">
+        <h1 class="fade-in">🛡️ Regularization Techniques</h1>
+        <div class="subtitle">The Garden Story: Teaching Your AI to Not Overdo Things!</div>
+        
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
 
+        <div class="story-box bounce">
+            <h2>🌱 Meet Sam the Super-Gardener</h2>
+            <p>Imagine you have a friend named Sam who LOVES gardening. Sam is so enthusiastic that sometimes he overdoes everything! He plants too many flowers, waters them too much, and tries to remember every tiny detail about each plant. This is exactly what happens to our AI models - they try too hard and end up making mistakes!</p>
+            
+            <div class="garden-visual">🌻🌺🌸🌷🌹🌼🌻🌺</div>
+            
+            <p>Today, we'll learn three special techniques to help Sam (and our AI) become better gardeners by <span class="highlight">not overdoing things</span>. These techniques are called <strong>regularization</strong>.</p>
+        </div>
+
+        <h2>🎯 What is Regularization?</h2>
+        <div class="explanation pulse">
+            <p><strong>Regularization</strong> is like teaching someone to be more balanced and not try too hard. In machine learning, it helps our models avoid <span class="highlight">overfitting</span>.</p>
+            
+            <p><strong>Overfitting</strong> is when Sam memorizes every single leaf on every plant in his garden, but then gets confused when he sees a new garden because the leaves look slightly different!</p>
+        </div>
+
+        <h2>🌿 Technique 1: L1 Regularization (Lasso) - The Minimalist Garden</h2>
+        
+        <div class="story-box">
+            <h3>Sam's Minimalist Phase</h3>
+            <p>Sam decides to become a minimalist gardener. He says: "I only want to keep the most important plants. If a plant isn't really helping my garden look beautiful, I'll remove it completely!"</p>
+        </div>
+
+        <div class="math-box">
+            <div class="equation">Cost = Original Error + λ × |w₁| + |w₂| + |w₃| + ...</div>
+        </div>
+
+        <div class="explanation">
+            <p><strong>Let's break this down in simple words:</strong></p>
+            <ul>
+                <li><strong>Cost:</strong> How much trouble Sam is having with his garden</li>
+                <li><strong>Original Error:</strong> The mistakes Sam makes naturally</li>
+                <li><strong>λ (lambda):</strong> How strict Sam is about being minimalist (like a "strictness dial")</li>
+                <li><strong>|w₁|, |w₂|, |w₃|:</strong> The absolute value of how much attention Sam pays to each plant</li>
+            </ul>
+        </div>
+
+        <div class="example">
+            <h3>🔍 Real Example</h3>
+            <p>Imagine Sam has 5 plants: Rose, Tulip, Daisy, Sunflower, and Cactus. He realizes:</p>
+            <ul>
+                <li>Rose makes garden beautiful → Keep it! (w = 0.8)</li>
+                <li>Tulip adds nice color → Keep it! (w = 0.6)</li>
+                <li>Daisy barely noticeable → Remove it! (w = 0)</li>
+                <li>Sunflower too tall, blocks view → Remove it! (w = 0)</li>
+                <li>Cactus perfect for dry spots → Keep it! (w = 0.4)</li>
+            </ul>
+            <p>L1 regularization automatically sets unimportant weights to exactly zero!</p>
+        </div>
+
+        <h2>🌸 Technique 2: L2 Regularization (Ridge) - The Balanced Garden</h2>
+        
+        <div class="story-box">
+            <h3>Sam's Balanced Approach</h3>
+            <p>Now Sam thinks: "Instead of completely removing plants, I'll just give less attention to the less important ones. Every plant gets some care, but the important ones get more!"</p>
+        </div>
+
+        <div class="math-box">
+            <div class="equation">Cost = Original Error + λ × (w₁² + w₂² + w₃² + ...)</div>
+        </div>
+
+        <div class="explanation">
+            <p><strong>The difference from L1:</strong></p>
+            <ul>
+                <li>We use <strong>squares</strong> (w²) instead of absolute values |w|</li>
+                <li>This means weights get smaller but don't become exactly zero</li>
+                <li>Like giving each plant a little water, but favorites get more</li>
+            </ul>
+        </div>
+
+        <div class="example">
+            <h3>🔍 Comparing L1 vs L2</h3>
+            <div class="math-box">
+                <strong>Sam's attention without regularization:</strong><br>
+                Rose: 0.9, Tulip: 0.8, Daisy: 0.7, Sunflower: 0.6, Cactus: 0.5<br><br>
+                
+                <strong>With L1 (Minimalist Sam):</strong><br>
+                Rose: 0.8, Tulip: 0.6, Daisy: 0.0, Sunflower: 0.0, Cactus: 0.4<br><br>
+                
+                <strong>With L2 (Balanced Sam):</strong><br>
+                Rose: 0.6, Tulip: 0.5, Daisy: 0.3, Sunflower: 0.2, Cactus: 0.3
+            </div>
+        </div>
+
+        <h2>💧 Technique 3: Dropout - Sam's Random Rest Days</h2>
+        
+        <div class="story-box">
+            <h3>Sam's New Strategy</h3>
+            <p>Sam realizes he's been working too hard! He decides: "Each day, I'll randomly skip tending to some of my plants. This way, I won't become too dependent on any single plant, and my garden will be stronger overall!"</p>
+        </div>
+
+        <div class="explanation">
+            <p><strong>How Dropout Works:</strong></p>
+            <ul>
+                <li>During training, randomly "turn off" some neurons (like Sam skipping some plants)</li>
+                <li>Usually skip about 20-50% of neurons each time</li>
+                <li>This prevents the AI from relying too much on specific patterns</li>
+                <li>Like training a team where different players sit out each game</li>
+            </ul>
+        </div>
+
+        <div class="example">
+            <h3>🎲 Dropout in Action</h3>
+            <div class="math-box">
+                <strong>Monday:</strong> Skip Daisy and Sunflower (tend to Rose, Tulip, Cactus)<br>
+                <strong>Tuesday:</strong> Skip Rose and Cactus (tend to Tulip, Daisy, Sunflower)<br>
+                <strong>Wednesday:</strong> Skip Tulip and Daisy (tend to Rose, Sunflower, Cactus)<br><br>
+                
+                <strong>Result:</strong> Sam becomes good at gardening even when some plants aren't available!
+            </div>
+        </div>
+
+        <h2>⏰ Technique 4: Early Stopping - Knowing When to Stop</h2>
+        
+        <div class="story-box">
+            <h3>Sam Learns When to Stop</h3>
+            <p>Sam used to practice gardening all day, every day. But he noticed that after a certain point, he started making mistakes because he was tired. So he learned to stop practicing when he was doing his best, not when he was exhausted!</p>
+        </div>
+
+        <div class="explanation">
+            <p><strong>Early Stopping Strategy:</strong></p>
+            <ul>
+                <li>Watch how well the model does on new, unseen data</li>
+                <li>When performance stops improving (or gets worse), stop training</li>
+                <li>Like stopping practice when you start getting tired and sloppy</li>
+                <li>Prevents the model from memorizing instead of learning</li>
+            </ul>
+        </div>
+
+        <div class="example">
+            <h3>📊 Early Stopping Graph Concept</h3>
+            <p>Imagine Sam's gardening skill over days:</p>
+            <div class="math-box">
+                Day 1: Good at home garden (90%), Okay at neighbor's (70%)<br>
+                Day 5: Great at home (95%), Good at neighbor's (85%)<br>
+                Day 10: Perfect at home (100%), Best at neighbor's (90%) ← STOP HERE!<br>
+                Day 15: Still perfect at home (100%), Worse at neighbor's (80%)<br>
+                Day 20: Still perfect at home (100%), Much worse at neighbor's (70%)
+            </div>
+            <p>Sam should have stopped at Day 10 when he was best at both gardens!</p>
+        </div>
+
+        <h2>🎯 Putting It All Together</h2>
+        
+        <div class="story-box pulse">
+            <h3>Sam's Final Garden Wisdom</h3>
+            <p>Sam learned that being a great gardener isn't about doing everything perfectly or trying the hardest. It's about:</p>
+            <ul>
+                <li><strong>L1 Regularization:</strong> Focus only on what matters most</li>
+                <li><strong>L2 Regularization:</strong> Give balanced attention to everything</li>
+                <li><strong>Dropout:</strong> Don't rely too much on any one thing</li>
+                <li><strong>Early Stopping:</strong> Know when you've learned enough</li>
+            </ul>
+        </div>
+
+        <div class="explanation">
+            <h3>🧠 Why This Matters for AI</h3>
+            <p>Just like Sam's garden, AI models can try too hard and memorize training data instead of learning real patterns. Regularization techniques help AI:</p>
+            <ul>
+                <li>Work better on new, unseen data</li>
+                <li>Not get confused by noise or unimportant details</li>
+                <li>Be more reliable and trustworthy</li>
+                <li>Learn the right lessons, not just memorize answers</li>
+            </ul>
+        </div>
+
+        <h2>🏆 Key Takeaways</h2>
+        <div class="highlight" style="display: block; padding: 20px; font-size: 1.2em;">
+            <p><strong>Remember Sam's Garden Rules:</strong></p>
+            <ol>
+                <li><strong>Less can be more</strong> (L1 removes unnecessary complexity)</li>
+                <li><strong>Balance is key</strong> (L2 keeps everything proportional)</li>
+                <li><strong>Don't depend on just one thing</strong> (Dropout builds resilience)</li>
+                <li><strong>Know when to stop</strong> (Early stopping prevents overlearning)</li>
+            </ol>
+        </div>
+
+        <div class="story-box">
+            <p><strong>The End of Sam's Story:</strong> Sam became the best gardener in town, not because he worked the hardest, but because he learned to work the smartest. His garden was beautiful and thrived in all seasons because he used regularization techniques!</p>
+            <div class="garden-visual">🌺🏆🌻</div>
+        </div>
+    </div>
+
+    <script>
+        // Simple timer for 60-minute lecture
+        let timeLeft = 60 * 60; // 60 minutes in seconds
+        
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update progress bar
+            const progress = ((60 * 60 - timeLeft) / (60 * 60)) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                document.getElementById('timer').textContent = 'Complete!';
+                document.getElementById('timer').style.background = '#27ae60';
+            }
+        }
+        
+        updateTimer();
+        
+        // Add fade-in animation to sections as they come into view
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        });
+        
+        document.querySelectorAll('h2, .story-box, .explanation').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
