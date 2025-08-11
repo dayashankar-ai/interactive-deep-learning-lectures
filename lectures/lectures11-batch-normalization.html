@@ -1,443 +1,1066 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batch Normalization: The Cookie Factory Story</title>
+    <title>The Rainbow Factory: Batch Normalization Adventures</title>
     <style>
-        body {
-            font-family: 'Georgia', serif;
-            line-height: 1.6;
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: #333;
-        }
-
-        .header {
-            text-align: center;
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
-        }
-
-        .story-section {
-            background: white;
-            padding: 25px;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .concept-box {
-            background: #e8f4fd;
-            border-left: 5px solid #4285f4;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 5px;
-        }
-
-        .math-box {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 8px;
-        }
-
-        .cookie-animation {
-            width: 50px;
-            height: 50px;
-            background: #d4a574;
-            border-radius: 50%;
-            margin: 10px auto;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-        }
-
-        .factory-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-
-        .factory-step {
-            text-align: center;
-            flex: 1;
-            padding: 10px;
-        }
-
-        .arrow {
-            font-size: 24px;
-            color: #4285f4;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
-        }
-
-        h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-        }
-
-        h2 {
-            color: #3498db;
-            font-size: 1.8em;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 10px;
-        }
-
-        h3 {
-            color: #e74c3c;
-            font-size: 1.4em;
-        }
-
-        .highlight {
-            background: yellow;
-            padding: 2px 5px;
-            border-radius: 3px;
-        }
-
-        .summary-box {
-            background: #d4edda;
-            border: 2px solid #28a745;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .equation {
-            font-size: 1.2em;
-            text-align: center;
-            background: #f1f3f4;
-            padding: 15px;
-            border-radius: 5px;
-            margin: 10px 0;
-            border-left: 4px solid #4285f4;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Comic Sans MS", cursive; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57); color: white; padding: 30px; text-align: center; position: relative; }
+        .header::before { content: "🌈🏭✨"; font-size: 3em; position: absolute; top: 10px; left: 20px; opacity: 0.3; }
+        h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); animation: rainbow 3s infinite; }
+        @keyframes rainbow { 0% { color: #ff6b6b; } 20% { color: #4ecdc4; } 40% { color: #45b7d1; } 60% { color: #96ceb4; } 80% { color: #feca57; } 100% { color: #ff6b6b; } }
+        .subtitle { font-size: 1.3em; opacity: 0.9; font-weight: normal; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white; padding: 15px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .progress-bar { width: 100%; height: 8px; background: #ecf0f1; position: relative; overflow: hidden; }
+        .progress { height: 100%; background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1); width: 0%; transition: width 0.5s ease; }
+        .nav { background: #f8f9fa; padding: 20px; text-align: center; border-bottom: 3px solid #ff6b6b; }
+        .nav a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; text-decoration: none; border-radius: 25px; transition: all 0.3s; font-weight: bold; }
+        .nav a:hover { transform: translateY(-2px) scale(1.05); }
+        .section { padding: 30px; border-bottom: 2px solid #ecf0f1; }
+        h2 { color: #2c3e50; font-size: 2.2em; margin-bottom: 20px; border-bottom: 4px solid #ff6b6b; padding-bottom: 10px; display: flex; align-items: center; }
+        h3 { color: #4ecdc4; font-size: 1.6em; margin: 20px 0 15px 0; }
+        .story-box { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .simple-explanation { background: linear-gradient(135deg, #a8edea, #fed6e3); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 6px solid #ff6b6b; }
+        .simple-explanation::before { content: "👶 Simple Words: "; font-weight: bold; color: #e91e63; font-size: 1.1em; }
+        .math-container { background: #1a1a1a; color: #00ff00; padding: 25px; border-radius: 15px; margin: 20px 0; font-family: 'Courier New', monospace; border: 3px solid #00ff00; position: relative; }
+        .math-container::before { content: "🧮 MATH MAGIC"; position: absolute; top: -15px; left: 20px; background: #1a1a1a; padding: 0 10px; color: #00ff00; font-weight: bold; }
+        .equation { text-align: center; font-size: 1.4em; font-weight: bold; color: #00ffff; margin: 15px 0; padding: 10px; background: rgba(0,255,255,0.1); border-radius: 8px; }
+        .equation-breakdown { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0; }
+        .symbol-meaning { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin: 5px 0; }
+        .symbol { color: #ffff00; font-weight: bold; font-size: 1.2em; }
+        .meaning { color: #ffffff; }
+        .interactive-demo { background: linear-gradient(135deg, #ffeaa7, #fab1a0); padding: 25px; border-radius: 15px; margin: 20px 0; border: 3px dashed #e17055; text-align: center; }
+        .slider-container { margin: 15px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .slider { width: 100%; height: 8px; background: #ddd; outline: none; border-radius: 4px; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .result-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .factory-visual { text-align: center; font-size: 2.5em; margin: 20px 0; animation: bounce 2s infinite; }
+        .problem-demo { background: linear-gradient(135deg, #ff7675, #d63031); color: white; padding: 20px; border-radius: 15px; margin: 15px 0; }
+        .solution-demo { background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 20px; border-radius: 15px; margin: 15px 0; }
+        .code-playground { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Courier New', monospace; border-left: 5px solid #4fd1c7; }
+        .highlight { background: #ffeb3b; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #1a1a1a; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .comparison-table th, .comparison-table td { border: 2px solid #ff6b6b; padding: 15px; text-align: center; }
+        .comparison-table th { background: #ff6b6b; color: white; font-weight: bold; }
+        .comparison-table tr:nth-child(even) { background: #f8f9fa; }
+        .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .before { background: linear-gradient(135deg, #ff7675, #d63031); color: white; padding: 20px; border-radius: 15px; }
+        .after { background: linear-gradient(135deg, #00b894, #00a085); color: white; padding: 20px; border-radius: 15px; }
+        .step-by-step { counter-reset: step-counter; }
+        .step { counter-increment: step-counter; margin: 15px 0; padding: 20px; background: rgba(52, 152, 219, 0.1); border-radius: 10px; border-left: 5px solid #3498db; }
+        .step::before { content: "Step " counter(step-counter) ": "; font-weight: bold; color: #3498db; font-size: 1.2em; }
+        .advanced-concept { background: linear-gradient(135deg, #ff9a9e, #fecfef); padding: 20px; border-radius: 15px; margin: 20px 0; border-left: 6px solid #e91e63; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        .rainbow-text { background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     </style>
 </head>
-
 <body>
-    <div class="header">
-        <h1>📊 Batch Normalization</h1>
-        <h2>The Cookie Factory Story</h2>
-        <div class="cookie-animation"></div>
-        <p><strong>⏱️ 60 Minutes | Making AI Training Smooth Like Cookie Production</strong></p>
-    </div>
-
-    <div class="story-section">
-        <h2>🏭 Welcome to Our Cookie Factory Story!</h2>
-        <p>Imagine you own a magical cookie factory where robots learn to make perfect cookies. But there's a problem -
-            sometimes your cookie ingredients are all mixed up! Some batches have too much sugar, others too much flour.
-            This makes your robots very confused and they learn very slowly.</p>
-
-        <p><strong>This is exactly what happens in AI!</strong> When we train neural networks (our robot bakers), the
-            data (ingredients) coming into each layer can be all over the place - some numbers are huge, some are tiny.
-            This confuses our AI and makes learning super slow.</p>
-
-        <div class="concept-box">
-            <h3>🎯 What We'll Learn Today:</h3>
-            <p>• How to organize our "ingredients" so robots learn faster<br>
-                • The magic recipe called <strong>Batch Normalization</strong><br>
-                • Why this makes AI training 3-5 times faster!<br>
-                • Simple math that even a 6th grader can understand</p>
+    <div class="timer" id="timer">60:00</div>
+    <div class="container">
+        <div class="header">
+            <h1>🌈 The Rainbow Factory</h1>
+            <div class="subtitle">Where Batch Normalization Makes Every Neural Network Shine!</div>
         </div>
-    </div>
-
-    <div class="story-section">
-        <h2>🤔 The Problem: Messy Cookie Ingredients</h2>
-
-        <div class="factory-line">
-            <div class="factory-step">
-                <h4>Batch 1</h4>
-                <p>Sugar: 2 cups<br>Flour: 1 cup</p>
-            </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Batch 2</h4>
-                <p>Sugar: 10 cups<br>Flour: 50 cups</p>
-            </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Confused Robot</h4>
-                <p>😵‍💫<br>"Help! Too different!"</p>
-            </div>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="nav">
+            <a href="#intro">Rainbow Factory Story</a>
+            <a href="#problem">The Big Problem</a>
+            <a href="#solution">Batch Norm Magic</a>
+            <a href="#math">Simple Math</a>
+            <a href="#types">Different Types</a>
+            <a href="#advanced">Pro Secrets</a>
         </div>
 
-        <p>In our cookie factory, imagine your robot baker gets batches of ingredients that are completely different
-            sizes:</p>
-        <ul>
-            <li><strong>Monday:</strong> Small batch - 2 cups sugar, 1 cup flour</li>
-            <li><strong>Tuesday:</strong> HUGE batch - 100 cups sugar, 50 cups flour</li>
-            <li><strong>Wednesday:</strong> Medium batch - 20 cups sugar, 10 cups flour</li>
-        </ul>
-
-        <div class="concept-box">
-            <h3>🔍 In AI Terms:</h3>
-            <p>This is called <strong>"Internal Covariate Shift"</strong> - a fancy way of saying "the numbers keep
-                changing in unpredictable ways." Just like our confused robot baker, our AI gets overwhelmed by
-                constantly changing input sizes and learns very, very slowly.</p>
-        </div>
-    </div>
-
-    <div class="story-section">
-        <h2>💡 The Solution: The Magic Recipe Normalizer</h2>
-
-        <p>What if we had a magic machine that could take ANY batch of ingredients and make them consistent? That's
-            exactly what <strong>Batch Normalization</strong> does!</p>
-
-        <div class="factory-line">
-            <div class="factory-step">
-                <h4>Any Messy Batch</h4>
-                <p>Different sizes<br>😵‍💫</p>
+        <div class="section" id="intro">
+            <h2>🏭 Welcome to Rainbow Factory!</h2>
+            <div class="story-box">
+                <h3>🌈 Meet Rosie: The Rainbow Factory Manager</h3>
+                <p>Once upon a time, there was a magical factory called <strong>Rainbow Factory</strong> where they made the most beautiful rainbows in the world! 🌈</p>
+                <div class="factory-visual">🏭➡️🌈➡️✨</div>
+                <p>The factory manager, <span class="highlight">Rosie</span>, had a big problem. Some rainbow-making machines worked perfectly, but others made weird, wonky rainbows that looked terrible! Some were too bright, some too dark, some too colorful, and some had no color at all!</p>
+                <p>Rosie discovered that this happened because each machine was getting <strong>different amounts of materials</strong> - like different amounts of red paint, blue paint, and yellow paint. This is exactly what happens in our neural networks!</p>
             </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Magic Normalizer</h4>
-                <p>⚡ Batch Norm ⚡</p>
+
+            <div class="simple-explanation">
+                A <strong>neural network</strong> is like Rosie's Rainbow Factory. Each "layer" is like a rainbow-making machine, and each "neuron" is like a worker in that machine. Just like the machines got different amounts of paint, the neurons get different amounts of "signals" (numbers), which makes some work great and others work poorly!
             </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Perfect Batch</h4>
-                <p>Always consistent<br>😊</p>
+
+            <div class="factory-visual">🎨➕🎨➕🎨➡️🌈</div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Rainbow Quality Simulator</h3>
+                <div class="slider-container">
+                    <label>Input Variation (How different the paints are): <span id="variationVal">50</span>%</label>
+                    <input type="range" class="slider" id="variationSlider" min="0" max="100" value="50">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Rainbow Quality: <span id="qualityVal">Medium</span></div>
+                    <div class="result-card">Training Speed: <span id="speedVal">Slow</span></div>
+                    <div class="result-card">Consistency: <span id="consistencyVal">Poor</span></div>
+                </div>
+                <div id="rainbow-status" class="result-card">Adjust the variation to see how it affects rainbow quality!</div>
             </div>
         </div>
 
-        <h3>🔧 How Our Magic Machine Works (4 Simple Steps):</h3>
-
-        <div class="math-box">
-            <h4>Step 1: Find the Average (Mean)</h4>
-            <p><strong>In Cookie Terms:</strong> "What's the typical amount of each ingredient across all batches?"</p>
-            <div class="equation">μ = Average of all ingredient amounts</div>
-            <p><strong>Example:</strong> If we have batches with 2, 10, and 6 cups of sugar, the average is (2+10+6)÷3 =
-                6 cups</p>
-        </div>
-
-        <div class="math-box">
-            <h4>Step 2: Find How Spread Out Things Are (Variance)</h4>
-            <p><strong>In Cookie Terms:</strong> "How different are our batches from the average?"</p>
-            <div class="equation">σ² = How spread out the amounts are from average</div>
-            <p><strong>Example:</strong> Some batches are way above 6 cups, some way below - we measure this
-                "spreadness"</p>
-        </div>
-
-        <div class="math-box">
-            <h4>Step 3: Make Everything Standard Size</h4>
-            <p><strong>In Cookie Terms:</strong> "Transform every batch to be close to our standard recipe"</p>
-            <div class="equation">x̂ = (Each amount - Average) ÷ √(Spreadness + tiny number)</div>
-            <p><strong>Simple Translation:</strong> Take each ingredient amount, subtract the average, then divide by
-                how spread out things are. This makes everything centered around 0!</p>
-        </div>
-
-        <div class="math-box">
-            <h4>Step 4: Adjust to Perfect Recipe</h4>
-            <p><strong>In Cookie Terms:</strong> "Fine-tune to make the best cookies possible"</p>
-            <div class="equation">y = γ × x̂ + β</div>
-            <p><strong>Simple Translation:</strong> γ (gamma) is like a "strength knob" and β (beta) is like an
-                "adjustment dial" that our AI learns to set perfectly!</p>
-        </div>
-    </div>
-
-    <div class="story-section">
-        <h2>🎯 Why This Magic Works So Well</h2>
-
-        <div class="concept-box">
-            <h3>🚀 Benefit 1: Faster Learning</h3>
-            <p>When ingredients are consistent, our robot baker can focus on learning the recipe instead of constantly
-                adjusting to different batch sizes. <strong>Result: 3-5x faster training!</strong></p>
-        </div>
-
-        <div class="concept-box">
-            <h3>🛡️ Benefit 2: More Stable Training</h3>
-            <p>No more wild swings! Just like how consistent ingredients lead to consistent cookies, normalized data
-                leads to stable AI learning. No more "exploding" or "vanishing" gradients (the AI's learning signals).
-            </p>
-        </div>
-
-        <div class="concept-box">
-            <h3>⚙️ Benefit 3: Less Sensitive to Settings</h3>
-            <p>Our robot becomes less picky about learning rate (how fast it learns). It's like having an automatic
-                transmission in your car - much easier to drive!</p>
-        </div>
-
-        <div class="concept-box">
-            <h3>🎨 Benefit 4: Built-in Quality Control</h3>
-            <p>Batch normalization acts like a gentle regularizer - it prevents our AI from memorizing specific quirks
-                and helps it learn general patterns. Like teaching good baking principles instead of just memorizing one
-                recipe!</p>
-        </div>
-    </div>
-
-    <div class="story-section">
-        <h2>🏭 Where We Use Our Magic Machine</h2>
-
-        <p>In our cookie factory (neural network), we can place these magic normalizers at different stations:</p>
-
-        <div class="factory-line">
-            <div class="factory-step">
-                <h4>Station 1</h4>
-                <p>Raw ingredients<br>↓<br>🔧 Normalizer</p>
+        <div class="section" id="problem">
+            <h2>😰 The Big Problem: Internal Covariate Shift</h2>
+            <div class="story-box">
+                <h3>🎭 The Wobbly Rainbow Disaster</h3>
+                <p>Rosie noticed something strange. Every day, her machines would start working differently! On Monday, Machine #1 made perfect red stripes. But on Tuesday, the same machine suddenly made orange stripes! On Wednesday, it made pink stripes!</p>
+                <div class="factory-visual">🔴➡️🟠➡️🩷❓</div>
+                <p>This kept happening because the <span class="highlight">inputs kept changing</span> from day to day. When the red paint delivery was late, machines got more blue and yellow. When too much red paint arrived, machines got overwhelmed!</p>
             </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Station 2</h4>
-                <p>Mixed dough<br>↓<br>🔧 Normalizer</p>
+
+            <div class="simple-explanation">
+                <strong>Internal Covariate Shift</strong> means that the "inputs" (signals/numbers) that each layer of our neural network receives keep changing during training. It's like Rosie's machines getting different amounts of paint every day - they can never learn to work properly because the conditions keep shifting!
             </div>
-            <div class="arrow">→</div>
-            <div class="factory-step">
-                <h4>Station 3</h4>
-                <p>Shaped cookies<br>↓<br>🔧 Normalizer</p>
+
+            <div class="math-container">
+                <h3>🔢 What "Internal Covariate Shift" Means in Simple Math</h3>
+                <div class="equation">Input today ≠ Input tomorrow ≠ Input next week</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Input today</div>
+                        <div class="meaning">= Numbers that Layer 2 gets from Layer 1 today</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Input tomorrow</div>
+                        <div class="meaning">= Numbers that Layer 2 gets from Layer 1 tomorrow</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">≠</div>
+                        <div class="meaning">= "Not equal to" (they're different!)</div>
+                    </div>
+                </div>
+                <p style="color: #ffff00; text-align: center; margin-top: 15px;">This makes it super hard for each layer to learn what to do!</p>
+            </div>
+
+            <div class="problem-demo">
+                <h3>📊 The Problem in Action</h3>
+                <div class="before-after">
+                    <div class="before">
+                        <h4>🚫 WITHOUT Batch Normalization</h4>
+                        <ul>
+                            <li>Layer 1 outputs: [0.1, 0.3, 0.8, 1.2, 0.6]</li>
+                            <li>Layer 2 gets confused by big differences</li>
+                            <li>Layer 2 outputs: [0.01, 2.4, 0.005, 3.1, 0.9]</li>
+                            <li>Layer 3 gets even MORE confused!</li>
+                            <li>Final result: 😵 Chaos!</li>
+                        </ul>
+                    </div>
+                    <div class="after">
+                        <h4>✅ WITH Batch Normalization</h4>
+                        <ul>
+                            <li>Layer 1 outputs: [0.1, 0.3, 0.8, 1.2, 0.6]</li>
+                            <li>🌈 Batch Norm fixes them: [0.2, 0.4, 0.6, 0.8, 0.5]</li>
+                            <li>Layer 2 gets nice, consistent numbers</li>
+                            <li>Layer 2 outputs: [0.3, 0.5, 0.4, 0.6, 0.5]</li>
+                            <li>Final result: 🌈 Beautiful!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎛️ Covariate Shift Demonstrator</h3>
+                <div class="slider-container">
+                    <label>Training Progress: <span id="progressVal">0</span>%</label>
+                    <input type="range" class="slider" id="progressSlider" min="0" max="100" value="0">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Layer 1 Output Mean: <span id="layer1Mean">0.5</span></div>
+                    <div class="result-card">Layer 1 Output Variance: <span id="layer1Var">0.8</span></div>
+                    <div class="result-card">Layer Confusion Level: <span id="confusionLevel">High</span></div>
+                </div>
+                <div id="shift-explanation" class="result-card">Watch how the numbers keep changing as training progresses!</div>
             </div>
         </div>
 
-        <p><strong>Typical Placement:</strong> We usually put our normalizer <em>after</em> each major processing step
-            (linear transformation) but <em>before</em> the activation function (the decision-making step).</p>
+        <div class="section" id="solution">
+            <h2>✨ The Magical Solution: Batch Normalization</h2>
+            <div class="story-box">
+                <h3>🧙‍♀️ Rosie's Brilliant Discovery</h3>
+                <p>One day, Rosie had a <span class="rainbow-text">BRILLIANT IDEA</span>! 💡</p>
+                <p>She thought: "What if I create a <strong>Special Paint Mixer</strong> that takes whatever paint each machine gets and makes it <strong>perfect and consistent</strong> before the machine uses it?"</p>
+                <div class="factory-visual">🎨➡️⚡➡️🎨✨</div>
+                <p>This Special Paint Mixer would:</p>
+                <ul>
+                    <li>🔧 <strong>Measure</strong> how much of each color there is</li>
+                    <li>⚖️ <strong>Balance</strong> all the colors to be just right</li>
+                    <li>🌈 <strong>Make sure</strong> every machine gets the perfect paint mix every single time!</li>
+                </ul>
+            </div>
 
-        <div class="math-box">
-            <h4>The Complete Recipe:</h4>
-            <div class="equation">Input → Linear Layer → Batch Norm → Activation → Next Layer</div>
-            <p><strong>In Cookie Terms:</strong> Get ingredients → Mix them → Normalize → Make shaping decision → Pass
-                to next station</p>
+            <div class="simple-explanation">
+                <strong>Batch Normalization</strong> is like Rosie's Special Paint Mixer! It takes the messy, inconsistent numbers that each layer receives and transforms them into nice, balanced numbers that are perfect for learning. It's like having a magical helper that makes sure every part of your neural network gets exactly what it needs!
+            </div>
+
+            <div class="solution-demo">
+                <h3>🌟 How the Magic Works</h3>
+                <div class="step-by-step">
+                    <div class="step">
+                        <strong>Collect the Batch</strong><br>
+                        Gather all the numbers (like collecting all the paint samples from different machines)
+                    </div>
+                    <div class="step">
+                        <strong>Calculate the Average</strong><br>
+                        Find the average of all the numbers (like finding the average color intensity)
+                    </div>
+                    <div class="step">
+                        <strong>Calculate How Spread Out They Are</strong><br>
+                        See how different the numbers are from each other (like seeing how different the paint colors are)
+                    </div>
+                    <div class="step">
+                        <strong>Normalize (Make Perfect)</strong><br>
+                        Transform all numbers to have average = 0 and spread = 1 (like making all paint perfectly balanced)
+                    </div>
+                    <div class="step">
+                        <strong>Scale and Shift</strong><br>
+                        Adjust the numbers to be exactly what the network needs (like fine-tuning the colors for perfect rainbows)
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎨 Paint Mixer Simulator</h3>
+                <button onclick="runBatchNorm()" id="mixBtn" style="padding: 15px 30px; background: #ff6b6b; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">🪄 Mix the Paint!</button>
+                <div class="result-grid" style="margin-top: 20px;">
+                    <div class="result-card">Original Paint: <span id="originalPaint">[0.2, 1.5, 0.8, 2.1, 0.5]</span></div>
+                    <div class="result-card">After Magic Mixer: <span id="normalizedPaint">Click to see!</span></div>
+                    <div class="result-card">Quality Improvement: <span id="qualityImprovement">Ready!</span></div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="story-section">
-        <h2>🔬 Layer Normalization: The Personal Chef Approach</h2>
+        <div class="section" id="math">
+            <h2>🧮 The Simple Math Behind the Magic</h2>
+            <div class="story-box">
+                <h3>🔢 Rosie's Recipe Book</h3>
+                <p>Rosie wrote down her Special Paint Mixer recipe in a magical math book. Don't worry - we'll explain every single symbol so even a 6th grader can become a math wizard! 🧙‍♂️</p>
+            </div>
 
-        <p>Sometimes instead of normalizing across all batches (all cookie orders), we normalize within each single
-            order. This is called <strong>Layer Normalization</strong>.</p>
+            <div class="math-container">
+                <h3>📖 The Complete Batch Normalization Recipe</h3>
+                
+                <div class="equation">μ = (1/m) × Σ(xᵢ)</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">μ (mu)</div>
+                        <div class="meaning">= The average (like average paint color intensity)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">m</div>
+                        <div class="meaning">= How many paint samples we have</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Σ (sigma)</div>
+                        <div class="meaning">= "Add up all of these" (summation symbol)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">xᵢ</div>
+                        <div class="meaning">= Each individual paint sample</div>
+                    </div>
+                </div>
 
-        <div class="concept-box">
-            <h3>Batch Norm vs Layer Norm:</h3>
-            <p><strong>Batch Norm:</strong> "Let's make all cookie orders consistent with each other"<br>
-                <strong>Layer Norm:</strong> "Let's make each individual cookie order internally consistent"
-            </p>
+                <div class="equation">σ² = (1/m) × Σ(xᵢ - μ)²</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">σ² (sigma squared)</div>
+                        <div class="meaning">= Variance (how spread out the paint colors are)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">(xᵢ - μ)²</div>
+                        <div class="meaning">= How far each sample is from average, squared</div>
+                    </div>
+                </div>
+
+                <div class="equation">x̂ᵢ = (xᵢ - μ) / √(σ² + ε)</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">x̂ᵢ (x-hat)</div>
+                        <div class="meaning">= Normalized paint sample (made perfect!)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">√ (square root)</div>
+                        <div class="meaning">= Square root (opposite of squaring)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">ε (epsilon)</div>
+                        <div class="meaning">= Tiny number to prevent division by zero</div>
+                    </div>
+                </div>
+
+                <div class="equation">yᵢ = γ × x̂ᵢ + β</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">yᵢ</div>
+                        <div class="meaning">= Final perfect paint sample!</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">γ (gamma)</div>
+                        <div class="meaning">= Scale factor (how much to stretch/shrink)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">β (beta)</div>
+                        <div class="meaning">= Shift factor (how much to move up/down)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                Let's say we have paint samples with values [1, 4, 7, 10, 3]. Here's what happens:
+                <br><strong>Step 1:</strong> Average = (1+4+7+10+3)/5 = 5
+                <br><strong>Step 2:</strong> Variance = How spread out they are = 10.8
+                <br><strong>Step 3:</strong> Normalize = Make them all have average 0 and spread 1
+                <br><strong>Step 4:</strong> Scale and shift = Fine-tune for perfect colors!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🧮 Math Magic Calculator</h3>
+                <div class="slider-container">
+                    <label>Scale (γ): <span id="gammaVal">1.0</span></label>
+                    <input type="range" class="slider" id="gammaSlider" min="0.1" max="3" step="0.1" value="1.0">
+                </div>
+                <div class="slider-container">
+                    <label>Shift (β): <span id="betaVal">0.0</span></label>
+                    <input type="range" class="slider" id="betaSlider" min="-2" max="2" step="0.1" value="0.0">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Input: <span id="mathInput">[1, 4, 7, 10, 3]</span></div>
+                    <div class="result-card">Normalized: <span id="mathNormalized">[-1.2, -0.3, 0.6, 1.5, -0.6]</span></div>
+                    <div class="result-card">Final Result: <span id="mathFinal">[-1.2, -0.3, 0.6, 1.5, -0.6]</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Rosie's Python Recipe</h3>
+<pre># Rosie's Simple Batch Normalization Recipe
+def rosies_batch_norm(paint_samples, gamma=1.0, beta=0.0):
+    """
+    Rosie's magical paint mixer function!
+    paint_samples: List of messy paint values
+    gamma: How much to scale (stretch/shrink)
+    beta: How much to shift (move up/down)
+    """
+    
+    # Step 1: Find the average paint color
+    average = sum(paint_samples) / len(paint_samples)
+    print(f"Average paint color: {average}")
+    
+    # Step 2: Find how spread out the colors are
+    differences = [(x - average) ** 2 for x in paint_samples]
+    variance = sum(differences) / len(paint_samples)
+    print(f"Color spread (variance): {variance}")
+    
+    # Step 3: Normalize (make perfect!)
+    epsilon = 1e-8  # Tiny number for safety
+    normalized = []
+    for x in paint_samples:
+        norm_value = (x - average) / (variance + epsilon) ** 0.5
+        normalized.append(norm_value)
+    print(f"Normalized paint: {normalized}")
+    
+    # Step 4: Scale and shift for perfect colors
+    final_colors = []
+    for norm_x in normalized:
+        final_color = gamma * norm_x + beta
+        final_colors.append(final_color)
+    
+    print(f"Perfect rainbow colors: {final_colors}")
+    return final_colors
+
+# Try Rosie's recipe!
+messy_paints = [1, 4, 7, 10, 3]
+perfect_paints = rosies_batch_norm(messy_paints, gamma=2.0, beta=1.0)</pre>
+            </div>
         </div>
 
-        <p><strong>When do we use Layer Norm?</strong> When we have varying batch sizes or when working with sequences
-            (like reading a story word by word). It's like having a personal chef for each customer instead of a factory
-            line.</p>
-    </div>
+        <div class="section" id="types">
+            <h2>🎭 Different Types of Normalization</h2>
+            <div class="story-box">
+                <h3>🏪 Rosie's Normalization Shop</h3>
+                <p>Rosie's Rainbow Factory became so successful that she opened a <strong>Normalization Shop</strong> with different types of paint mixers for different jobs! Each mixer works in a special way for special situations.</p>
+                <div class="factory-visual">🏪🌈🎨✨</div>
+            </div>
 
-    <div class="story-section">
-        <h2>💻 Simple Code Example</h2>
+            <div class="comparison-table">
+                <tr><th>Mixer Type</th><th>What It Does</th><th>Best For</th><th>Simple Explanation</th></tr>
+                <tr>
+                    <td><strong>Batch Normalization</strong></td>
+                    <td>Mixes paint across the whole batch</td>
+                    <td>Regular pictures, normal networks</td>
+                    <td>Like mixing paint from many customers together</td>
+                </tr>
+                <tr>
+                    <td><strong>Layer Normalization</strong></td>
+                    <td>Mixes paint within each individual layer</td>
+                    <td>Text, language models</td>
+                    <td>Like each machine mixing its own paint perfectly</td>
+                </tr>
+                <tr>
+                    <td><strong>Instance Normalization</strong></td>
+                    <td>Mixes paint for each picture separately</td>
+                    <td>Style transfer, artistic effects</td>
+                    <td>Like giving each artwork its own special mixer</td>
+                </tr>
+                <tr>
+                    <td><strong>Group Normalization</strong></td>
+                    <td>Mixes paint in small groups</td>
+                    <td>Small batches, object detection</td>
+                    <td>Like having mini-mixers for small groups of colors</td>
+                </tr>
+            </table>
 
-        <div class="math-box">
-            <h4>Our Magic Normalizer in Python:</h4>
-            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">
-# Our Cookie Factory Batch Normalizer
-class CookieNormalizer:
-    def normalize_batch(self, ingredients):
-        # Step 1: Find average recipe
-        average = ingredients.mean()
+            <div class="interactive-demo">
+                <h3>🎛️ Normalization Type Selector</h3>
+                <div class="slider-container">
+                    <label>Batch Size: <span id="batchSizeVal">32</span></label>
+                    <input type="range" class="slider" id="batchSizeSlider" min="1" max="128" value="32">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Recommended Type: <span id="recommendedType">Batch Norm</span></div>
+                    <div class="result-card">Mixing Strategy: <span id="mixingStrategy">Across batch</span></div>
+                    <div class="result-card">Best Performance: <span id="bestPerformance">High</span></div>
+                </div>
+                <div id="type-explanation" class="result-card">Batch Normalization works great with medium to large batches!</div>
+            </div>
+
+            <div class="before-after">
+                <div class="before">
+                    <h4>🎨 Different Mixing Strategies</h4>
+                    <p><strong>Batch Norm:</strong> Mix colors from 32 different paintings</p>
+                    <p><strong>Layer Norm:</strong> Mix colors within each painting</p>
+                    <p><strong>Instance Norm:</strong> Each painting mixes its own colors</p>
+                    <p><strong>Group Norm:</strong> Mix colors in groups of 8</p>
+                </div>
+                <div class="after">
+                    <h4>🌈 When to Use Each</h4>
+                    <p><strong>Big batch (32+):</strong> Use Batch Norm</p>
+                    <p><strong>Small batch (1-8):</strong> Use Group/Layer Norm</p>
+                    <p><strong>Text/Language:</strong> Use Layer Norm</p>
+                    <p><strong>Art/Style:</strong> Use Instance Norm</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="advanced">
+            <h2>🎓 Pro Secrets: Advanced Batch Normalization</h2>
+            <div class="story-box">
+                <h3>🏆 Rosie Becomes a Master</h3>
+                <p>After years of perfecting her Rainbow Factory, Rosie discovered some <span class="rainbow-text">AMAZING SECRETS</span> that only the greatest masters knew! These secrets can make you a true Batch Normalization wizard! 🧙‍♂️✨</p>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🔬 Secret #1: Training vs Testing Mode</h3>
+                <div class="simple-explanation">
+                    During <strong>training</strong>, Rosie's mixer uses the current batch of paint to calculate averages. But during <strong>testing</strong> (when making real rainbows for customers), she uses the average of ALL the batches she's ever seen! This makes the rainbows more consistent.
+                </div>
+                
+                <div class="math-container">
+                    <h3>📊 The Two Modes Explained</h3>
+                    <div class="equation">Training Mode: μ = current_batch_average</div>
+                    <div class="equation">Testing Mode: μ = running_average_of_all_batches</div>
+                    <div class="equation-breakdown">
+                        <div class="symbol-meaning">
+                            <div class="symbol">running_average</div>
+                            <div class="meaning">= momentum × old_average + (1-momentum) × new_average</div>
+                        </div>
+                        <div class="symbol-meaning">
+                            <div class="symbol">momentum</div>
+                            <div class="meaning">= Usually 0.9 (how much to keep from old averages)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🎯 Secret #2: Where to Place Batch Norm</h3>
+                <div class="simple-explanation">
+                    Rosie discovered that WHERE you put the paint mixer matters A LOT! You can put it before or after the "activation function" (the part that decides how bright each color should be).
+                </div>
+                
+                <div class="before-after">
+                    <div class="before">
+                        <h4>📍 Before Activation (Original)</h4>
+                        <p>Input → Layer → Batch Norm → ReLU → Next Layer</p>
+                        <p><strong>Good for:</strong> Most cases, original design</p>
+                    </div>
+                    <div class="after">
+                        <h4>📍 After Activation (Modern)</h4>
+                        <p>Input → Layer → ReLU → Batch Norm → Next Layer</p>
+                        <p><strong>Good for:</strong> ResNet, modern architectures</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>⚡ Secret #3: Learning Rate Superpowers</h3>
+                <div class="simple-explanation">
+                    With Batch Normalization, Rosie could use MUCH higher learning rates (how fast the factory learns to make better rainbows). This made training 10x faster! It's like having a super-powered learning engine!
+                </div>
+                
+                <div class="interactive-demo">
+                    <h3>🚀 Learning Rate Booster</h3>
+                    <div class="slider-container">
+                        <label>Learning Rate Multiplier: <span id="lrMultiplierVal">1</span>x</label>
+                        <input type="range" class="slider" id="lrMultiplierSlider" min="1" max="10" value="1">
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-card">Training Speed: <span id="trainingSpeed">Normal</span></div>
+                        <div class="result-card">Stability: <span id="stability">Good</span></div>
+                        <div class="result-card">Convergence: <span id="convergence">Standard</span></div>
+                    </div>
+                    <div id="lr-explanation" class="result-card">Batch Norm allows higher learning rates safely!</div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>🎖️ Master-Level Implementation</h3>
+<pre># Rosie's Professional Batch Normalization Class
+import numpy as np
+
+class RosiesBatchNorm:
+    def __init__(self, num_features, momentum=0.9, epsilon=1e-5):
+        """
+        Rosie's professional paint mixer!
+        num_features: How many different colors we're mixing
+        momentum: How much to remember from previous batches
+        epsilon: Tiny number for mathematical safety
+        """
+        self.num_features = num_features
+        self.momentum = momentum
+        self.epsilon = epsilon
+        self.training = True
         
-        # Step 2: Find how spread out recipes are
-        variance = ingredients.var()
+        # Learnable parameters (the mixer's settings)
+        self.gamma = np.ones(num_features)  # Scale factor
+        self.beta = np.zeros(num_features)  # Shift factor
         
-        # Step 3: Make everything standard
-        normalized = (ingredients - average) / sqrt(variance + 0.001)
+        # Running statistics (memory of all previous batches)
+        self.running_mean = np.zeros(num_features)
+        self.running_var = np.ones(num_features)
+    
+    def forward(self, x):
+        """
+        The main mixing process!
+        x: Input paint samples (shape: batch_size × num_features)
+        """
+        if self.training:
+            # Training mode: use current batch statistics
+            batch_mean = np.mean(x, axis=0)
+            batch_var = np.var(x, axis=0)
+            
+            # Update running statistics (memory)
+            self.running_mean = (self.momentum * self.running_mean + 
+                               (1 - self.momentum) * batch_mean)
+            self.running_var = (self.momentum * self.running_var + 
+                              (1 - self.momentum) * batch_var)
+            
+            # Use current batch for normalization
+            mean_to_use = batch_mean
+            var_to_use = batch_var
+        else:
+            # Testing mode: use running statistics
+            mean_to_use = self.running_mean
+            var_to_use = self.running_var
         
-        # Step 4: Fine-tune with learnable knobs
-        perfect_batch = gamma * normalized + beta
+        # The magical normalization process!
+        x_normalized = (x - mean_to_use) / np.sqrt(var_to_use + self.epsilon)
         
-        return perfect_batch
-            </pre>
-        </div>
-    </div>
+        # Scale and shift for perfect colors
+        output = self.gamma * x_normalized + self.beta
+        
+        return output
+    
+    def set_training_mode(self, training):
+        """Switch between training and testing modes"""
+        self.training = training
+    
+    def get_statistics(self):
+        """Get the mixer's memory"""
+        return {
+            'running_mean': self.running_mean,
+            'running_var': self.running_var,
+            'gamma': self.gamma,
+            'beta': self.beta
+        }
 
-    <div class="story-section">
-        <h2>🎪 Fun Experiments You Can Try</h2>
+# Example: Using Rosie's professional mixer
+mixer = RosiesBatchNorm(num_features=3)
 
-        <div class="concept-box">
-            <h3>🧪 Experiment 1: The Cookie Comparison</h3>
-            <p>Train two robot bakers - one with batch normalization, one without. Time how long each takes to learn
-                perfect cookie making. The normalized one will be much faster!</p>
-        </div>
+# Training phase
+mixer.set_training_mode(True)
+batch1 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+output1 = mixer.forward(batch1)
+print("Training output:", output1)
 
-        <div class="concept-box">
-            <h3>🧪 Experiment 2: The Learning Rate Test</h3>
-            <p>Try different learning speeds with and without batch norm. You'll find that batch norm makes your AI much
-                less sensitive to the learning rate - it's more forgiving!</p>
-        </div>
-
-        <div class="concept-box">
-            <h3>🧪 Experiment 3: The Deep Network Challenge</h3>
-            <p>Build a very deep network (many layers). Without batch norm, training becomes nearly impossible. With it,
-                even 50+ layers train smoothly!</p>
-        </div>
-    </div>
-
-    <div class="summary-box">
-        <h2>🎯 Key Takeaways from Our Cookie Factory</h2>
-        <p><strong>Batch Normalization is like having a magic machine that:</strong></p>
-        <ul>
-            <li>🔧 <strong>Standardizes ingredients</strong> (normalizes inputs) so our AI isn't confused</li>
-            <li>⚡ <strong>Speeds up learning</strong> by 3-5x because everything is consistent</li>
-            <li>🛡️ <strong>Makes training stable</strong> - no more wild ups and downs</li>
-            <li>🎛️ <strong>Has learnable knobs</strong> (γ and β) that the AI adjusts for perfect results</li>
-            <li>📍 <strong>Goes between layers</strong> like quality control stations in our factory</li>
-        </ul>
-
-        <div class="math-box">
-            <h3>🧮 The Complete Magic Formula:</h3>
-            <div class="equation">
-                μ = batch_mean<br>
-                σ² = batch_variance<br>
-                x̂ = (x - μ) / √(σ² + ε)<br>
-                y = γx̂ + β
+# Testing phase
+mixer.set_training_mode(False)
+test_sample = np.array([[2, 3, 4]])
+test_output = mixer.forward(test_sample)
+print("Test output:", test_output)</pre>
             </div>
-            <p><strong>In Plain English:</strong> Find the average and spread, make everything standard around zero,
-                then let the AI fine-tune with two special knobs!</p>
+
+            <div class="advanced-concept">
+                <h3>🧠 Secret #4: Why Batch Norm Really Works</h3>
+                <div class="simple-explanation">
+                    Scientists discovered that Batch Normalization doesn't just fix "Internal Covariate Shift" - it actually <strong>smooths the optimization landscape</strong>! Think of it like this: without Batch Norm, training is like climbing a bumpy, rocky mountain. With Batch Norm, it's like climbing a smooth, gentle hill! 🏔️➡️🏞️
+                </div>
+                
+                <div class="math-container">
+                    <h3>🔬 The Real Science</h3>
+                    <div class="equation">Batch Norm makes: ∇Loss smoother</div>
+                    <div class="equation-breakdown">
+                        <div class="symbol-meaning">
+                            <div class="symbol">∇Loss</div>
+                            <div class="meaning">= The "gradient" (direction to improve)</div>
+                        </div>
+                        <div class="symbol-meaning">
+                            <div class="symbol">smoother</div>
+                            <div class="meaning">= Less jumpy, more predictable changes</div>
+                        </div>
+                    </div>
+                    <p style="color: #ffff00; text-align: center; margin-top: 15px;">This makes training much more stable and faster!</p>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Complete Batch Norm Simulator</h3>
+                <button onclick="runCompleteDemo()" id="completeBtn" style="padding: 15px 30px; background: linear-gradient(45deg, #ff6b6b, #4ecdc4); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">🌈 Run Complete Rainbow Factory!</button>
+                <div class="result-grid" style="margin-top: 20px;">
+                    <div class="result-card">Factory Status: <span id="factoryStatus">Ready</span></div>
+                    <div class="result-card">Rainbow Quality: <span id="rainbowQuality">Waiting...</span></div>
+                    <div class="result-card">Training Speed: <span id="factorySpeed">Normal</span></div>
+                    <div class="result-card">Magic Level: <span id="magicLevel">🌟🌟🌟</span></div>
+                </div>
+            </div>
+
+            <div class="comparison-table">
+                <tr><th>Without Batch Norm</th><th>With Batch Norm</th></tr>
+                <tr><td>😰 Slow training</td><td>🚀 Fast training (10x faster!)</td></tr>
+                <tr><td>😵 Unstable gradients</td><td>😎 Smooth, stable gradients</td></tr>
+                <tr><td>🐌 Low learning rates only</td><td>⚡ High learning rates possible</td></tr>
+                <tr><td>😢 Poor initialization sensitivity</td><td>💪 Robust to initialization</td></tr>
+                <tr><td>🎲 Inconsistent performance</td><td>🎯 Consistent, reliable results</td></tr>
+            </table>
         </div>
 
-        <div class="cookie-animation"></div>
-        <p style="text-align: center;"><strong>Now your AI can learn as smoothly as a well-organized cookie factory!
-                🍪</strong></p>
-    </div>
+        <div class="section">
+            <h2>🏆 Rosie's Final Challenge: Master Test!</h2>
+            <div class="story-box">
+                <h3>🎓 Graduation Day at Rainbow Factory</h3>
+                <p>Congratulations! You've learned everything about Batch Normalization from the ground up! Rosie is so proud of you. Now it's time for the <span class="rainbow-text">ULTIMATE CHALLENGE</span>! 🌈</p>
+                <div class="factory-visual">🎓➡️🌈➡️🏆</div>
+            </div>
 
-    <div class="story-section">
-        <h2>📚 Questions to Think About</h2>
-        <div class="concept-box">
-            <p><strong>1.</strong> Why do you think batch normalization works better with larger batch sizes?<br>
-                <strong>2.</strong> When might you choose Layer Norm over Batch Norm?<br>
-                <strong>3.</strong> What happens if we don't include the small epsilon (ε) value in our formula?<br>
-                <strong>4.</strong> How does batch normalization relate to the idea of feature scaling in traditional
-                machine learning?
-            </p>
+            <div class="interactive-demo">
+                <h3>🧠 Master-Level Quiz</h3>
+                <div class="simple-explanation">
+                    <h4>🎯 The Final Challenge</h4>
+                    <p><strong>Scenario:</strong> You're building a neural network to recognize different types of flowers. You have 10,000 training images, batch size of 64, and want the fastest, most stable training possible.</p>
+                    
+                    <p><strong>Question:</strong> Design the perfect Batch Normalization strategy!</p>
+                    
+                    <button onclick="revealMasterSolution()" id="masterSolutionBtn" style="padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px 0;">🔍 Reveal Rosie's Master Solution</button>
+                    
+                    <div id="master-solution" style="display: none;">
+                        <h4>🎖️ Rosie's Master Strategy:</h4>
+                        <ul>
+                            <li><strong>Type:</strong> Batch Normalization (perfect for batch size 64)</li>
+                            <li><strong>Placement:</strong> After each convolutional layer, before activation</li>
+                            <li><strong>Parameters:</strong> momentum=0.9, epsilon=1e-5</li>
+                            <li><strong>Learning Rate:</strong> Start with 10x higher than normal (0.01 → 0.1)</li>
+                            <li><strong>Architecture:</strong> Conv → BatchNorm → ReLU → Conv → BatchNorm → ReLU</li>
+                            <li><strong>Training Mode:</strong> Use batch statistics during training</li>
+                            <li><strong>Testing Mode:</strong> Use running averages during inference</li>
+                            <li><strong>Magic Result:</strong> 10x faster training, 95% accuracy! 🌈</li>
+                        </ul>
+                        <p style="color: #27ae60; font-weight: bold; margin-top: 15px;">
+                            🎉 You're now a Batch Normalization Master just like Rosie!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🎖️ Your Mathematical Journey Summary</h3>
+                <div class="equation">Knowledge(you) = Story + Math + Practice + Magic</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Story</div>
+                        <div class="meaning">= Understanding through Rosie's Rainbow Factory</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Math</div>
+                        <div class="meaning">= Every equation explained in simple words</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Practice</div>
+                        <div class="meaning">= Interactive demos and code examples</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Magic</div>
+                        <div class="meaning">= The amazing power of normalized neural networks!</div>
+                    </div>
+                </div>
+                <p style="text-align: center; color: #00ffff; font-size: 1.3em; margin-top: 20px;">
+                    🌈 You've mastered Batch Normalization completely! 🌈
+                </p>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🚀 What You Can Do Now</h3>
+                <div class="result-grid">
+                    <div class="result-card">
+                        <strong>📚 Understand</strong><br>
+                        Internal covariate shift and why it's a problem
+                    </div>
+                    <div class="result-card">
+                        <strong>🧮 Calculate</strong><br>
+                        Batch normalization by hand using the formulas
+                    </div>
+                    <div class="result-card">
+                        <strong>💻 Implement</strong><br>
+                        Batch normalization from scratch in any language
+                    </div>
+                    <div class="result-card">
+                        <strong>🎯 Choose</strong><br>
+                        The right normalization type for any problem
+                    </div>
+                    <div class="result-card">
+                        <strong>⚡ Optimize</strong><br>
+                        Training speed and stability using advanced techniques
+                    </div>
+                    <div class="result-card">
+                        <strong>🏆 Master</strong><br>
+                        Professional-level neural network architectures
+                    </div>
+                </div>
+            </div>
+
+            <div class="factory-visual">🌱➡️🧮➡️🌈➡️🏭➡️🏆➡️✨</div>
+            
+            <div class="simple-explanation" style="text-align: center; font-size: 1.2em; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; border-radius: 15px;">
+                <strong>🎊 CONGRATULATIONS! 🎊</strong><br>
+                You've completed Rosie's Rainbow Factory masterclass and become a true Batch Normalization expert! From a simple story about paint mixing to advanced mathematical concepts, you now have the power to build amazing neural networks that train faster and work better than ever before!<br><br>
+                <span class="rainbow-text" style="font-size: 1.5em;">Welcome to the masters' club! 🌈🏆</span>
+            </div>
         </div>
     </div>
+
+    <script>
+        let timeLeft = 60 * 60;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const progress = ((60 * 60 - timeLeft) / (60 * 60)) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                document.getElementById('timer').textContent = 'Complete!';
+                document.getElementById('timer').style.background = '#27ae60';
+            }
+        }
+
+        // Rainbow Quality Simulator
+        document.getElementById('variationSlider').addEventListener('input', function() {
+            const variation = parseInt(this.value);
+            document.getElementById('variationVal').textContent = variation;
+            
+            let quality, speed, consistency;
+            
+            if (variation < 20) {
+                quality = 'Excellent'; speed = 'Fast'; consistency = 'Perfect';
+            } else if (variation < 50) {
+                quality = 'Good'; speed = 'Medium'; consistency = 'Good';
+            } else if (variation < 80) {
+                quality = 'Poor'; speed = 'Slow'; consistency = 'Poor';
+            } else {
+                quality = 'Terrible'; speed = 'Very Slow'; consistency = 'Terrible';
+            }
+            
+            document.getElementById('qualityVal').textContent = quality;
+            document.getElementById('speedVal').textContent = speed;
+            document.getElementById('consistencyVal').textContent = consistency;
+            
+            let status;
+            if (variation < 30) {
+                status = '🌈 Perfect rainbows! Low variation means happy customers!';
+            } else if (variation < 70) {
+                status = '⚠️ Some rainbows are wonky. Need better paint consistency!';
+            } else {
+                status = '😰 Rainbow disaster! Too much variation is ruining everything!';
+            }
+            
+            document.getElementById('rainbow-status').textContent = status;
+        });
+
+        // Covariate Shift Demonstrator
+        document.getElementById('progressSlider').addEventListener('input', function() {
+            const progress = parseInt(this.value);
+            document.getElementById('progressVal').textContent = progress;
+            
+            // Simulate changing distributions during training
+            const baseMean = 0.5;
+            const baseVar = 0.2;
+            
+            const meanShift = 0.3 * Math.sin(progress * 0.1);
+            const varShift = 0.4 * Math.cos(progress * 0.05);
+            
+            const currentMean = (baseMean + meanShift).toFixed(2);
+            const currentVar = Math.max(0.1, baseVar + varShift).toFixed(2);
+            
+            document.getElementById('layer1Mean').textContent = currentMean;
+            document.getElementById('layer1Var').textContent = currentVar;
+            
+            const confusion = Math.abs(meanShift) + Math.abs(varShift);
+            let confusionLevel;
+            if (confusion < 0.2) confusionLevel = 'Low';
+            else if (confusion < 0.4) confusionLevel = 'Medium';
+            else confusionLevel = 'High';
+            
+            document.getElementById('confusionLevel').textContent = confusionLevel;
+            
+            let explanation;
+            if (progress < 20) {
+                explanation = '📈 Early training: distributions starting to shift';
+            } else if (progress < 50) {
+                explanation = '⚠️ Mid training: major distribution changes happening!';
+            } else if (progress < 80) {
+                explanation = '😵 Late training: layers completely confused by shifting inputs';
+            } else {
+                explanation = '🔄 Training complete: without batch norm, this chaos continues!';
+            }
+            
+            document.getElementById('shift-explanation').textContent = explanation;
+        });
+
+        // Paint Mixer Simulator
+        function runBatchNorm() {
+            const btn = document.getElementById('mixBtn');
+            btn.textContent = '🌈 Mixing Magic in Progress...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                const original = [0.2, 1.5, 0.8, 2.1, 0.5];
+                
+                // Calculate batch norm step by step
+                const mean = original.reduce((a, b) => a + b) / original.length;
+                const variance = original.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / original.length;
+                const normalized = original.map(x => (x - mean) / Math.sqrt(variance + 1e-8));
+                
+                document.getElementById('originalPaint').textContent = `[${original.join(', ')}]`;
+                document.getElementById('normalizedPaint').textContent = `[${normalized.map(x => x.toFixed(2)).join(', ')}]`;
+                document.getElementById('qualityImprovement').textContent = '🌈 Perfect Balance Achieved!';
+                
+                btn.textContent = '✨ Magic Complete!';
+                btn.style.background = '#27ae60';
+            }, 2000);
+        }
+
+        // Math Magic Calculator
+        document.getElementById('gammaSlider').addEventListener('input', updateMathDemo);
+        document.getElementById('betaSlider').addEventListener('input', updateMathDemo);
+
+        function updateMathDemo() {
+            const gamma = parseFloat(document.getElementById('gammaSlider').value);
+            const beta = parseFloat(document.getElementById('betaSlider').value);
+            
+            document.getElementById('gammaVal').textContent = gamma.toFixed(1);
+            document.getElementById('betaVal').textContent = beta.toFixed(1);
+            
+            const input = [1, 4, 7, 10, 3];
+            const mean = input.reduce((a, b) => a + b) / input.length;
+            const variance = input.reduce((sum, x) => sum + Math.pow(x - mean, 2), 0) / input.length;
+            const normalized = input.map(x => (x - mean) / Math.sqrt(variance + 1e-8));
+            const final = normalized.map(x => gamma * x + beta);
+            
+            document.getElementById('mathInput').textContent = `[${input.join(', ')}]`;
+            document.getElementById('mathNormalized').textContent = `[${normalized.map(x => x.toFixed(1)).join(', ')}]`;
+            document.getElementById('mathFinal').textContent = `[${final.map(x => x.toFixed(1)).join(', ')}]`;
+        }
+
+        // Normalization Type Selector
+        document.getElementById('batchSizeSlider').addEventListener('input', function() {
+            const batchSize = parseInt(this.value);
+            document.getElementById('batchSizeVal').textContent = batchSize;
+            
+            let recommendedType, mixingStrategy, bestPerformance, explanation;
+            
+            if (batchSize >= 32) {
+                recommendedType = 'Batch Norm';
+                mixingStrategy = 'Across entire batch';
+                bestPerformance = 'Excellent';
+                explanation = 'Large batch size is perfect for Batch Normalization!';
+            } else if (batchSize >= 8) {
+                recommendedType = 'Group Norm';
+                mixingStrategy = 'Within feature groups';
+                bestPerformance = 'Very Good';
+                explanation = 'Medium batch size works well with Group Normalization.';
+            } else if (batchSize >= 2) {
+                recommendedType = 'Layer Norm';
+                mixingStrategy = 'Within each sample';
+                bestPerformance = 'Good';
+                explanation = 'Small batch size needs Layer or Instance Normalization.';
+            } else {
+                recommendedType = 'Instance Norm';
+                mixingStrategy = 'Each sample separately';
+                bestPerformance = 'Fair';
+                explanation = 'Single sample (batch=1) requires Instance Normalization.';
+            }
+            
+            document.getElementById('recommendedType').textContent = recommendedType;
+            document.getElementById('mixingStrategy').textContent = mixingStrategy;
+            document.getElementById('bestPerformance').textContent = bestPerformance;
+            document.getElementById('type-explanation').textContent = explanation;
+        });
+
+        // Learning Rate Booster
+        document.getElementById('lrMultiplierSlider').addEventListener('input', function() {
+            const multiplier = parseInt(this.value);
+            document.getElementById('lrMultiplierVal').textContent = multiplier;
+            
+            let speed, stability, convergence, explanation;
+            
+            if (multiplier <= 2) {
+                speed = 'Normal'; stability = 'Excellent'; convergence = 'Stable';
+                explanation = 'Conservative learning rate - safe and stable!';
+            } else if (multiplier <= 5) {
+                speed = 'Fast'; stability = 'Good'; convergence = 'Quick';
+                explanation = 'Batch Norm allows higher learning rates safely!';
+            } else if (multiplier <= 8) {
+                speed = 'Very Fast'; stability = 'Fair'; convergence = 'Very Quick';
+                explanation = 'High learning rate - much faster but watch for instability!';
+            } else {
+                speed = 'Extreme'; stability = 'Risky'; convergence = 'Explosive';
+                explanation = 'Danger zone! Too high even with Batch Norm!';
+            }
+            
+            document.getElementById('trainingSpeed').textContent = speed;
+            document.getElementById('stability').textContent = stability;
+            document.getElementById('convergence').textContent = convergence;
+            document.getElementById('lr-explanation').textContent = explanation;
+        });
+
+        // Complete Demo
+        function runCompleteDemo() {
+            const btn = document.getElementById('completeBtn');
+            btn.textContent = '🏭 Rainbow Factory Operating...';
+            btn.disabled = true;
+            
+            let step = 0;
+            const steps = [
+                'Collecting paint samples...',
+                'Calculating averages...',
+                'Measuring color spread...',
+                'Normalizing paint mixtures...',
+                'Scaling and shifting colors...',
+                'Creating perfect rainbows!'
+            ];
+            
+            const interval = setInterval(() => {
+                document.getElementById('factoryStatus').textContent = steps[step];
+                
+                if (step === 0) {
+                    document.getElementById('rainbowQuality').textContent = 'Analyzing...';
+                    document.getElementById('factorySpeed').textContent = '10x Faster!';
+                    document.getElementById('magicLevel').textContent = '🌟🌟✨';
+                } else if (step === 4) {
+                    document.getElementById('rainbowQuality').textContent = 'Excellent!';
+                    document.getElementById('factorySpeed').textContent = 'Maximum Speed!';
+                    document.getElementById('magicLevel').textContent = '🌟🌟🌟✨';
+                } else if (step === 5) {
+                    document.getElementById('factoryStatus').textContent = '🌈 Rainbow Factory Master!';
+                    document.getElementById('rainbowQuality').textContent = 'Perfect! 🌈';
+                    document.getElementById('factorySpeed').textContent = 'Lightning Fast! ⚡';
+                    document.getElementById('magicLevel').textContent = '🌟🌟🌟🌈✨';
+                    
+                    clearInterval(interval);
+                    btn.textContent = '🏆 Factory Mastered!';
+                    btn.style.background = '#27ae60';
+                    return;
+                }
+                
+                step++;
+            }, 1000);
+        }
+
+        function revealMasterSolution() {
+            document.getElementById('master-solution').style.display = 'block';
+            document.getElementById('masterSolutionBtn').style.display = 'none';
+        }
+
+        // Initialize demos
+        updateTimer();
+        updateMathDemo();
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Add intersection observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Add some rainbow magic to the page
+        function addRainbowMagic() {
+            const rainbows = ['🌈', '✨', '🌟'];
+            const rainbow = rainbows[Math.floor(Math.random() * rainbows.length)];
+            
+            const sparkle = document.createElement('div');
+            sparkle.textContent = rainbow;
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = Math.random() * 100 + 'vw';
+            sparkle.style.top = Math.random() * 100 + 'vh';
+            sparkle.style.fontSize = '2em';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.zIndex = '999';
+            sparkle.style.opacity = '0.7';
+            sparkle.style.animation = 'fadeIn 2s ease-out forwards';
+            
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                if (sparkle.parentNode) {
+                    sparkle.parentNode.removeChild(sparkle);
+                }
+            }, 3000);
+        }
+
+        // Add rainbow magic every 10 seconds
+        setInterval(addRainbowMagic, 10000);
+        
+        // Add initial sparkle
+        setTimeout(addRainbowMagic, 2000);
+    </script>
 </body>
-
-</html>
+</html> = 'Accelerating...';
+                    document.getElementById('magicLevel').textContent = '🌟✨';
+                } else if (step === 2) {
+                    document.getElementById('rainbowQuality').textContent = 'Improving...';
+                    document.getElementById('factorySpeed').textContent
