@@ -1,1 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Garden Master: Regularization Techniques</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Comic Sans MS", cursive; line-height: 1.6; color: #333; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(45deg, #2c3e50, #34495e); color: white; padding: 30px; text-align: center; position: relative; }
+        .header::before { content: "🌱🧮🌿"; font-size: 3em; position: absolute; top: 10px; left: 20px; opacity: 0.3; }
+        h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .subtitle { font-size: 1.3em; opacity: 0.9; font-weight: normal; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #e74c3c; color: white; padding: 15px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .progress-bar { width: 100%; height: 8px; background: #ecf0f1; position: relative; overflow: hidden; }
+        .progress { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.5s ease; }
+        .nav { background: #f8f9fa; padding: 20px; text-align: center; border-bottom: 3px solid #3498db; }
+        .nav a { display: inline-block; margin: 5px 10px; padding: 10px 20px; background: #3498db; color: white; text-decoration: none; border-radius: 25px; transition: all 0.3s; font-weight: bold; }
+        .nav a:hover { background: #2980b9; transform: translateY(-2px); }
+        .section { padding: 30px; border-bottom: 2px solid #ecf0f1; }
+        h2 { color: #2c3e50; font-size: 2.2em; margin-bottom: 20px; border-bottom: 4px solid #e74c3c; padding-bottom: 10px; display: flex; align-items: center; }
+        h3 { color: #27ae60; font-size: 1.6em; margin: 20px 0 15px 0; }
+        .story-box { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .math-container { background: #1a1a1a; color: #00ff00; padding: 25px; border-radius: 15px; margin: 20px 0; font-family: 'Courier New', monospace; border: 3px solid #00ff00; position: relative; }
+        .math-container::before { content: "📊 MATHEMATICAL ANALYSIS"; position: absolute; top: -15px; left: 20px; background: #1a1a1a; padding: 0 10px; color: #00ff00; font-weight: bold; }
+        .equation { text-align: center; font-size: 1.4em; font-weight: bold; color: #00ffff; margin: 15px 0; padding: 10px; background: rgba(0,255,255,0.1); border-radius: 8px; }
+        .explanation-box { background: linear-gradient(135deg, #a8edea, #fed6e3); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 6px solid #e91e63; }
+        .interactive-demo { background: #f8f9fa; padding: 25px; border-radius: 15px; margin: 20px 0; border: 3px dashed #17a2b8; text-align: center; }
+        .slider-container { margin: 15px 0; padding: 15px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .slider { width: 100%; height: 8px; background: #ddd; outline: none; border-radius: 4px; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .result-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 8px 25px rgba(0,0,0,0.2); }
+        .code-playground { background: #2d3748; color: #e2e8f0; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Courier New', monospace; border-left: 5px solid #4fd1c7; }
+        .proof-section { background: #fff8e1; padding: 20px; border-radius: 12px; margin: 15px 0; border: 2px solid #ffc107; }
+        .highlight { background: #ffeb3b; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #1a1a1a; }
+        .garden-visual { text-align: center; font-size: 2.5em; margin: 20px 0; animation: bounce 2s infinite; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .comparison-table th, .comparison-table td { border: 2px solid #3498db; padding: 15px; text-align: center; }
+        .comparison-table th { background: #3498db; color: white; font-weight: bold; }
+        .comparison-table tr:nth-child(even) { background: #f8f9fa; }
+        .advanced-concept { background: linear-gradient(135deg, #ff9a9e, #fecfef); padding: 20px; border-radius: 15px; margin: 20px 0; border-left: 6px solid #e91e63; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        .math-steps { counter-reset: step-counter; }
+        .math-step { counter-increment: step-counter; margin: 10px 0; padding: 15px; background: rgba(52, 152, 219, 0.1); border-radius: 8px; border-left: 4px solid #3498db; }
+        .math-step::before { content: "Step " counter(step-counter) ": "; font-weight: bold; color: #3498db; }
+        
+        /* Button styles */
+        .train-button { padding: 15px 30px; background: #27ae60; color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em; }
+        .solution-button { padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px 0; }
+        .margin-top-20 { margin-top: 20px; }
+        .hidden { display: none; }
+        .math-summary { text-align: center; color: #00ffff; font-size: 1.2em; margin-top: 15px; }
+        
+        /* Accessibility improvements */
+        .slider { width: 100%; height: 8px; background: #ddd; outline: none; border-radius: 4px; cursor: pointer; }
+        .slider:focus { outline: 2px solid #3498db; outline-offset: 2px; }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">60:00</div>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Mathematical Garden Master</h1>
+            <div class="subtitle">Advanced Regularization: From Garden Optimization to Neural Network Mastery</div>
+        </div>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="nav">
+            <a href="#intro">Mathematical Foundation</a>
+            <a href="#l1">L1 Regularization</a>
+            <a href="#l2">L2 Regularization</a>
+            <a href="#dropout">Dropout Theory</a>
+            <a href="#early">Early Stopping</a>
+            <a href="#advanced">Advanced Concepts</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🌱 Meet Sam: The Mathematical Garden Master</h2>
+            <div class="story-box">
+                <h3>🧠 The Evolution of Sam</h3>
+                <p>Sam isn't just any gardener anymore. He's a <strong>Mathematical Garden Master</strong> who discovered that optimal plant growth follows precise mathematical principles. His garden is now a living laboratory where <span class="highlight">regularization theory meets agricultural optimization</span>.</p>
+                <div class="garden-visual">🌱➕🧮➡️🌺</div>
+                <p>Sam realized that <strong>overfitting in gardening</strong> is like memorizing every grain of soil while forgetting how plants actually grow. Today, we'll master the mathematical foundations that prevent this catastrophic failure!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🎯 The Fundamental Overfitting Equation</h3>
+                <div class="equation">Risk(f) = E[L(Y, f(X))] = Bias² + Variance + Noise</div>
+                <div class="math-steps">
+                    <div class="math-step"><strong>Bias²:</strong> How far our average prediction is from the truth</div>
+                    <div class="math-step"><strong>Variance:</strong> How much our predictions vary between different training sets</div>
+                    <div class="math-step"><strong>Noise:</strong> Irreducible error in the data itself</div>
+                </div>
+            </div>
+
+            <div class="explanation-box">
+                <h3>🔬 Sam's Garden Discovery</h3>
+                <p>Sam found that his garden's success rate follows this exact equation:</p>
+                <ul>
+                    <li><strong>High Bias:</strong> Simple rules like "water everything daily" - consistent but often wrong</li>
+                    <li><strong>High Variance:</strong> Complex rules that change dramatically with small soil changes</li>
+                    <li><strong>Optimal Balance:</strong> Regularization finds the mathematical sweet spot!</li>
+                </ul>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Bias-Variance Explorer</h3>
+                <div class="slider-container">
+                    <label>Model Complexity: <span id="complexityVal">5</span></label>
+                    <input type="range" class="slider" id="complexitySlider" min="1" max="10" value="5" aria-label="Model Complexity" title="Adjust model complexity level">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Bias²: <span id="biasVal">0.25</span></div>
+                    <div class="result-card">Variance: <span id="varianceVal">0.15</span></div>
+                    <div class="result-card">Total Error: <span id="totalError">0.45</span></div>
+                </div>
+                <div id="complexity-insight" class="result-card">Adjust complexity to find the optimal point!</div>
+            </div>
+        </div>
+
+        <div class="section" id="l1">
+            <h2>🎯 L1 Regularization: The Sparse Garden Theory</h2>
+            <div class="story-box">
+                <h3>🌿 Sam's Minimalist Revolution</h3>
+                <p>Sam discovered that <strong>nature prefers sparsity</strong>. In his mathematical analysis, he found that the most beautiful gardens use only the <span class="highlight">essential plants</span>, setting unimportant ones to exactly zero contribution!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>📐 The L1 Mathematical Framework</h3>
+                <div class="equation">J(w) = MSE(w) + λ∑ᵢ|wᵢ|</div>
+                <div class="math-steps">
+                    <div class="math-step">MSE(w) = (1/n)∑(yᵢ - ŷᵢ)² [Original prediction error]</div>
+                    <div class="math-step">λ = Regularization strength [Sam's "strictness parameter"]</div>
+                    <div class="math-step">∑ᵢ|wᵢ| = L1 penalty [Sum of absolute weights]</div>
+                </div>
+            </div>
+
+            <div class="proof-section">
+                <h3>🧮 Mathematical Proof: Why L1 Creates Sparsity</h3>
+                <div class="math-steps">
+                    <div class="math-step">Consider the derivative: ∂J/∂wᵢ = ∂MSE/∂wᵢ + λ·sign(wᵢ)</div>
+                    <div class="math-step">At optimum: ∂MSE/∂wᵢ + λ·sign(wᵢ) = 0</div>
+                    <div class="math-step">Therefore: ∂MSE/∂wᵢ = -λ·sign(wᵢ)</div>
+                    <div class="math-step">If |∂MSE/∂wᵢ| < λ, then wᵢ = 0 (weight becomes exactly zero!)</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎛️ L1 Regularization Playground</h3>
+                <div class="slider-container">
+                    <label>λ (Regularization Strength): <span id="l1LambdaVal">0.1</span></label>
+                    <input type="range" class="slider" id="l1LambdaSlider" min="0" max="2" step="0.1" value="0.1" aria-label="L1 Regularization Strength" title="Adjust L1 lambda parameter">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Rose Weight: <span id="l1w1">0.8</span></div>
+                    <div class="result-card">Tulip Weight: <span id="l1w2">0.5</span></div>
+                    <div class="result-card">Daisy Weight: <span id="l1w3">0.0</span></div>
+                    <div class="result-card">Active Features: <span id="l1Active">2/3</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 L1 Implementation: Sam's Code</h3>
+<pre># Mathematical L1 Regularization Implementation
+import numpy as np
+
+class L1Regularizer:
+    def __init__(self, lambda_val=0.01):
+        self.lambda_val = lambda_val
+    
+    def cost_function(self, w, X, y):
+        """Sam's mathematical cost function"""
+        predictions = X @ w
+        mse = np.mean((y - predictions)**2)
+        l1_penalty = self.lambda_val * np.sum(np.abs(w))
+        return mse + l1_penalty
+    
+    def gradient(self, w, X, y):
+        """Mathematical gradient for optimization"""
+        n = len(y)
+        predictions = X @ w
+        mse_grad = -(2/n) * X.T @ (y - predictions)
+        l1_grad = self.lambda_val * np.sign(w)
+        return mse_grad + l1_grad
+    
+    # Sam's garden optimization
+    def optimize_garden(self, X, y, learning_rate=0.01, epochs=1000):
+        w = np.random.normal(0, 0.01, X.shape[1])
+        costs = []
+        
+        for epoch in range(epochs):
+            cost = self.cost_function(w, X, y)
+            grad = self.gradient(w, X, y)
+            w -= learning_rate * grad
+            costs.append(cost)
+            
+            # Soft thresholding (mathematical sparsity creation)
+            threshold = learning_rate * self.lambda_val
+            w = np.where(np.abs(w) <= threshold, 0, 
+                        w - threshold * np.sign(w))
+        
+        return w, costs</pre>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🎓 Advanced L1 Theory: Geometric Interpretation</h3>
+                <p>The L1 penalty creates a <strong>diamond-shaped constraint region</strong> in weight space. The optimal solution occurs where the error contours first touch this diamond, which happens at the corners - explaining why weights become exactly zero!</p>
+                <div class="equation">Constraint: ∑ᵢ|wᵢ| ≤ t</div>
+                <p>This geometric insight reveals why L1 naturally performs <span class="highlight">automatic feature selection</span>!</p>
+            </div>
+        </div>
+
+        <div class="section" id="l2">
+            <h2>⚖️ L2 Regularization: The Gaussian Garden Harmony</h2>
+            <div class="story-box">
+                <h3>🌸 Sam's Harmony Discovery</h3>
+                <p>Sam realized that perfect gardens follow <strong>Gaussian distribution principles</strong>. Instead of eliminating plants, L2 regularization creates <span class="highlight">harmonious balance</span> where every element contributes proportionally to the whole!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 The L2 Mathematical Symphony</h3>
+                <div class="equation">J(w) = MSE(w) + λ∑ᵢwᵢ²</div>
+                <div class="math-steps">
+                    <div class="math-step">Gradient: ∂J/∂wᵢ = ∂MSE/∂wᵢ + 2λwᵢ</div>
+                    <div class="math-step">Weight update: wᵢ ← wᵢ(1 - 2λη) - η∂MSE/∂wᵢ</div>
+                    <div class="math-step">Shrinkage factor: (1 - 2λη) continuously shrinks weights</div>
+                </div>
+            </div>
+
+            <div class="proof-section">
+                <h3>🎭 Bayesian Interpretation: The Prior Knowledge</h3>
+                <div class="math-steps">
+                    <div class="math-step">Assume Gaussian prior: P(w) ∝ exp(-λ∑wᵢ²)</div>
+                    <div class="math-step">Likelihood: P(y|X,w) ∝ exp(-MSE(w))</div>
+                    <div class="math-step">Posterior: P(w|X,y) ∝ P(y|X,w)P(w)</div>
+                    <div class="math-step">MAP estimate: argmax P(w|X,y) = argmin[MSE(w) + λ∑wᵢ²]</div>
+                </div>
+                <p><strong>Sam's Insight:</strong> L2 regularization assumes we believe weights should be small (Gaussian prior with mean 0)!</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎼 L2 vs L1 Mathematical Comparison</h3>
+                <div class="slider-container">
+                    <label>λ (Both Regularizers): <span id="compLambdaVal">0.5</span></label>
+                    <input type="range" class="slider" id="compLambdaSlider" min="0" max="1" step="0.1" value="0.5" aria-label="Comparison Lambda" title="Adjust regularization for comparison">
+                </div>
+                <table class="comparison-table">
+                    <tr><th>Property</th><th>L1 (Lasso)</th><th>L2 (Ridge)</th></tr>
+                    <tr><td>Weight 1</td><td id="comp-l1w1">0.5</td><td id="comp-l2w1">0.6</td></tr>
+                    <tr><td>Weight 2</td><td id="comp-l1w2">0.0</td><td id="comp-l2w2">0.3</td></tr>
+                    <tr><td>Weight 3</td><td id="comp-l1w3">0.0</td><td id="comp-l2w3">0.2</td></tr>
+                    <tr><td>Sparsity</td><td id="comp-l1sparse">67%</td><td id="comp-l2sparse">0%</td></tr>
+                </table>
+            </div>
+
+            <div class="code-playground">
+                <h3>🔬 Advanced L2 Implementation with Mathematical Insights</h3>
+<pre># Ridge Regression with Mathematical Foundation
+class RidgeRegression:
+    def __init__(self, lambda_val=1.0):
+        self.lambda_val = lambda_val
+        self.weights = None
+    
+    def analytical_solution(self, X, y):
+        """Sam's closed-form mathematical solution"""
+        # Normal equation with regularization
+        # w = (X^T X + λI)^(-1) X^T y
+        n_features = X.shape[1]
+        identity = np.eye(n_features)
+        
+        # Mathematical insight: λI prevents singular matrices
+        XTX_regularized = X.T @ X + self.lambda_val * identity
+        XTy = X.T @ y
+        
+        self.weights = np.linalg.solve(XTX_regularized, XTy)
+        return self.weights
+    
+    def condition_number_analysis(self, X):
+        """Sam's stability analysis"""
+        XTX = X.T @ X
+        regularized = XTX + self.lambda_val * np.eye(X.shape[1])
+        
+        cond_original = np.linalg.cond(XTX)
+        cond_regularized = np.linalg.cond(regularized)
+        
+        return {
+            'original_condition': cond_original,
+            'regularized_condition': cond_regularized,
+            'stability_improvement': cond_original / cond_regularized
+        }
+    
+    def effective_degrees_freedom(self, X):
+        """Mathematical measure of model complexity"""
+        XTX = X.T @ X
+        regularized_inv = np.linalg.inv(XTX + self.lambda_val * np.eye(X.shape[1]))
+        H = X @ regularized_inv @ X.T  # Hat matrix
+        return np.trace(H)  # Effective degrees of freedom</pre>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🌟 Mathematical Connection: Eigenvalue Perspective</h3>
+                <p>L2 regularization transforms the optimization landscape by modifying eigenvalues:</p>
+                <div class="equation">λᵢ(regularized) = λᵢ(original) + λ</div>
+                <p>This ensures all eigenvalues are positive, making the problem <span class="highlight">convex and well-conditioned</span>!</p>
+            </div>
+        </div>
+
+        <div class="section" id="dropout">
+            <h2>🎲 Dropout: Stochastic Regularization Theory</h2>
+            <div class="story-box">
+                <h3>🎰 Sam's Random Revelation</h3>
+                <p>Sam discovered that <strong>controlled randomness</strong> makes gardens more resilient! By randomly "turning off" plant care each day, he forced his garden to develop <span class="highlight">robust, independent growth patterns</span>.</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🎯 Mathematical Formulation of Dropout</h3>
+                <div class="equation">h̃ᵢ = hᵢ · Bernoulli(p) / p</div>
+                <div class="math-steps">
+                    <div class="math-step">hᵢ = Original neuron activation</div>
+                    <div class="math-step">Bernoulli(p) = Random variable: 1 with probability p, 0 otherwise</div>
+                    <div class="math-step">Division by p = Scaling to maintain expected value</div>
+                    <div class="math-step">E[h̃ᵢ] = E[hᵢ · Bernoulli(p) / p] = hᵢ</div>
+                </div>
+            </div>
+
+            <div class="proof-section">
+                <h3>🧠 Theoretical Foundation: Why Dropout Works</h3>
+                <div class="math-steps">
+                    <div class="math-step"><strong>Ensemble Perspective:</strong> Dropout trains 2ⁿ different subnetworks</div>
+                    <div class="math-step"><strong>Geometric Mean:</strong> Final model approximates geometric mean of all subnetworks</div>
+                    <div class="math-step"><strong>Co-adaptation Prevention:</strong> Neurons can't rely on specific partners</div>
+                    <div class="math-step"><strong>Noise Injection:</strong> Acts as data-dependent regularization</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🔬 Dropout Mathematical Explorer</h3>
+                <div class="slider-container">
+                    <label>Dropout Rate: <span id="dropoutRateVal">30</span>%</label>
+                    <input type="range" class="slider" id="dropoutRateSlider" min="0" max="80" value="30" aria-label="Dropout Rate" title="Adjust dropout percentage">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Active Neurons: <span id="activeNeurons">70%</span></div>
+                    <div class="result-card">Subnetworks: <span id="subnetworks">8</span></div>
+                    <div class="result-card">Expected Output: <span id="expectedOutput">Maintained</span></div>
+                    <div class="result-card">Variance Reduction: <span id="varianceReduction">Medium</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>⚡ Mathematical Dropout Implementation</h3>
+<pre># Advanced Dropout with Mathematical Insights
+class MathematicalDropout:
+    def __init__(self, dropout_rate=0.5):
+        self.dropout_rate = dropout_rate
+        self.training_mode = True
+    
+    def forward(self, x):
+        """Sam's mathematically precise dropout"""
+        if self.training_mode:
+            # Generate Bernoulli random variables
+            keep_prob = 1 - self.dropout_rate
+            mask = np.random.binomial(1, keep_prob, x.shape)
+            
+            # Apply mask and scale (inverted dropout)
+            return (x * mask) / keep_prob
+        else:
+            # No dropout during inference
+            return x
+    
+    def ensemble_approximation(self, x, n_samples=100):
+        """Approximate the ensemble effect"""
+        self.training_mode = True
+        outputs = []
+        
+        for _ in range(n_samples):
+            outputs.append(self.forward(x))
+        
+        # Geometric mean approximation
+        mean_output = np.mean(outputs, axis=0)
+        variance = np.var(outputs, axis=0)
+        
+        return {
+            'mean': mean_output,
+            'variance': variance,
+            'uncertainty': np.sqrt(variance)
+        }
+    
+    def theoretical_variance_reduction(self, original_variance):
+        """Mathematical calculation of variance reduction"""
+        keep_prob = 1 - self.dropout_rate
+        # Variance reduction due to ensemble effect
+        return original_variance * (1 - keep_prob) / keep_prob</pre>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🎭 Advanced Theory: Dropout as Bayesian Approximation</h3>
+                <p>Recent research shows dropout approximates <strong>Bayesian neural networks</strong>:</p>
+                <div class="equation">p(y|x,D) ≈ (1/T)∑ᵀₜ₌₁ p(y|x,ŵₜ)</div>
+                <p>Where ŵₜ are different weight configurations from dropout sampling. This provides <span class="highlight">uncertainty quantification</span>!</p>
+            </div>
+        </div>
+
+        <div class="section" id="early">
+            <h2>⏰ Early Stopping: Optimal Control Theory</h2>
+            <div class="story-box">
+                <h3>🎯 Sam's Timing Mastery</h3>
+                <p>Sam learned that perfect timing follows <strong>optimal control theory</strong>. Using mathematical stopping criteria, he discovered when to halt training for <span class="highlight">maximum generalization performance</span>!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>📈 Mathematical Stopping Criterion</h3>
+                <div class="equation">Stop when: dL_val/dt > ε for k consecutive epochs</div>
+                <div class="math-steps">
+                    <div class="math-step">L_val(t) = Validation loss at epoch t</div>
+                    <div class="math-step">ε = Minimum improvement threshold</div>
+                    <div class="math-step">k = Patience parameter</div>
+                    <div class="math-step">Generalization Gap: |L_train - L_val| → minimize</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>📊 Training Dynamics Simulator</h3>
+                <button onclick="startTraining()" id="trainBtn" class="train-button">🚀 Start Mathematical Training</button>
+                <div class="result-grid margin-top-20">
+                    <div class="result-card">Epoch: <span id="epoch">0</span></div>
+                    <div class="result-card">Training Loss: <span id="trainLoss">2.000</span></div>
+                    <div class="result-card">Validation Loss: <span id="valLoss">2.100</span></div>
+                    <div class="result-card">Gap: <span id="gapLoss">0.100</span></div>
+                </div>
+                <div id="trainStatus" class="result-card">Ready to optimize Sam's mathematical garden!</div>
+            </div>
+
+            <div class="code-playground">
+                <h3>🔄 Mathematical Early Stopping Algorithm</h3>
+<pre># Advanced Early Stopping with Mathematical Analysis
+class MathematicalEarlyStopping:
+    def __init__(self, patience=10, min_delta=1e-4, mode='min'):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.mode = mode
+        self.best_score = np.inf if mode == 'min' else -np.inf
+        self.counter = 0
+        self.best_weights = None
+        self.loss_history = []
+    
+    def __call__(self, val_loss, model_weights):
+        """Sam's mathematical stopping decision"""
+        self.loss_history.append(val_loss)
+        
+        # Mathematical improvement check
+        if self.mode == 'min':
+            improved = val_loss < (self.best_score - self.min_delta)
+        else:
+            improved = val_loss > (self.best_score + self.min_delta)
+        
+        if improved:
+            self.best_score = val_loss
+            self.counter = 0
+            self.best_weights = model_weights.copy()
+        else:
+            self.counter += 1
+        
+        # Statistical analysis of loss trajectory
+        if len(self.loss_history) >= 5:
+            recent_trend = self.analyze_trend()
+            return self.counter >= self.patience or recent_trend
+        
+        return self.counter >= self.patience
+    
+    def analyze_trend(self):
+        """Mathematical trend analysis using derivatives"""
+        recent_losses = np.array(self.loss_history[-5:])
+        
+        # Calculate numerical derivatives
+        derivatives = np.diff(recent_losses)
+        
+        # Check if all recent derivatives are positive (increasing loss)
+        if np.all(derivatives > 0) and np.mean(derivatives) > self.min_delta:
+            return True
+        
+        # Calculate second derivatives (acceleration)
+        if len(derivatives) > 1:
+            second_derivatives = np.diff(derivatives)
+            # If acceleration is consistently positive, loss is increasing faster
+            if np.all(second_derivatives > 0):
+                return True
+        
+        return False
+    
+    def optimal_stopping_theory(self):
+        """Apply optimal stopping theory principles"""
+        if len(self.loss_history) < 10:
+            return False
+        
+        # Secretary problem adaptation: explore first 37%, then select
+        explore_phase = int(0.37 * len(self.loss_history))
+        min_explore = np.min(self.loss_history[:explore_phase])
+        
+        # Stop if current loss is better than exploration minimum
+        current_loss = self.loss_history[-1]
+        return current_loss <= min_explore</pre>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🎓 Advanced Theory: Information-Theoretic Stopping</h3>
+                <p>Sam discovered that optimal stopping can be formulated using <strong>information theory</strong>:</p>
+                <div class="equation">I(θ;D_train) - I(θ;D_val) → minimize</div>
+                <p>Where I represents mutual information. Stop when the model learns more about training data than validation data!</p>
+            </div>
+        </div>
+
+        <div class="section" id="advanced">
+            <h2>🚀 Advanced Mathematical Concepts</h2>
+            
+            <div class="story-box">
+                <h3>🎖️ Sam's Mastery Level</h3>
+                <p>Sam has evolved into a true <strong>Mathematical Garden Master</strong>. Now he combines multiple regularization techniques using advanced mathematical principles that would make even university professors proud!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🌟 Unified Regularization Framework</h3>
+                <div class="equation">J_total(w) = L(w) + Ω(w) + R_adaptive(w,t)</div>
+                <div class="math-steps">
+                    <div class="math-step">L(w) = Original loss function</div>
+                    <div class="math-step">Ω(w) = λ₁||w||₁ + λ₂||w||₂² (Combined L1/L2)</div>
+                    <div class="math-step">R_adaptive(w,t) = Time-dependent adaptive regularization</div>
+                </div>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🧮 Elastic Net: The Mathematical Hybrid</h3>
+                <p>Sam's ultimate discovery combines L1 and L2 mathematically:</p>
+                <div class="equation">J(w) = MSE(w) + λ₁∑|wᵢ| + λ₂∑wᵢ²</div>
+                <div class="explanation-box">
+                    <h4>Mathematical Properties:</h4>
+                    <ul>
+                        <li><strong>Grouping Effect:</strong> Correlated features get similar weights (L2 contribution)</li>
+                        <li><strong>Sparsity:</strong> Irrelevant features eliminated (L1 contribution)</li>
+                        <li><strong>Stability:</strong> Better handling of p > n scenarios</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎛️ Advanced Regularization Playground</h3>
+                <div class="slider-container">
+                    <label>L1 Ratio (α): <span id="l1RatioVal">0.5</span></label>
+                    <input type="range" class="slider" id="l1RatioSlider" min="0" max="1" step="0.1" value="0.5" aria-label="L1 Ratio" title="Adjust L1 vs L2 ratio">
+                </div>
+                <div class="slider-container">
+                    <label>Total Regularization (λ): <span id="totalRegVal">0.1</span></label>
+                    <input type="range" class="slider" id="totalRegSlider" min="0" max="1" step="0.05" value="0.1" aria-label="Total Regularization" title="Adjust total regularization strength">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">λ₁ (L1): <span id="lambda1">0.05</span></div>
+                    <div class="result-card">λ₂ (L2): <span id="lambda2">0.05</span></div>
+                    <div class="result-card">Sparsity: <span id="sparsityLevel">50%</span></div>
+                    <div class="result-card">Stability: <span id="stabilityLevel">High</span></div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <h3>🏆 Master-Level Implementation</h3>
+<pre># Sam's Ultimate Regularization Framework
+class MasterRegularizer:
+    def __init__(self, l1_ratio=0.5, lambda_total=0.01, adaptive=True):
+        self.l1_ratio = l1_ratio
+        self.lambda_total = lambda_total
+        self.adaptive = adaptive
+        self.epoch = 0
+        
+    def compute_penalty(self, weights, X=None, y=None):
+        """Sam's unified penalty computation"""
+        # Elastic Net combination
+        l1_lambda = self.l1_ratio * self.lambda_total
+        l2_lambda = (1 - self.l1_ratio) * self.lambda_total
+        
+        l1_penalty = l1_lambda * np.sum(np.abs(weights))
+        l2_penalty = l2_lambda * np.sum(weights**2)
+        
+        # Adaptive component based on training dynamics
+        adaptive_penalty = 0
+        if self.adaptive and X is not None:
+            adaptive_penalty = self.adaptive_regularization(weights, X, y)
+        
+        return l1_penalty + l2_penalty + adaptive_penalty
+    
+    def adaptive_regularization(self, weights, X, y):
+        """Mathematical adaptive regularization"""
+        # Compute effective degrees of freedom
+        H = self.compute_hat_matrix(X, weights)
+        effective_df = np.trace(H)
+        
+        # Adapt regularization based on model complexity
+        complexity_factor = effective_df / X.shape[1]
+        
+        # Information-theoretic adaptation
+        if hasattr(self, 'prev_loss'):
+            loss_change = abs(self.current_loss - self.prev_loss)
+            adaptation = self.lambda_total * complexity_factor * loss_change
+        else:
+            adaptation = 0
+            
+        return adaptation
+    
+    def compute_hat_matrix(self, X, weights):
+        """Compute hat matrix for analysis"""
+        try:
+            XTX = X.T @ X
+            regularized = XTX + self.lambda_total * np.eye(X.shape[1])
+            return X @ np.linalg.inv(regularized) @ X.T
+        except:
+            return np.eye(X.shape[0])  # Fallback
+    
+    def mathematical_analysis(self, weights):
+        """Comprehensive mathematical analysis"""
+        analysis = {
+            'l1_norm': np.sum(np.abs(weights)),
+            'l2_norm': np.sqrt(np.sum(weights**2)),
+            'sparsity_ratio': np.mean(np.abs(weights) < 1e-6),
+            'effective_dimension': np.sum(np.abs(weights) > 1e-6),
+            'weight_distribution': {
+                'mean': np.mean(weights),
+                'std': np.std(weights),
+                'max_abs': np.max(np.abs(weights))
+            }
+        }
+        return analysis</pre>
+            </div>
+
+            <div class="proof-section">
+                <h3>🔬 Mathematical Convergence Analysis</h3>
+                <div class="math-steps">
+                    <div class="math-step"><strong>Theorem:</strong> Elastic Net converges to global optimum for convex loss functions</div>
+                    <div class="math-step"><strong>Proof Sketch:</strong> Combined penalty maintains convexity of objective function</div>
+                    <div class="math-step"><strong>Rate:</strong> O(1/√t) convergence for subgradient methods</div>
+                    <div class="math-step"><strong>Optimality:</strong> KKT conditions satisfied at solution</div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎯 Complete Regularization Strategy Selector</h3>
+                <div class="slider-container">
+                    <label>Dataset Size: <span id="datasetSizeVal">1000</span></label>
+                    <input type="range" class="slider" id="datasetSizeSlider" min="100" max="10000" step="100" value="1000" aria-label="Dataset Size" title="Adjust dataset size">
+                </div>
+                <div class="slider-container">
+                    <label>Feature Dimension: <span id="featureDimVal">50</span></label>
+                    <input type="range" class="slider" id="featureDimSlider" min="10" max="500" step="10" value="50" aria-label="Feature Dimension" title="Adjust number of features">
+                </div>
+                <div id="strategy-recommendation" class="result-card">
+                    <h4>🎯 Sam's Mathematical Recommendation</h4>
+                    <div id="recommendation-text">Analyzing your garden parameters...</div>
+                </div>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🌟 Final Mathematical Insights</h3>
+                <table class="comparison-table">
+                    <tr><th>Technique</th><th>Mathematical Nature</th><th>Optimization Property</th><th>Best Use Case</th></tr>
+                    <tr><td><strong>L1</strong></td><td>Non-smooth, Convex</td><td>Promotes Sparsity</td><td>Feature Selection</td></tr>
+                    <tr><td><strong>L2</strong></td><td>Smooth, Strongly Convex</td><td>Shrinks Weights</td><td>Multicollinearity</td></tr>
+                    <tr><td><strong>Dropout</strong></td><td>Stochastic</td><td>Ensemble Approximation</td><td>Deep Networks</td></tr>
+                    <tr><td><strong>Early Stop</strong></td><td>Sequential Decision</td><td>Optimal Control</td><td>Universal</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🎓 Sam's Mathematical Garden Mastery: Final Assessment</h2>
+            <div class="story-box">
+                <h3>🏆 The Ultimate Challenge</h3>
+                <p>Sam's garden now represents the perfect fusion of <strong>mathematical theory and practical application</strong>. You've learned not just how to use regularization, but <span class="highlight">why it works mathematically</span>!</p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🧠 Master-Level Quiz</h3>
+                <div class="explanation-box">
+                    <h4>Problem: Design the optimal regularization strategy</h4>
+                    <p><strong>Scenario:</strong> Image classification with 50,000 training samples, 2,048 features, deep CNN architecture, limited computational budget.</p>
+                    <button onclick="revealSolution()" id="solutionBtn" class="solution-button">🔍 Reveal Sam's Mathematical Solution</button>
+                    <div id="master-solution" class="hidden">
+                        <h4>🎯 Sam's Master Solution:</h4>
+                        <ul>
+                            <li><strong>L2 Regularization:</strong> λ = 0.001 (sufficient data, need weight control)</li>
+                            <li><strong>Dropout:</strong> 0.3 in hidden layers (deep network, prevent co-adaptation)</li>
+                            <li><strong>Early Stopping:</strong> patience=15, monitor validation accuracy</li>
+                            <li><strong>Data Augmentation:</strong> Light (rotation ±10°, horizontal flip)</li>
+                            <li><strong>Mathematical Justification:</strong> n >> p, so L1 unnecessary; deep network needs dropout; sufficient data allows moderate regularization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🎖️ Your Mathematical Journey Summary</h3>
+                <div class="equation">Knowledge(you) = ∫[Theory + Practice + Mathematics] dt</div>
+                <p class="math-summary">
+                    You've mastered the mathematical foundations of regularization!
+                </p>
+            </div>
+
+            <div class="garden-visual">🌱➡️🧮➡️🏆➡️🌺🌻🌼</div>
+        </div>
+    </div>
+
+    <script>
+        let timeLeft = 60 * 60;
+        let trainingActive = false;
+        let epoch = 0;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            const progress = ((60 * 60 - timeLeft) / (60 * 60)) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            if (timeLeft > 0) {
+                timeLeft--;
+                setTimeout(updateTimer, 1000);
+            } else {
+                document.getElementById('timer').textContent = 'Complete!';
+                document.getElementById('timer').style.background = '#27ae60';
+            }
+        }
+
+        // Bias-Variance Demo
+        document.getElementById('complexitySlider').addEventListener('input', function() {
+            const complexity = parseInt(this.value);
+            document.getElementById('complexityVal').textContent = complexity;
+            
+            const bias = Math.max(0.05, 0.8 - complexity * 0.1);
+            const variance = Math.min(0.8, 0.02 + complexity * 0.08);
+            const total = bias + variance + 0.05;
+            
+            document.getElementById('biasVal').textContent = bias.toFixed(2);
+            document.getElementById('varianceVal').textContent = variance.toFixed(2);
+            document.getElementById('totalError').textContent = total.toFixed(2);
+            
+            if (total < 0.3) {
+                document.getElementById('complexity-insight').textContent = '🎯 Optimal complexity found!';
+                document.getElementById('complexity-insight').style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+            } else if (bias > variance) {
+                document.getElementById('complexity-insight').textContent = '📈 Increase complexity (high bias)';
+                document.getElementById('complexity-insight').style.background = 'linear-gradient(135deg, #f39c12, #e67e22)';
+            } else {
+                document.getElementById('complexity-insight').textContent = '📉 Decrease complexity (high variance)';
+                document.getElementById('complexity-insight').style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+            }
+        });
+
+        // L1 Regularization Demo
+        document.getElementById('l1LambdaSlider').addEventListener('input', function() {
+            const lambda = parseFloat(this.value);
+            document.getElementById('l1LambdaVal').textContent = lambda;
+            
+            const w1 = Math.max(0, 0.8 - lambda * 0.3);
+            const w2 = Math.max(0, 0.5 - lambda * 0.2);
+            const w3 = Math.max(0, 0.2 - lambda * 0.15);
+            
+            document.getElementById('l1w1').textContent = w1.toFixed(1);
+            document.getElementById('l1w2').textContent = w2.toFixed(1);
+            document.getElementById('l1w3').textContent = w3.toFixed(1);
+            
+            const active = (w1 > 0 ? 1 : 0) + (w2 > 0 ? 1 : 0) + (w3 > 0 ? 1 : 0);
+            document.getElementById('l1Active').textContent = `${active}/3`;
+        });
+
+        // L1 vs L2 Comparison
+        document.getElementById('compLambdaSlider').addEventListener('input', function() {
+            const lambda = parseFloat(this.value);
+            document.getElementById('compLambdaVal').textContent = lambda;
+            
+            // L1 effects (sparsity)
+            const l1w1 = Math.max(0, 0.8 - lambda * 0.4);
+            const l1w2 = Math.max(0, 0.5 - lambda * 0.3);
+            const l1w3 = Math.max(0, 0.3 - lambda * 0.2);
+            
+            // L2 effects (shrinkage)
+            const l2w1 = 0.8 / (1 + lambda);
+            const l2w2 = 0.5 / (1 + lambda);
+            const l2w3 = 0.3 / (1 + lambda);
+            
+            document.getElementById('comp-l1w1').textContent = l1w1.toFixed(2);
+            document.getElementById('comp-l1w2').textContent = l1w2.toFixed(2);
+            document.getElementById('comp-l1w3').textContent = l1w3.toFixed(2);
+            document.getElementById('comp-l2w1').textContent = l2w1.toFixed(2);
+            document.getElementById('comp-l2w2').textContent = l2w2.toFixed(2);
+            document.getElementById('comp-l2w3').textContent = l2w3.toFixed(2);
+            
+            const l1sparse = ((l1w1 === 0 ? 1 : 0) + (l1w2 === 0 ? 1 : 0) + (l1w3 === 0 ? 1 : 0)) / 3 * 100;
+            document.getElementById('comp-l1sparse').textContent = l1sparse.toFixed(0) + '%';
+            document.getElementById('comp-l2sparse').textContent = '0%';
+        });
+
+        // Dropout Demo
+        document.getElementById('dropoutRateSlider').addEventListener('input', function() {
+            const dropoutRate = parseInt(this.value);
+            document.getElementById('dropoutRateVal').textContent = dropoutRate;
+            
+            const active = 100 - dropoutRate;
+            const subnetworks = Math.pow(2, Math.min(4, Math.floor(dropoutRate / 10)));
+            
+            document.getElementById('activeNeurons').textContent = active + '%';
+            document.getElementById('subnetworks').textContent = subnetworks;
+            document.getElementById('expectedOutput').textContent = active > 50 ? 'Maintained' : 'Reduced';
+            
+            let variance;
+            if (dropoutRate < 20) variance = 'Low';
+            else if (dropoutRate < 50) variance = 'Medium';
+            else variance = 'High';
+            
+            document.getElementById('varianceReduction').textContent = variance;
+        });
+
+        // Training Simulation
+        function startTraining() {
+            if (trainingActive) return;
+            
+            const btn = document.getElementById('trainBtn');
+            btn.textContent = '🔄 Training in Progress...';
+            btn.disabled = true;
+            trainingActive = true;
+            epoch = 0;
+            
+            const interval = setInterval(() => {
+                epoch++;
+                const trainLoss = Math.max(0.1, 2.0 - epoch * 0.05 + Math.random() * 0.05);
+                const valLoss = epoch < 15 ? 
+                    Math.max(0.15, 2.2 - epoch * 0.08 + Math.random() * 0.08) :
+                    Math.min(2.0, 0.4 + (epoch - 15) * 0.02 + Math.random() * 0.05);
+                const gap = Math.abs(trainLoss - valLoss);
+                
+                document.getElementById('epoch').textContent = epoch;
+                document.getElementById('trainLoss').textContent = trainLoss.toFixed(3);
+                document.getElementById('valLoss').textContent = valLoss.toFixed(3);
+                document.getElementById('gapLoss').textContent = gap.toFixed(3);
+                
+                let status;
+                if (epoch < 10) status = '📈 Healthy convergence - both losses decreasing';
+                else if (epoch < 20) status = '⚠️ Validation loss plateauing - monitoring closely';
+                else status = '🛑 Early stopping activated - preventing overfitting';
+                
+                document.getElementById('trainStatus').textContent = status;
+                
+                if (epoch >= 25 || (epoch > 18 && valLoss > trainLoss + 0.1)) {
+                    clearInterval(interval);
+                    btn.textContent = '✅ Optimal Training Complete';
+                    btn.style.background = '#27ae60';
+                    trainingActive = false;
+                    document.getElementById('trainStatus').textContent = 
+                        `🎯 Mathematical optimization complete at epoch ${epoch}`;
+                }
+            }, 300);
+        }
+
+        // Advanced Regularization Controls
+        document.getElementById('l1RatioSlider').addEventListener('input', updateAdvancedDemo);
+        document.getElementById('totalRegSlider').addEventListener('input', updateAdvancedDemo);
+
+        function updateAdvancedDemo() {
+            const l1Ratio = parseFloat(document.getElementById('l1RatioSlider').value);
+            const totalReg = parseFloat(document.getElementById('totalRegSlider').value);
+            
+            document.getElementById('l1RatioVal').textContent = l1Ratio;
+            document.getElementById('totalRegVal').textContent = totalReg;
+            
+            const lambda1 = (l1Ratio * totalReg).toFixed(3);
+            const lambda2 = ((1 - l1Ratio) * totalReg).toFixed(3);
+            
+            document.getElementById('lambda1').textContent = lambda1;
+            document.getElementById('lambda2').textContent = lambda2;
+            
+            const sparsity = Math.round(l1Ratio * 100);
+            document.getElementById('sparsityLevel').textContent = sparsity + '%';
+            
+            let stability;
+            if (l1Ratio < 0.3) stability = 'Very High';
+            else if (l1Ratio < 0.7) stability = 'High';
+            else stability = 'Medium';
+            
+            document.getElementById('stabilityLevel').textContent = stability;
+        }
+
+        // Strategy Recommendation System
+        document.getElementById('datasetSizeSlider').addEventListener('input', updateRecommendation);
+        document.getElementById('featureDimSlider').addEventListener('input', updateRecommendation);
+
+        function updateRecommendation() {
+            const datasetSize = parseInt(document.getElementById('datasetSizeSlider').value);
+            const featureDim = parseInt(document.getElementById('featureDimSlider').value);
+            
+            document.getElementById('datasetSizeVal').textContent = datasetSize;
+            document.getElementById('featureDimVal').textContent = featureDim;
+            
+            const ratio = datasetSize / featureDim;
+            let recommendation;
+            
+            if (ratio < 2) {
+                recommendation = `🚨 <strong>High-dimensional regime (n=${datasetSize}, p=${featureDim})</strong><br>
+                • Primary: Heavy L1 regularization (λ₁=0.1)<br>
+                • Secondary: Light L2 (λ₂=0.001)<br>
+                • Dropout: 0.5-0.7 (high dropout needed)<br>
+                • Early Stopping: patience=5 (aggressive)`;
+            } else if (ratio < 10) {
+                recommendation = `⚠️ <strong>Moderate regime (n=${datasetSize}, p=${featureDim})</strong><br>
+                • Primary: Elastic Net (α=0.5, λ=0.01)<br>
+                • Dropout: 0.3-0.5<br>
+                • Early Stopping: patience=10<br>
+                • Data Augmentation: Medium intensity`;
+            } else {
+                recommendation = `✅ <strong>Well-posed regime (n=${datasetSize}, p=${featureDim})</strong><br>
+                • Primary: L2 regularization (λ=0.001)<br>
+                • Dropout: 0.2-0.3 (light regularization)<br>
+                • Early Stopping: patience=15-20<br>
+                • Focus: Model capacity and architecture`;
+            }
+            
+            document.getElementById('recommendation-text').innerHTML = recommendation;
+        }
+
+        function revealSolution() {
+            document.getElementById('master-solution').classList.remove('hidden');
+            document.getElementById('solutionBtn').style.display = 'none';
+        }
+
+        // Initialize demos
+        updateTimer();
+        updateAdvancedDemo();
+        updateRecommendation();
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // Add intersection observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        });
+
+        document.querySelectorAll('.section').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
 
