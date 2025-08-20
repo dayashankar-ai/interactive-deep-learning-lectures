@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 5: Hyperparameter Optimization </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 5: Hyperparameter Optimization </h1>
+            <p class="text-xl text-gray-600 mt-4">🎛️ Becoming the master chef of AI: Finding the perfect recipe for
+                your model.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: Keras, Optuna • Estimated Time: 2+ hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: What are Hyperparameters?</h2>
+            <p>Imagine you're baking a cake (our neural network). The ingredients (like flour, sugar, eggs) are your
+                <strong>data</strong>. The recipe instructions (mix, then bake) are your <strong>model code</strong>.
+            </p>
+            <p class="mt-2">But what about the settings you can tweak? How long do you bake it for? At what temperature?
+                How much baking powder do you use? These settings are the <strong>hyperparameters</strong>.</p>
+            <p class="mt-2">In AI, hyperparameters are the high-level settings you choose *before* training begins. They
+                control the learning process itself.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Key Hyperparameters We'll Tune Today:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>Learning Rate:</strong> How big of a step the model takes when adjusting its weights.
+                    </li>
+                    <li><strong>Number of Layers:</strong> How "deep" the network is.</li>
+                    <li><strong>Number of Neurons per Layer:</strong> How "wide" each layer is.</li>
+                    <li><strong>Optimizer:</strong> The specific algorithm used for gradient descent.</li>
+                    <li><strong>Dropout Rate:</strong> A regularization technique to prevent overfitting.</li>
+                </ul>
+            </div>
+            <p class="mt-4">Finding the right combination is key to building a state-of-the-art model. This process is
+                called <strong>Hyperparameter Optimization</strong> or <strong>Tuning</strong>.</p>
+        </section>
+
+        <!-- Section 2: Base Model Setup -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Our Starting Point - A Baseline Model</h2>
+            <p>Before we can tune, we need a starting point. Let's build a simple model for the Fashion-MNIST dataset.
+                This will be our "baseline" that we'll try to improve.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br><br>
+
+                <span class="comment"># Load and preprocess the Fashion-MNIST dataset</span><br>
+                (x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()<br>
+                x_train = x_train / <span class="number">255.0</span><br>
+                x_test = x_test / <span class="number">255.0</span><br><br>
+
+                <span class="keyword">def</span> create_baseline_model():<br>
+                &nbsp;&nbsp;model = keras.Sequential([<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">128</span>, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                &nbsp;&nbsp;])<br><br>
+                &nbsp;&nbsp;model.compile(optimizer=<span class="string">'adam'</span>, loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> model<br><br>
+
+                baseline_model = create_baseline_model()<br>
+                baseline_model.fit(x_train, y_train, epochs=<span class="number">10</span>, batch_size=<span
+                    class="number">64</span>, verbose=<span class="number">0</span>)<br><br>
+
+                loss, accuracy = baseline_model.evaluate(x_test, y_test, verbose=<span class="number">0</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Baseline Accuracy: {accuracy *
+                    100:.2f}%"</span>)
+            </div>
+            <div class="output-box">Baseline Accuracy: 88.45%</div>
+            <p>Okay, our starting point is ~88.5% accuracy after 10 epochs. Our mission is to beat this!</p>
+        </section>
+
+        <!-- Section 3: Manual Tuning -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Manual Tuning - The Detective Work</h2>
+            <p>Let's start by manually changing one hyperparameter at a time to build our intuition. This will show you
+                why automation is so valuable.</p>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #1: Tune the Learning Rate</h4>
+                <p>The `adam` optimizer has a default learning rate of `0.001`. Is that the best? Copy the baseline
+                    model code and create a new optimizer with a different learning rate. Try a few values. What happens
+                    with a very slow rate (`0.0001`) or a very fast rate (`0.01`)?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for one learning rate</span><br>
+                    fast_optimizer = keras.optimizers.Adam(learning_rate=<span class="number">0.01</span>)<br>
+                    model.compile(optimizer=fast_optimizer, loss=<span
+                        class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                        class="string">'accuracy'</span>])
+                </div>
+            </div>
+
+            <div class="your-turn-box mt-6">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #2: Tune the Number of Neurons</h4>
+                <p>Our baseline has one hidden layer with `128` neurons. Is this optimal? Try changing this number.
+                    Re-run the training with `64` neurons, and then with `256` neurons. Does a wider or narrower layer
+                    work better?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for changing neurons</span><br>
+                    model = keras.Sequential([<br>
+                    &nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                        class="number">28</span>)),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">256</span>, activation=<span
+                        class="string">'relu'</span>), <span class="comment"># Changed this line</span><br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                        class="string">'softmax'</span>)<br>
+                    ])
+                </div>
+            </div>
+
+            <div class="your-turn-box mt-6">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #3: Tune the Number of Layers</h4>
+                <p>What if our model needs to be deeper to understand the data? Try adding a second hidden layer. Re-run
+                    the training with this new architecture. Does a deeper model improve accuracy?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for adding a layer</span><br>
+                    model = keras.Sequential([<br>
+                    &nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                        class="number">28</span>)),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">128</span>, activation=<span
+                        class="string">'relu'</span>),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">64</span>, activation=<span
+                        class="string">'relu'</span>), <span class="comment"># New hidden layer</span><br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                        class="string">'softmax'</span>)<br>
+                    ])
+                </div>
+            </div>
+
+            <p class="mt-6">After trying these, you've probably realized this manual process is slow and painful. You
+                are only changing one thing at a time. What if the best model has a slow learning rate AND two layers?
+                You'd have to test every combination. This is where automated tools shine.</p>
+        </section>
+
+        <!-- Section 4: Automated Tuning with Optuna -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Automated Tuning with Optuna 🤖</h2>
+            <p><strong>Optuna</strong> is a library that automates the search for the best hyperparameters. You define
+                the *range* of values to test, and Optuna intelligently explores that range to find the best
+                combination.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.1 Installing Optuna</h3>
+            <div class="code-block">!pip install optuna</div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.2 Defining the Objective Function</h3>
+            <p>This function tells Optuna how to build and evaluate one version of our model.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> optuna<br><br>
+                <span class="keyword">def</span> objective(trial):<br>
+                &nbsp;&nbsp;<span class="comment"># Suggest a learning rate from 1e-5 to 1e-1 (on a log
+                    scale)</span><br>
+                &nbsp;&nbsp;lr = trial.suggest_float(<span class="string">'learning_rate'</span>, <span
+                    class="number">1e-5</span>, <span class="number">1e-1</span>, log=<span
+                    class="keyword">True</span>)<br>
+                &nbsp;&nbsp;<span class="comment"># Suggest a number of neurons from 32 to 256</span><br>
+                &nbsp;&nbsp;n_units = trial.suggest_int(<span class="string">'n_units'</span>, <span
+                    class="number">32</span>, <span class="number">256</span>)<br><br>
+
+                &nbsp;&nbsp;model = keras.Sequential([<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=n_units, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                &nbsp;&nbsp;])<br><br>
+
+                &nbsp;&nbsp;model.compile(optimizer=keras.optimizers.Adam(learning_rate=lr), loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br>
+                &nbsp;&nbsp;model.fit(x_train, y_train, epochs=<span class="number">10</span>, batch_size=<span
+                    class="number">64</span>, verbose=<span class="number">0</span>)<br><br>
+
+                &nbsp;&nbsp;loss, accuracy = model.evaluate(x_test, y_test, verbose=<span class="number">0</span>)<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> accuracy
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.3 Running the Study</h3>
+            <p>Now we create a "study" and tell Optuna to run our `objective` function. We'll run 20 trials.</p>
+            <div class="code-block">
+                study = optuna.create_study(direction=<span class="string">'maximize'</span>)<br>
+                study.optimize(objective, n_trials=<span class="number">20</span>)<br><br>
+
+                best_trial = study.best_trial<br>
+                <span class="keyword">print</span>(f<span class="string">"Best Accuracy: {best_trial.value}"</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Best Params: {best_trial.params}"</span>)
+            </div>
+            <div class="output-box">Best Accuracy: 0.8915...
+                Best Params: {'learning_rate': 0.0008..., 'n_units': 210}</div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.4 Visualizing the Results</h3>
+            <p>A huge benefit of Optuna is its built-in visualization tools. They help you understand the search.</p>
+            <div class="code-block">
+                <span class="comment"># Shows how the best score improved over trials</span><br>
+                optuna.visualization.plot_optimization_history(study).show()
+            </div>
+            <img src="https://i.imgur.com/8Qp2gYp.png" alt="Optuna Optimization History Plot"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <div class="code-block">
+                <span class="comment"># Shows which hyperparameters were most important</span><br>
+                optuna.visualization.plot_param_importances(study).show()
+            </div>
+            <img src="https://i.imgur.com/k2gE5qH.png" alt="Optuna Parameter Importances Plot"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <p>From these plots, we can see the `learning_rate` was more important than `n_units` in our search, and the
+                best results were found early on.</p>
+        </section>
+
+        <!-- Section 5: Advanced Search -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your Mission - The Ultimate Tuner</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Expand the Search Space</h3>
+                <p class="mb-4">Your goal is to find an even better model by giving Optuna more hyperparameters to
+                    search through. Can you break 90% accuracy?</p>
+                <h4 class="font-semibold text-lg mt-4">Your Task:</h4>
+                <p>Modify the `objective` function to search for three more hyperparameters:</p>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Number of Layers:</strong> Use `trial.suggest_int('n_layers', 1, 3)`. Use a `for` loop
+                        to build the model with the chosen number of layers.</li>
+                    <li><strong>Dropout Rate:</strong> For each hidden layer, add a Dropout layer. Suggest a rate with
+                        `trial.suggest_float('dropout', 0.1, 0.5)`. This helps prevent overfitting.</li>
+                    <li><strong>Choice of Optimizer:</strong> Use `trial.suggest_categorical('optimizer', ['adam',
+                        'rmsprop', 'sgd'])`.</li>
+                </ol>
+                <p class="mt-4">Run the study again with this much larger search space for at least <strong>50
+                        trials</strong>. Report the best accuracy and the full set of best parameters you found.</p>
+            </div>
+        </section>
+
+        <!-- Section 6: Pruning -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Going Further - Pruning Unpromising Trials</h2>
+            <p>Running 50+ trials can be slow. What if a trial is obviously doing poorly after just a few epochs? It's a
+                waste of time to finish training it. <strong>Pruning</strong> is a technique to automatically stop these
+                unpromising trials early.</p>
+            <p>We can add a "callback" to our `.fit()` method that reports the validation accuracy to Optuna after each
+                epoch. If it's not looking good, Optuna will raise an exception and stop the trial.</p>
+            <div class="code-block">
+                <span class="keyword">from</span> optuna.integration <span class="keyword">import</span>
+                TFKerasPruningCallback<br><br>
+                <span class="keyword">def</span> objective_with_pruning(trial):<br>
+                &nbsp;&nbsp;<span class="comment"># ... (Suggest all your hyperparameters here as in the assignment)
+                    ...</span><br>
+                &nbsp;&nbsp;n_layers = trial.suggest_int(<span class="string">'n_layers'</span>, <span
+                    class="number">1</span>, <span class="number">3</span>)<br>
+                &nbsp;&nbsp;lr = trial.suggest_float(<span class="string">'learning_rate'</span>, <span
+                    class="number">1e-4</span>, <span class="number">1e-1</span>, log=<span
+                    class="keyword">True</span>)<br><br>
+
+                &nbsp;&nbsp;model = keras.Sequential()<br>
+                &nbsp;&nbsp;model.add(keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)))<br>
+                &nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span
+                    class="keyword">range</span>(n_layers):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;n_units = trial.suggest_int(f<span class="string">'n_units_l{i}'</span>, <span
+                    class="number">32</span>, <span class="number">256</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;model.add(keras.layers.Dense(n_units, activation=<span
+                    class="string">'relu'</span>))<br>
+                &nbsp;&nbsp;model.add(keras.layers.Dense(<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>))<br><br>
+
+                &nbsp;&nbsp;model.compile(optimizer=keras.optimizers.Adam(lr), loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Add the pruning callback</span><br>
+                &nbsp;&nbsp;pruning_callback = TFKerasPruningCallback(trial, <span
+                    class="string">'val_accuracy'</span>)<br><br>
+
+                &nbsp;&nbsp;history = model.fit(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;x_train, y_train, <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;epochs=<span class="number">20</span>, <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;validation_split=<span class="number">0.2</span>, <span class="comment">#
+                    Pruning requires a validation set</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;callbacks=[pruning_callback], <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;verbose=<span class="number">0</span><br>
+                &nbsp;&nbsp;)<br><br>
+                &nbsp;&nbsp;<span class="comment"># Return the last reported validation accuracy</span><br>
+                &nbsp;&nbsp;<span class="keyword">return</span> history.history[<span
+                    class="string">'val_accuracy'</span>][-<span class="number">1</span>]
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #4: Implement Pruning</h4>
+                <p>Integrate the pruning callback into your full assignment solution. Create a new study and run it. You
+                    should see messages like `Trial 5 pruned` in the output. Does this speed up your search?</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Bonus - The Housing Price Challenge</h2>
+            <p>Classification is one type of problem. Another is <strong>Regression</strong>, where you predict a
+                continuous number. The classic "House Prices" competition on Kaggle is a perfect place to apply your new
+                tuning skills.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a
+                        href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques" target="_blank"
+                        class="text-indigo-600 hover:underline">Kaggle: House Prices - Advanced Regression
+                        Techniques</a></h4>
+                <p>The goal is to predict the final sale price of a house based on 79 features.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Setup:</strong> This dataset is more complex. You will need to handle missing values (e.g.,
+                    fill them with the mean/median) and convert categorical features into numbers (e.g., using
+                    `pd.get_dummies`). This preprocessing is a major part of the challenge.</li>
+                <li><strong>Modify the Objective Function:</strong>
+                    <ul>
+                        <li>The final layer must have **1 neuron** with no activation: `keras.layers.Dense(units=1)`.
+                        </li>
+                        <li>The loss function for regression is typically `mean_squared_error`.</li>
+                        <li>The metric you want to MINIMIZE is `root_mean_squared_error`.</li>
+                        <li>Set `direction='minimize'` when you create your Optuna study.</li>
+                    </ul>
+                </li>
+                <li><strong>Run the Study:</strong> Set up an Optuna study to find the best hyperparameters. Report the
+                    lowest error you achieve.</li>
+            </ol>
+        </section>
+
+        <!-- Section 8: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 8: Submission Guidelines</h2>
+            <p>To complete this lab, please follow these instructions carefully.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus.</li>
+                <li>For the assignment, make sure the output of your final Optuna study (with all hyperparameters and
+                    pruning) is visible, showing the final best value and best parameters.</li>
+                <li>Add a Text Cell at the end summarizing the best accuracy you found and the hyperparameters that
+                    achieved it.</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>
