@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 6: CNN for Image Recognition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 6: 🖼️ CNN for Image Recognition</h1>
+            <p class="text-xl text-gray-600 mt-4">Teaching a computer to "see" with the brain of a computer vision
+                expert.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: TensorFlow, Keras, OpenCV • Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: Why CNNs? -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: A Better Way to See</h2>
+            <p>In our last labs, we used "Dense" neural networks. We flattened our 28x28 images into a long 784-pixel
+                line. This worked, but it's not how we see things. When you look for a cat in a photo, you don't scan
+                pixel by pixel. You look for shapes: pointy ears, whiskers, a cat-like nose. The *spatial relationship*
+                between pixels matters!</p>
+            <p class="mt-2">Flattening an image throws that relationship away. A <strong>Convolutional Neural Network
+                    (CNN)</strong> is designed to preserve it. It acts like a detective, scanning an image with a set of
+                "magnifying glasses" (called filters) to find specific features like edges, corners, textures, and
+                eventually, complex shapes like eyes or wheels.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">The Two Core Ideas of a CNN:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>Convolution (`Conv2D`):</strong> The act of sliding a filter over an image to detect
+                        features and create "feature maps".</li>
+                    <li><strong>Pooling (`MaxPooling2D`):</strong> The act of down-sampling or summarizing the feature
+                        maps to make the model more efficient and robust.</li>
+                </ul>
+            </div>
+            <p class="mt-4">Today, we'll build a CNN to classify images from the <strong>CIFAR-10 dataset</strong>,
+                which contains 10 types of objects like airplanes, cars, birds, and cats.</p>
+        </section>
+
+        <!-- Section 2: Core Building Blocks -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: The CNN Toolkit Explained</h2>
+            <h3 class="text-2xl font-semibold mt-4 mb-2">The Convolutional Layer (`Conv2D`)</h3>
+            <p>Imagine a tiny 3x3 pixel magnifying glass. This is our <strong>filter</strong> (or kernel). This filter
+                contains a pattern, for example, a pattern for a vertical edge. We slide this filter over every part of
+                our main image. When the filter is over a part of the image that matches its pattern, it gives a high
+                activation score. The resulting grid of scores is called a <strong>feature map</strong>.</p>
+            <p>A single `Conv2D` layer doesn't just have one filter; it has many (e.g., 32 or 64). Each filter learns to
+                detect a different feature. One might learn to find horizontal edges, another might find green-to-blue
+                transitions, and another might find a specific curve.</p>
+            <img src="https://i.imgur.com/b6p3aV9.gif" alt="Convolution operation GIF"
+                class="mx-auto my-4 rounded-lg shadow-md">
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">The Pooling Layer (`MaxPooling2D`)</h3>
+            <p>After a convolution, we have a bunch of detailed feature maps. A pooling layer simplifies them. The most
+                common type is <strong>Max Pooling</strong>. It takes a small window (e.g., 2x2 pixels) on the feature
+                map and keeps only the maximum value from that window.</p>
+            <p>Why do this?
+            <ul class="list-disc ml-5">
+                <li>It makes the feature map smaller, reducing the number of parameters and computations in the network.
+                </li>
+                <li>It makes the network more robust. If the "cat ear" feature moves one pixel to the left, the max
+                    pooling output will likely stay the same.</li>
+            </ul>
+            </p>
+        </section>
+
+        <!-- Section 3: Setup and Data Loading -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Loading the CIFAR-10 Dataset</h2>
+            <p>Let's get our hands dirty. We'll load the CIFAR-10 dataset, which is built into Keras.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras<br>
+                <span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br><br>
+
+                <span class="comment"># Load the CIFAR-10 dataset</span><br>
+                (x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()<br><br>
+
+                <span class="comment"># Normalize pixel values to be between 0 and 1</span><br>
+                x_train = x_train.astype(<span class="string">"float32"</span>) / <span class="number">255.0</span><br>
+                x_test = x_test.astype(<span class="string">"float32"</span>) / <span
+                    class="number">255.0</span><br><br>
+
+                <span class="keyword">print</span>(f<span class="string">"x_train shape: {x_train.shape}"</span>) <span
+                    class="comment"># (50000, 32, 32, 3) -> 50k images, 32x32 pixels, 3 color channels (RGB)</span><br>
+                <span class="keyword">print</span>(f<span class="string">"y_train shape: {y_train.shape}"</span>) <span
+                    class="comment"># (50000, 1) -> 50k labels</span>
+            </div>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Visualize the Data</h4>
+                <p>Let's see what these images look like. Use the code below to display the first 25 images. Can you
+                    tell what each one is?</p>
+                <div class="code-block text-sm">
+                    class_names = [<span class="string">'airplane'</span>, <span class="string">'automobile'</span>,
+                    <span class="string">'bird'</span>, <span class="string">'cat'</span>, <span
+                        class="string">'deer'</span>, <span class="string">'dog'</span>, <span
+                        class="string">'frog'</span>, <span class="string">'horse'</span>, <span
+                        class="string">'ship'</span>, <span class="string">'truck'</span>]<br><br>
+                    plt.figure(figsize=(<span class="number">10</span>,<span class="number">10</span>))<br>
+                    <span class="keyword">for</span> i <span class="keyword">in</span> <span
+                        class="keyword">range</span>(<span class="number">25</span>):<br>
+                    &nbsp;&nbsp;plt.subplot(<span class="number">5</span>,<span class="number">5</span>,i+<span
+                        class="number">1</span>)<br>
+                    &nbsp;&nbsp;plt.xticks([])<br>
+                    &nbsp;&nbsp;plt.yticks([])<br>
+                    &nbsp;&nbsp;plt.grid(<span class="keyword">False</span>)<br>
+                    &nbsp;&nbsp;plt.imshow(x_train[i])<br>
+                    &nbsp;&nbsp;plt.xlabel(class_names[y_train[i][<span class="number">0</span>]])<br>
+                    plt.show()
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Building the CNN -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Assembling Our First CNN</h2>
+            <p>Let's build a simple CNN. A common pattern is to stack a few `Conv2D` and `MaxPooling2D` layers, then
+                follow it up with a `Flatten` layer and a few `Dense` layers for classification.</p>
+            <div class="code-block">
+                model = keras.Sequential([<br>
+                &nbsp;&nbsp;<span class="comment"># Input Layer - specify the shape of our images</span><br>
+                &nbsp;&nbsp;keras.Input(shape=(<span class="number">32</span>, <span class="number">32</span>, <span
+                    class="number">3</span>)),<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Convolutional Block 1</span><br>
+                &nbsp;&nbsp;layers.Conv2D(filters=<span class="number">32</span>, kernel_size=(<span
+                    class="number">3</span>, <span class="number">3</span>), activation=<span
+                    class="string">'relu'</span>, padding=<span class="string">'same'</span>),<br>
+                &nbsp;&nbsp;layers.MaxPooling2D(pool_size=(<span class="number">2</span>, <span
+                    class="number">2</span>)),<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Convolutional Block 2</span><br>
+                &nbsp;&nbsp;layers.Conv2D(filters=<span class="number">64</span>, kernel_size=(<span
+                    class="number">3</span>, <span class="number">3</span>), activation=<span
+                    class="string">'relu'</span>, padding=<span class="string">'same'</span>),<br>
+                &nbsp;&nbsp;layers.MaxPooling2D(pool_size=(<span class="number">2</span>, <span
+                    class="number">2</span>)),<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Classifier Head</span><br>
+                &nbsp;&nbsp;layers.Flatten(),<br>
+                &nbsp;&nbsp;layers.Dense(<span class="number">128</span>, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;layers.Dense(<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                ])<br><br>
+
+                model.summary()
+            </div>
+            <div class="output-box">Model: "sequential"
+                _________________________________________________________________
+                Layer (type) Output Shape Param #
+                =================================================================
+                conv2d (Conv2D) (None, 32, 32, 32) 896
+                max_pooling2d (MaxPooling2 (None, 16, 16, 32) 0
+                D)
+                conv2d_1 (Conv2D) (None, 16, 16, 64) 18496
+                max_pooling2d_1 (MaxPoolin (None, 8, 8, 64) 0
+                g2D)
+                flatten (Flatten) (None, 4096) 0
+                dense (Dense) (None, 128) 524416
+                dense_1 (Dense) (None, 10) 1290
+                =================================================================
+                Total params: 545,098
+                Trainable params: 545,098
+                Non-trainable params: 0
+            </div>
+            <p><strong>Detective's Note:</strong> Look at the output shapes. After the first `MaxPooling2D` layer, the
+                image dimensions are halved from 32x32 to 16x16. After the second, they are halved again to 8x8. The
+                `Flatten` layer then unrolls this `8x8x64` tensor into a long vector of `4096` features to feed into the
+                classifier.</p>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Experiment with Kernel Size</h4>
+                <p>The `kernel_size` determines the size of the "magnifying glass." We used `(3, 3)`. Rebuild the model
+                    but change the `kernel_size` in the first `Conv2D` layer to `(5, 5)`. Run `model.summary()` again.
+                    How does this change the number of parameters in that layer? Why do you think that is?</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Training and Evaluation -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Training Our CNN</h2>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Choose an Optimizer</h4>
+                <p>We've been using `'adam'`, which is a great default. But what about others? Before running the main
+                    training, compile the model with a different optimizer, like `'SGD'`. Does it train faster or
+                    slower? Is the final accuracy better or worse after 15 epochs?</p>
+                <div class="code-block text-sm">
+                    model.compile(optimizer=<span class="string">'sgd'</span>, <span class="comment"># Try this
+                        one!</span>
+                    loss=<span class="string">'sparse_categorical_crossentropy'</span>,
+                    metrics=[<span class="string">'accuracy'</span>])
+                </div>
+            </div>
+
+            <p class="mt-4">Now, let's compile with Adam and train the model properly.</p>
+            <div class="code-block">
+                model.compile(optimizer=<span class="string">'adam'</span>,
+                loss=<span class="string">'sparse_categorical_crossentropy'</span>,
+                metrics=[<span class="string">'accuracy'</span>])<br><br>
+
+                history = model.fit(x_train, y_train, epochs=<span class="number">15</span>,
+                validation_data=(x_test, y_test))
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Plot the Results</h4>
+                <p>Training can take a few minutes. Once it's done, use the code below to plot the training history.
+                    Does the validation accuracy improve over time? Do you see any signs of overfitting (where training
+                    accuracy keeps going up but validation accuracy flattens or goes down)?</p>
+                <div class="code-block text-sm">
+                    plt.plot(history.history[<span class="string">'accuracy'</span>], label=<span
+                        class="string">'accuracy'</span>)<br>
+                    plt.plot(history.history[<span class="string">'val_accuracy'</span>], label = <span
+                        class="string">'val_accuracy'</span>)<br>
+                    plt.xlabel(<span class="string">'Epoch'</span>)<br>
+                    plt.ylabel(<span class="string">'Accuracy'</span>)<br>
+                    plt.ylim([<span class="number">0.5</span>, <span class="number">1</span>])<br>
+                    plt.legend(loc=<span class="string">'lower right'</span>)<br>
+                    plt.show()
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Visualizing What the CNN Learns -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Peeking Inside the Black Box</h2>
+            <p>Let's do something amazing: let's visualize the feature maps from our convolutional layers to see what
+                the network is actually detecting.</p>
+            <div class="code-block">
+                <span class="comment"># Get the outputs of the first four layers</span><br>
+                layer_outputs = [layer.output <span class="keyword">for</span> layer <span class="keyword">in</span>
+                model.layers[:<span class="number">4</span>]]<br>
+                activation_model = keras.Model(inputs=model.input, outputs=layer_outputs)<br><br>
+
+                <span class="comment"># Pick an image to visualize (e.g., the 7th image, a truck)</span><br>
+                img_tensor = np.expand_dims(x_test[<span class="number">6</span>], axis=<span
+                    class="number">0</span>)<br>
+                activations = activation_model.predict(img_tensor)<br><br>
+
+                <span class="comment"># Function to plot a feature map</span><br>
+                <span class="keyword">def</span> display_activation(activations, col_size, row_size, act_index): <br>
+                &nbsp;&nbsp;activation = activations[act_index]<br>
+                &nbsp;&nbsp;activation_index=<span class="number">0</span><br>
+                &nbsp;&nbsp;fig, ax = plt.subplots(row_size, col_size, figsize=(row_size*<span
+                    class="number">2.5</span>,col_size*<span class="number">1.5</span>))<br>
+                &nbsp;&nbsp;<span class="keyword">for</span> row <span class="keyword">in</span> <span
+                    class="keyword">range</span>(<span class="number">0</span>,row_size):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">for</span> col <span class="keyword">in</span> <span
+                    class="keyword">range</span>(<span class="number">0</span>,col_size):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ax[row][col].imshow(activation[<span class="number">0</span>, :, :,
+                activation_index], cmap=<span class="string">'viridis'</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;activation_index += <span class="number">1</span><br><br>
+
+                <span class="comment"># Display the 32 feature maps from the first Conv2D layer</span><br>
+                <span class="keyword">print</span>(<span class="string">"First Conv Layer Activations"</span>)<br>
+                display_activation(activations, <span class="number">8</span>, <span class="number">4</span>, <span
+                    class="number">0</span>)<br><br>
+            </div>
+            <p>When you run this code, you will see grids of images. Each small image is a feature map. Notice how the
+                first layer's maps are very basic (simple edges, colors). </p>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Visualize Different Features</h4>
+                <p>The code above shows the activations for a truck. Find an image of a cat in the `x_test` set (class
+                    name index 3). Change `x_test[6]` to the index of your cat image and re-run the cell. Do the feature
+                    maps look different? Can you spot any filters that seem to be activating on "cat-like" features
+                    (like ears or fur texture)?</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Your Mission - Build a Better CNN</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Improve the CIFAR-10 Classifier</h3>
+                <p class="mb-4">Our simple CNN gets around 70-75% accuracy. Your goal is to improve this! Can you get it
+                    above 80%? Create a new, better model architecture in your Colab notebook.</p>
+                <h4 class="font-semibold text-lg mt-4">Ideas to Try:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Go Deeper:</strong> Add a third convolutional block (`Conv2D` + `MaxPooling2D`). Deeper
+                        networks can learn more complex hierarchies of features.</li>
+                    <li><strong>More Filters:</strong> Instead of `32` and `64` filters, try `64` and `128`, or even
+                        more.</li>
+                    <li><strong>Use Dropout:</strong> Add `layers.Dropout(0.25)` after your pooling layers or
+                        `layers.Dropout(0.5)` after your dense layers to fight overfitting.</li>
+                    <li><strong>Batch Normalization:</strong> Add `layers.BatchNormalization()` after `Conv2D` or
+                        `Dense` layers (before activation). This can help stabilize and speed up training.</li>
+                </ol>
+                <p class="mt-4">For your final submission, present your best model. Train it for at least 20 epochs,
+                    plot its history, and report its final test accuracy.</p>
+            </div>
+        </section>
+
+        <!-- Section 8: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 8: Bonus - Cats vs. Dogs</h2>
+            <p>The "Cats vs. Dogs" Kaggle competition is a classic entrypoint into real-world image classification.
+                Unlike CIFAR-10, the images are of different sizes and are stored in folders on your disk.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a href="https://www.kaggle.com/c/dogs-vs-cats" target="_blank"
+                        class="text-indigo-600 hover:underline">Kaggle: Dogs vs. Cats</a></h4>
+                <p>The goal is simple: given an image, predict whether it's a cat or a dog. This is a binary
+                    classification problem.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Data Loading:</strong> You cannot load this dataset directly like CIFAR-10. You need to
+                    download the data from Kaggle and use `tf.keras.utils.image_dataset_from_directory` to load the
+                    images. This is a critical skill for working with your own datasets. You will also need to resize
+                    all images to a standard size (e.g., 180x180).</li>
+                <li><strong>Data Augmentation:</strong> To prevent overfitting and make your model more robust, create a
+                    data augmentation layer: `keras.Sequential([layers.RandomFlip("horizontal"),
+                    layers.RandomRotation(0.1),])`. Place this at the beginning of your model.</li>
+                <li><strong>Adapt your Model:</strong> Your final `Dense` layer must have only **1 neuron** and use the
+                    **`'sigmoid'` activation function**. The loss function should be `'binary_crossentropy'`.</li>
+                <li><strong>Train and Evaluate:</strong> Build the best CNN you can and see how high you can get your
+                    accuracy!</li>
+            </ol>
+        </section>
+
+        <!-- Section 9: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 9: Submission Guidelines</h2>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus.</li>
+                <li>For the assignment, present the code for your final, best model. Include the `model.summary()`
+                    output.</li>
+                <li>Show the code used to train your model and the plot of its training/validation history.</li>
+                <li>Add a Text Cell at the end reporting the final test accuracy and summarizing the architectural
+                    choices you made to achieve it.</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>
