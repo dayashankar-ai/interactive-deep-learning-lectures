@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 4: MNIST Digit Classification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 4: MNIST Digit Classification</h1>
+            <p class="text-xl text-gray-600 mt-4">🔢 Teach a computer to read handwriting using professional AI tools.
+            </p>
+            <p class="text-md text-gray-500 mt-2">Libraries: TensorFlow, Keras • Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: The Next Step -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: From "Scratch" to Pro Tools</h2>
+            <p>In the last lab, you built a neural network from scratch using NumPy. You manually coded forward
+                propagation, backward propagation, and the weight updates. It was a fantastic way to learn what's
+                happening under the hood!</p>
+            <p class="mt-2">But in the real world, data scientists don't do that every time. They use powerful libraries
+                that automate the process. Today, we'll use <strong>TensorFlow</strong> and <strong>Keras</strong>, the
+                most popular tools for building neural networks.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Our New Toolkit:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>TensorFlow:</strong> A powerful library from Google for high-performance numerical
+                        computation. Think of it as the engine of our race car.</li>
+                    <li><strong>Keras:</strong> A user-friendly API that runs on top of TensorFlow. It provides simple,
+                        building-block-like commands to create neural networks. Think of it as the easy-to-use steering
+                        wheel and dashboard for our race car. You tell Keras what you want, and it handles all the
+                        complex TensorFlow engine work for you.</li>
+                </ul>
+            </div>
+            <p class="mt-4">Our mission is to solve the "Hello, World!" of computer vision: classifying the
+                <strong>MNIST dataset</strong> of handwritten digits.</p>
+        </section>
+
+        <!-- Section 2: Loading the Data -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Getting the Data</h2>
+            <p>Keras makes it incredibly easy to access famous datasets like MNIST.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br><br>
+
+                <span class="comment"># Load the MNIST dataset from Keras</span><br>
+                (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+            </div>
+            <p>Just like that, we have our data! It's already split into two parts:</p>
+            <ul class="list-disc ml-5">
+                <li><strong>Training set (`x_train`, `y_train`):</strong> The data our model will learn from (60,000
+                    images).</li>
+                <li><strong>Testing set (`x_test`, `y_test`):</strong> The data we will use to evaluate our model's
+                    performance on images it has never seen before (10,000 images).</li>
+            </ul>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Let's inspect our data. Use the `.shape` attribute to see the dimensions of the data. In a new Colab
+                    cell, type and run the following:</p>
+                <div class="code-block text-sm">
+                    <span class="keyword">print</span>(f<span class="string">"x_train shape:
+                        {x_train.shape}"</span>)<br>
+                    <span class="keyword">print</span>(f<span class="string">"y_train shape:
+                        {y_train.shape}"</span>)<br>
+                    <span class="keyword">print</span>(f<span class="string">"x_test shape: {x_test.shape}"</span>)<br>
+                    <span class="keyword">print</span>(f<span class="string">"y_test shape: {y_test.shape}"</span>)
+                </div>
+                <p class="mt-2">What does `(60000, 28, 28)` mean? It means we have 60,000 images, and each image is a
+                    28x28 grid of pixels.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Data Preprocessing -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Preparing the Evidence</h2>
+            <p>Before we feed our data to the network, we need to prepare it. This is one of the most important steps in
+                any machine learning project.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.1 Visualizing the Data</h3>
+            <p>Let's look at one of the images to see what we're working with.</p>
+            <div class="code-block">
+                <span class="comment"># Display the first image in the training data</span><br>
+                plt.imshow(x_train[<span class="number">0</span>], cmap=<span class="string">'gray'</span>)<br>
+                plt.show()<br>
+                <span class="keyword">print</span>(f<span class="string">"The label for the first image is:
+                    {y_train[0]}"</span>)
+            </div>
+            <img src="https://placehold.co/200x200/eef2ff/6366f1?text=A+5" alt="Handwritten digit 5"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <div class="output-box">The label for the first image is: 5</div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.2 Normalizing the Pixel Values</h3>
+            <p>The pixel values in our images range from 0 (black) to 255 (white). Neural networks work best when input
+                values are small, typically between 0 and 1. So, we'll normalize the data by dividing every pixel value
+                by 255.</p>
+            <div class="code-block">
+                <span class="comment"># Normalize pixel values to be between 0 and 1</span><br>
+                x_train = x_train / <span class="number">255.0</span><br>
+                x_test = x_test / <span class="number">255.0</span>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>After running the code above, print the first pixel of the first image to confirm it's been
+                    normalized. Type `print(x_train[0][10][10])`. You should see a number between 0 and 1, not a large
+                    number like 192.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">3.3 Flattening the Images</h3>
+            <p>Our network will use simple ("Dense") layers that expect a 1D list of numbers, not a 2D grid. We need to
+                "flatten" each 28x28 image into a single 1x784 array.</p>
+            <div class="code-block">
+                <span class="comment"># Flatten the images from 28x28 to 784</span><br>
+                x_train = x_train.reshape(-<span class="number">1</span>, <span class="number">28</span>*<span
+                    class="number">28</span>)<br>
+                x_test = x_test.reshape(-<span class="number">1</span>, <span class="number">28</span>*<span
+                    class="number">28</span>)<br><br>
+                <span class="keyword">print</span>(f<span class="string">"New x_train shape: {x_train.shape}"</span>)
+            </div>
+            <div class="output-box">New x_train shape: (60000, 784)</div>
+        </section>
+
+        <!-- Section 4: Building the Model -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Assembling the Brain</h2>
+            <p>Now for the fun part! With Keras, building a neural network is like stacking LEGO blocks. We'll use a
+                `Sequential` model, which means a simple, layer-by-layer stack.</p>
+            <div class="code-block">
+                model = keras.Sequential([<br>
+                &nbsp;&nbsp;<span class="comment"># Input Layer: We need to tell the model what shape the input data is
+                    (784 features)</span><br>
+                &nbsp;&nbsp;keras.layers.InputLayer(input_shape=(<span class="number">784</span>,)),<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Hidden Layer 1: A "Dense" layer means every neuron is connected to
+                    every neuron in the previous layer.</span><br>
+                &nbsp;&nbsp;<span class="comment"># We'll use 128 neurons. The more neurons, the more complex patterns
+                    it can learn.</span><br>
+                &nbsp;&nbsp;<span class="comment"># 'relu' (Rectified Linear Unit) is a common and effective activation
+                    function.</span><br>
+                &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">128</span>, activation=<span
+                    class="string">'relu'</span>),<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Output Layer: It must have 10 neurons, one for each digit
+                    (0-9).</span><br>
+                &nbsp;&nbsp;<span class="comment"># 'softmax' activation is perfect for classification. It turns the
+                    outputs into probabilities,</span><br>
+                &nbsp;&nbsp;<span class="comment"># so all 10 neuron outputs will add up to 1. The highest probability
+                    is the model's prediction.</span><br>
+                &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                ])
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">Model Summary</h3>
+            <p>Let's print a summary of our architecture.</p>
+            <div class="code-block">
+                model.summary()
+            </div>
+            <div class="output-box">Model: "sequential"
+                _________________________________________________________________
+                Layer (type) Output Shape Param #
+                =================================================================
+                dense (Dense) (None, 128) 100480
+
+                dense_1 (Dense) (None, 10) 1290
+
+                =================================================================
+                Total params: 101,770
+                Trainable params: 101,770
+                Non-trainable params: 0
+                _________________________________________________________________</div>
+            <p><strong>Detective's Note:</strong> Look at "Param #". The first layer has 100,480 parameters! That's `784
+                inputs * 128 neurons + 128 biases`. Imagine calculating the gradient for all of those by hand! This is
+                why we use Keras.</p>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>What would the `Param #` be for the first dense layer if you changed it from `128` neurons to `64`
+                    neurons? Calculate it first (`784 * 64 + 64`), then change the code and run `model.summary()` to
+                    check your answer.</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Compiling and Training -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Teaching the Brain</h2>
+            <h3 class="text-2xl font-semibold mt-4 mb-2">5.1 Compiling the Model</h3>
+            <p>Before we can train, we need to "compile" the model. This is where we define the learning process.</p>
+            <div class="code-block">
+                model.compile(<br>
+                &nbsp;&nbsp;<span class="comment"># Optimizer: This is the algorithm that performs the gradient descent.
+                    'adam' is a popular and effective choice.</span><br>
+                &nbsp;&nbsp;optimizer=<span class="string">'adam'</span>,<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Loss Function: This measures how wrong the model's predictions
+                    are.</span><br>
+                &nbsp;&nbsp;<span class="comment"># 'sparse_categorical_crossentropy' is used when you have multiple
+                    classes and the labels are integers (like 0, 1, 2...).</span><br>
+                &nbsp;&nbsp;loss=<span class="string">'sparse_categorical_crossentropy'</span>,<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Metrics: This is what we want to monitor during training. We want to
+                    see the 'accuracy'.</span><br>
+                &nbsp;&nbsp;metrics=[<span class="string">'accuracy'</span>]<br>
+                )
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">5.2 Training the Model</h3>
+            <p>Now we're ready to train! The `.fit()` method is where the magic happens. It will show the data to the
+                network, calculate the loss, and update the weights over and over.</p>
+            <div class="code-block">
+                <span class="comment"># Train the model</span><br>
+                history = model.fit(<br>
+                &nbsp;&nbsp;x_train, y_train,<br>
+                &nbsp;&nbsp;epochs=<span class="number">5</span>, <span class="comment"># An epoch is one full pass
+                    through the entire training dataset.</span><br>
+                &nbsp;&nbsp;batch_size=<span class="number">32</span>, <span class="comment"># Process the data in
+                    batches of 32 images at a time.</span><br>
+                &nbsp;&nbsp;validation_split=<span class="number">0.2</span> <span class="comment"># Use 20% of training
+                    data for validation during training.</span><br>
+                )
+            </div>
+            <div class="output-box">Epoch 1/5
+                1500/1500 [==============================] - 5s 3ms/step - loss: 0.2871 - accuracy: 0.9184 - val_loss:
+                0.1554 - val_accuracy: 0.9557
+                Epoch 2/5
+                1500/1500 [==============================] - 4s 3ms/step - loss: 0.1268 - accuracy: 0.9631 - val_loss:
+                0.1119 - val_accuracy: 0.9673
+                ...
+                Epoch 5/5
+                1500/1500 [==============================] - 4s 3ms/step - loss: 0.0519 - accuracy: 0.9840 - val_loss:
+                0.0818 - val_accuracy: 0.9753
+            </div>
+            <p>Wow! After just 5 passes through the data, our model is achieving over <strong>97% accuracy</strong> on
+                the validation set! This is the power of TensorFlow and Keras.</p>
+        </section>
+
+        <!-- Section 6: Evaluation -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Grading the Test</h2>
+            <p>Our model did well on the validation data, but the real test is how it performs on the `x_test` set,
+                which it has never seen at all.</p>
+            <div class="code-block">
+                test_loss, test_accuracy = model.evaluate(x_test, y_test)<br>
+                <span class="keyword">print</span>(f<span class="string">"\nTest Accuracy:
+                    {test_accuracy*100:.2f}%"</span>)
+            </div>
+            <div class="output-box">313/313 [==============================] - 1s 2ms/step - loss: 0.0768 - accuracy:
+                0.9759
+
+                Test Accuracy: 97.59%</div>
+            <p>Amazing! Now let's make a prediction on a single image and see the result.</p>
+            <div class="code-block">
+                <span class="comment"># Select an image from the test set</span><br>
+                test_image = x_test[<span class="number">0</span>]<br>
+
+                <span class="comment"># The model expects a batch of images, so we add an extra dimension</span><br>
+                test_image_batch = np.expand_dims(test_image, axis=<span class="number">0</span>)<br>
+
+                <span class="comment"># Make a prediction</span><br>
+                prediction = model.predict(test_image_batch)<br>
+                predicted_label = np.argmax(prediction)<br><br>
+
+                <span class="comment"># Show the image and the prediction</span><br>
+                plt.imshow(test_image.reshape(<span class="number">28</span>,<span class="number">28</span>), cmap=<span
+                    class="string">'gray'</span>)<br>
+                plt.show()<br>
+                <span class="keyword">print</span>(f<span class="string">"Model prediction:
+                    {predicted_label}"</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Actual label: {y_test[0]}"</span>)
+            </div>
+            <img src="https://placehold.co/200x200/eef2ff/6366f1?text=A+7" alt="Handwritten digit 7"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <div class="output-box">Model prediction: 7
+                Actual label: 7</div>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Copy the prediction code block above. Change the index from `[0]` to another number (e.g., `[25]`) to
+                    test a different image. Does the model get it right?</p>
+            </div>
+        </section>
+
+        <!-- Section 7: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Your Mission - Improve the Model</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Become an AI Architect</h3>
+                <p class="mb-4">Your goal is to improve the test accuracy of our model. Can you get it above 98%?
+                    Experiment with the following ideas in your Colab notebook. Remember to rebuild and re-train the
+                    model after each change.</p>
+                <h4 class="font-semibold text-lg mt-4">Ideas to Try:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>More Neurons:</strong> Change the number of units in the first Dense layer from `128` to
+                        `256`. Does a bigger layer help?</li>
+                    <li><strong>Deeper Network:</strong> Add a second hidden Dense layer. After the first `Dense(128,
+                        ...)` layer, add another one, e.g., `keras.layers.Dense(units=64, activation='relu')`. Does
+                        making the network deeper improve performance?</li>
+                    <li><strong>More Training:</strong> Increase the number of `epochs` from `5` to `10`. Does giving
+                        the model more time to learn help?</li>
+                    <li><strong>The Dropout Technique:</strong> Overfitting is when a model learns the training data too
+                        well but fails on new data. A "Dropout" layer randomly "turns off" some neurons during training
+                        to prevent this. Try adding `keras.layers.Dropout(0.2)` after your Dense layer(s). This will
+                        randomly drop 20% of the neurons.</li>
+                </ol>
+                <p class="mt-4">For each experiment, record the final test accuracy in a text cell. Which combination of
+                    changes gave you the best result?</p>
+            </div>
+        </section>
+
+        <!-- Section 8: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 8: Bonus - Fashion Police</h2>
+            <p>Now that you can classify digits, let's try something a bit harder: classifying images of clothing! The
+                <a href="https://www.kaggle.com/datasets/zalando-research/fashionmnist" target="_blank"
+                    class="text-indigo-600 hover:underline"><strong>Fashion-MNIST</strong></a> dataset has the exact
+                same format as MNIST (784 pixels, 10 classes), but it's a more challenging problem.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Kaggle & The Fashion-MNIST Dataset</h4>
+                <p>This dataset is also built into Keras, making it easy to start. The labels are numbers from 0 to 9,
+                    corresponding to different clothing items like 'T-shirt/top', 'Trouser', 'Pullover', etc.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Load the Data:</strong> In a new notebook, use `(x_train, y_train), (x_test, y_test) =
+                    keras.datasets.fashion_mnist.load_data()` to get the data.</li>
+                <li><strong>Build and Train:</strong> Copy your best model architecture from the MNIST assignment.
+                    Preprocess the fashion data in the same way (normalize, flatten) and train your network on it.</li>
+                <li><strong>Evaluate:</strong> What test accuracy can you achieve on this harder dataset? It will likely
+                    be lower than what you got on MNIST. Can you tweak your model to get the best possible accuracy?
+                </li>
+                </p>
+        </section>
+
+        <!-- Section 9: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 9: Submission Guidelines</h2>
+            <p>To complete this lab, please follow these instructions carefully.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus.</li>
+                <li>In the assignment section, use <strong>Text Cells</strong> to clearly label each experiment you run
+                    and to report the final test accuracy for each one. Conclude with which model performed the best.
+                </li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click the <strong>"Share"</strong>
+                    button in the top right.</li>
+                <li>In the popup, under "General access", change "Restricted" to <strong>"Anyone with the link"</strong>
+                    and ensure the role is set to <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>
