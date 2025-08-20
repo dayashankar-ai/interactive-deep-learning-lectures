@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 3: Neural Network from Scratch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 3: Neural Network from Scratch</h1>
+            <p class="text-xl text-gray-600 mt-4">🧮 Build your own artificial brain, one line of code at a time.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: Pure Python, NumPy • Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: The Big Idea -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: The Goal - Teaching a Robot to Think</h2>
+            <p>Imagine you have a tiny robot. You want to teach it a simple game. The game has four possible scenarios,
+                based on two switches, and you want the robot to output the correct answer (0 or 1).</p>
+            <p class="mt-2">How can a robot "learn"? We can't just write a bunch of `if/else` rules, because that's not
+                learning, that's just following instructions. We want the robot to figure out the rules on its own, just
+                by looking at examples.</p>
+            <p class="mt-2">This is the core idea of a <strong>Neural Network</strong>. It's a computer program,
+                inspired by the human brain, that can learn from data.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Our Plan:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>The Brain Cell:</strong> We'll start by building a single artificial neuron, called a
+                        <strong>Perceptron</strong>.</li>
+                    <li><strong>The Learning Rule:</strong> We'll give it a way to measure its mistakes and correct
+                        them, a process called <strong>Gradient Descent</strong>.</li>
+                    <li><strong>Connecting The Pieces:</strong> We'll put it all together to create a simple, working
+                        Neural Network that learns to solve the puzzle.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 2: The Perceptron -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: The Simplest Brain Cell (The Perceptron)</h2>
+            <p>A real brain neuron gets signals from other neurons and decides whether to fire its own signal. An
+                artificial neuron, or <strong>Perceptron</strong>, does the same thing with numbers.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">How a Perceptron Works:</h4>
+                <ol class="list-decimal ml-5 space-y-1">
+                    <li><strong>It takes inputs:</strong> These are the pieces of information for our puzzle.</li>
+                    <li><strong>It has weights:</strong> Each input is given an "importance" score, called a weight. A
+                        higher weight means that input is more important for the final decision.</li>
+                    <li><strong>It calculates a weighted sum:</strong> It multiplies each input by its weight and adds
+                        them all up.</li>
+                    <li><strong>It uses an activation function:</strong> It passes the sum through a final function to
+                        make a decision. The simplest one is a "Step Function": if the sum is greater than a threshold,
+                        output 1 (fire!), otherwise output 0 (don't fire!).</li>
+                </ol>
+            </div>
+            <p>Let's code a simple perceptron in pure Python. Imagine we're teaching it to decide if you should go for a
+                walk. The inputs are `is_sunny` (1 for yes, 0 for no) and `is_warm` (1 for yes, 0 for no).</p>
+
+            <div class="code-block">
+                <span class="keyword">def</span> perceptron(inputs, weights, threshold):<br>
+                &nbsp;&nbsp;<span class="comment"># Calculate the weighted sum</span><br>
+                &nbsp;&nbsp;weighted_sum = <span class="number">0</span><br>
+                &nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span
+                    class="keyword">range</span>(<span class="keyword">len</span>(inputs)):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;weighted_sum += inputs[i] * weights[i]<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Apply the step function</span><br>
+                &nbsp;&nbsp;<span class="keyword">if</span> weighted_sum > threshold:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">1</span> <span
+                    class="comment"># Fire! (Go for a walk)</span><br>
+                &nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="number">0</span> <span
+                    class="comment"># Don't fire. (Stay inside)</span><br><br>
+
+                <span class="comment"># Inputs: [is_sunny, is_warm]</span><br>
+                inputs = [<span class="number">1</span>, <span class="number">1</span>] <span class="comment"># It's
+                    sunny and warm</span><br><br>
+
+                <span class="comment"># Weights: Let's say warmth is more important than sunniness</span><br>
+                weights = [<span class="number">0.5</span>, <span class="number">0.8</span>]<br><br>
+
+                <span class="comment"># Threshold: Our decision boundary</span><br>
+                threshold = <span class="number">1.0</span><br><br>
+
+                output = perceptron(inputs, weights, threshold)<br>
+                <span class="keyword">print</span>(f<span class="string">"Decision: {output}"</span>)
+            </div>
+            <div class="output-box">Decision: 1</div>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Copy the code above into a Colab cell.</p>
+                <ol class="list-decimal list-inside ml-2">
+                    <li>What happens if you change the `inputs` to `[0, 1]` (not sunny, but warm)? Does the robot still
+                        decide to go for a walk?</li>
+                    <li>What happens if you change the `weights` to `[0.8, 0.1]` making sunniness more important?</li>
+                    <li>What happens if you increase the `threshold` to `1.5`?</li>
+                </ol>
+            </div>
+            <p class="mt-4">This is cool, but how do we find the right `weights` and `threshold`? We could guess
+                forever, or we could teach the robot to find them itself. This is where learning comes in.</p>
+        </section>
+
+        <!-- Section 3: Learning From Mistakes -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: How a Neural Network Learns</h2>
+            <p>Our network learns by doing three things over and over:</p>
+            <ol>
+                <li><strong>Make a guess (Forward Propagation):</strong> It takes the inputs and passes them through the
+                    network to get an output.</li>
+                <li><strong>Measure the mistake (Calculate Loss):</strong> It compares its guess to the correct answer.
+                    The difference is the "error" or "loss." A big error means a bad guess.</li>
+                <li><strong>Correct the weights (Backward Propagation & Gradient Descent):</strong> This is the magic
+                    step. It works backward from the error and figures out how much to "blame" each weight. It then
+                    nudges each weight in the right direction to make the error smaller next time.</li>
+            </ol>
+            <p>Imagine you are blindfolded in a hilly field and want to find the lowest point. This process is like
+                that:</p>
+            <ul class="list-disc ml-5 space-y-1">
+                <li>You take a small step in one direction (this is our current `weight`).</li>
+                <li>You feel the ground to see if you went up or down (this is our `loss`). The slope of the ground is
+                    the `gradient`.</li>
+                <li>If you went up (error increased), you know to take your next step in the opposite direction.</li>
+                <li>The size of your step is the `learning_rate`. A tiny step means slow progress; a giant step might
+                    overshoot the lowest point entirely.</li>
+            </ul>
+            <p>This process of following the slope downhill is called <strong>Gradient Descent</strong>.</p>
+        </section>
+
+        <!-- Section 4: Building with NumPy -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Building Our First Real Network with NumPy</h2>
+            <p>Doing math with Python lists is slow. We'll now use <strong>NumPy</strong>, a library that is super-fast
+                at handling arrays of numbers, which is exactly what our inputs and weights are. We will also switch to
+                a smoother activation function called the <strong>Sigmoid function</strong>. Unlike the harsh 0-or-1
+                step function, Sigmoid squishes any number into a smooth curve between 0 and 1. This smoothness is
+                essential for gradient descent to work properly.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.1 The Setup</h3>
+            <p>We'll tackle a simple problem. Given an input `[0, 0, 1]`, the correct output is `0`. Given `[1, 1, 1]`,
+                the output is `1`. Can our network learn this pattern?</p>
+
+            <div class="code-block">
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br><br>
+
+                <span class="comment"># The Sigmoid function and its derivative</span><br>
+                <span class="keyword">def</span> sigmoid(x):<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> <span class="number">1</span> / (<span
+                    class="number">1</span> + np.exp(-x))<br><br>
+
+                <span class="keyword">def</span> sigmoid_derivative(x):<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> x * (<span class="number">1</span> - x)<br><br>
+
+                <span class="comment"># Our training data</span><br>
+                training_inputs = np.array([[<span class="number">0</span>, <span class="number">0</span>, <span
+                    class="number">1</span>], [<span class="number">1</span>, <span class="number">1</span>, <span
+                    class="number">1</span>], [<span class="number">1</span>, <span class="number">0</span>, <span
+                    class="number">1</span>], [<span class="number">0</span>, <span class="number">1</span>, <span
+                    class="number">1</span>]])<br>
+                training_outputs = np.array([[[<span class="number">0</span>], [<span class="number">1</span>], [<span
+                    class="number">1</span>], [<span class="number">0</span>]]]).T <span class="comment"># .T transposes
+                    it to a column</span><br><br>
+
+                <span class="comment"># Seed the random numbers to make calculations deterministic (good for
+                    debugging)</span><br>
+                np.random.seed(<span class="number">1</span>)<br><br>
+
+                <span class="comment"># Initialize weights randomly with mean 0</span><br>
+                synaptic_weights = <span class="number">2</span> * np.random.random((<span class="number">3</span>,
+                <span class="number">1</span>)) - <span class="number">1</span><br><br>
+
+                <span class="keyword">print</span>(<span class="string">'Random starting synaptic weights:'</span>)<br>
+                <span class="keyword">print</span>(synaptic_weights)
+            </div>
+            <div class="output-box">Random starting synaptic weights:
+                [[-0.16595599]
+                [ 0.44064899]
+                [-0.99977125]]</div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.2 The Training Loop</h3>
+            <p>This is where the learning happens! We'll show the network the data 10,000 times (called "epochs"). In
+                each epoch, it will guess, check its error, and adjust its weights.</p>
+
+            <div class="code-block">
+                <span class="keyword">for</span> iteration <span class="keyword">in</span> <span
+                    class="keyword">range</span>(<span class="number">10000</span>):<br>
+                &nbsp;&nbsp;<span class="comment"># Step 1: Forward Propagation</span><br>
+                &nbsp;&nbsp;input_layer = training_inputs<br>
+                &nbsp;&nbsp;outputs = sigmoid(np.dot(input_layer, synaptic_weights)) <span class="comment"># Make a
+                    guess</span><br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Step 2: Calculate Loss (the error)</span><br>
+                &nbsp;&nbsp;error = training_outputs - outputs<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Step 3: Backward Propagation & Weight Update</span><br>
+                &nbsp;&nbsp;adjustments = error * sigmoid_derivative(outputs) <span class="comment"># Find the
+                    'blame'</span><br>
+                &nbsp;&nbsp;synaptic_weights += np.dot(input_layer.T, adjustments) <span class="comment"># Nudge the
+                    weights</span><br><br>
+
+                <span class="keyword">print</span>(<span class="string">'Synaptic weights after training:'</span>)<br>
+                <span class="keyword">print</span>(synaptic_weights)<br><br>
+
+                <span class="keyword">print</span>(<span class="string">'\nOutputs after training:'</span>)<br>
+                <span class="keyword">print</span>(outputs)
+            </div>
+            <div class="output-box">Synaptic weights after training:
+                [[ 9.67299303]
+                [-0.2078435 ]
+                [-4.62963669]]
+
+                Outputs after training:
+                [[0.00966449]
+                [0.99211957]
+                [0.99358898]
+                [0.00786506]]</div>
+            <p>Look at that! The final outputs are very close to the correct answers `[0, 1, 1, 0]`. Our network learned
+                the pattern! Notice how the first weight is a large positive number. The network learned that the first
+                input is the key to solving this puzzle.</p>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn</h4>
+                <p>Combine the code from 4.1 and 4.2 into one Colab cell.</p>
+                <ol class="list-decimal list-inside ml-2">
+                    <li>Change the number of iterations in the `range()` from `10000` to `100`. Run it. Are the final
+                        outputs as good?</li>
+                    <li>Change it to `100000`. Do the outputs get even closer to 0 and 1?</li>
+                    <li>Inside the loop, right after the weights are updated, add `if iteration % 1000 == 0:
+                        print(np.mean(np.abs(error)))`. This will print the average error every 1000 steps. You should
+                        see the error getting smaller and smaller!</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 5: Lab Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your First Neural Network Mission</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: The Electronics Shop</h3>
+                <p class="mb-4">You are building a quality control system. You have data from 4 electronic components.
+                    Each component has 3 tests performed on it (pass=1, fail=0). Your goal is to train a neural network
+                    to predict if the component is faulty (output=1) or acceptable (output=0).</p>
+                <h4 class="font-semibold text-lg mt-4">The Data:</h4>
+                <p>A component is considered faulty if its first test result is a `1`.</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Inputs: [Test 1, Test 2, Test 3]</span><br>
+                    training_inputs = np.array([[<span class="number">0</span>, <span class="number">1</span>, <span
+                        class="number">1</span>], [<span class="number">1</span>, <span class="number">0</span>, <span
+                        class="number">0</span>], [<span class="number">0</span>, <span class="number">1</span>, <span
+                        class="number">0</span>], [<span class="number">1</span>, <span class="number">1</span>, <span
+                        class="number">0</span>]])<br><br>
+                    <span class="comment"># Outputs: [Is Faulty?]</span><br>
+                    training_outputs = np.array([[[<span class="number">0</span>], [<span class="number">1</span>],
+                    [<span class="number">0</span>], [<span class="number">1</span>]]]).T
+                </div>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-1">
+                    <li><strong>Set up the Network:</strong> In a new Colab notebook, copy the setup code from section
+                        4.1, but replace the `training_inputs` and `training_outputs` with the new data from the
+                        electronics shop.</li>
+                    <li><strong>Train the Network:</strong> Copy the training loop from section 4.2 and train your
+                        network on the new data for at least 20,000 iterations.</li>
+                    <li><strong>Analyze the Results:</strong> Print the final weights after training. Which weight is
+                        the largest? What does this tell you about which test is the most important for predicting a
+                        fault? (Write your answer in a text cell).</li>
+                    <li><strong>Make a New Prediction:</strong> A new component is tested with results `[1, 1, 1]`.
+                        Should it be marked as faulty? Write the code to pass this new input through your *trained*
+                        network and print the prediction.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 6: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Bonus - The Digit Recognizer Challenge</h2>
+            <p>The network you built has one neuron. Real neural networks have many neurons arranged in layers. Let's
+                see how the concepts you learned apply to a real-world problem: recognizing handwritten digits.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Kaggle & The Digit Recognizer Dataset</h4>
+                <p>The <a href="https://www.kaggle.com/c/digit-recognizer" target="_blank"
+                        class="text-indigo-600 hover:underline">"Digit Recognizer"</a> competition is a classic. You are
+                    given thousands of images of handwritten digits (0-9) and your goal is to correctly identify them.
+                </p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Task 1: Get and See the Data</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-1">
+                <li>Go to the <a href="https://www.kaggle.com/c/digit-recognizer/data" target="_blank"
+                        class="text-indigo-600 hover:underline">Digit Recognizer data page</a>. Download `train.csv`.
+                </li>
+                <li>In Colab, upload `train.csv` and load it with `digit_df = pd.read_csv('train.csv')`.</li>
+                <li>The first column, `label`, is the correct digit. The other 784 columns (`pixel0` to `pixel783`) are
+                    the pixel values of a 28x28 image.</li>
+                <li>Use this code to see the first digit in the dataset:
+                    <div class="code-block text-sm">
+                        <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br>
+                        first_digit_pixels = digit_df.iloc[<span class="number">0</span>, <span
+                            class="number">1</span>:].values <span class="comment"># Get all pixel columns for the first
+                            row</span><br>
+                        first_digit_image = first_digit_pixels.reshape(<span class="number">28</span>, <span
+                            class="number">28</span>) <span class="comment"># Reshape from 784 numbers to a 28x28
+                            grid</span><br>
+                        plt.imshow(first_digit_image, cmap=<span class="string">'gray'</span>)<br>
+                        plt.show()
+                    </div>
+                </li>
+            </ol>
+
+            <h4 class="font-semibold text-lg mt-4">Task 2: Your Challenge - Connect the Concepts</h4>
+            <p>You don't need to build a full network for this. Instead, answer these questions in a text cell in your
+                notebook to connect what you've learned.</p>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Inputs:</strong> In our simple network, we had 3 inputs. For the digit recognizer, how many
+                    inputs would a neural network need?</li>
+                <li><strong>Weights:</strong> Our network had one set of 3 weights. If a digit-recognizer network had
+                    just one neuron, how many weights would it have?</li>
+                <li><strong>Outputs:</strong> Our network had one output (0 or 1). For this problem, we need to identify
+                    10 different digits (0 through 9). How many output neurons do you think we would need?</li>
+                <li><strong>Thinking Bigger:</strong> Why do you think a single neuron, even with 784 inputs, would not
+                    be enough to solve this problem accurately? What's the benefit of having multiple layers of neurons?
+                </li>
+            </ol>
+        </section>
+
+        <!-- Section 7: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Submission Guidelines</h2>
+            <p>To complete this lab, please follow these instructions carefully.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus.</li>
+                <li>Use <strong>Text Cells</strong> to label each section and answer any written questions.</li>
+                <li>Ensure all your code cells have been run so that their outputs are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click the <strong>"Share"</strong>
+                    button in the top right.</li>
+                <li>In the popup, under "General access", change "Restricted" to <strong>"Anyone with the link"</strong>
+                    and ensure the role is set to <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>
