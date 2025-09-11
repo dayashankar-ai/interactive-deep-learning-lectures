@@ -4,1144 +4,462 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lecture 13B: Interactive Computer Vision Lab</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Lab 5: Hyperparameter Optimization (Extended)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
-            --accent-color: #3b82f6;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-gradient);
-            min-height: 100vh;
-            color: #1f2937;
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .header {
-            text-align: center;
-            padding: 60px 0 40px;
-            color: white;
-        }
-
-        .header h1 {
-            font-size: clamp(2rem, 5vw, 3.5rem);
+        h1,
+        h2,
+        h3,
+        h4 {
             font-weight: 700;
-            margin-bottom: 16px;
-            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            line-height: 1.2;
         }
 
-        .header .subtitle {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-
-        .breadcrumb {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 50px;
-            padding: 12px 24px;
-            display: inline-block;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .section {
-            background: white;
-            border-radius: 20px;
-            margin: 30px 0;
-            overflow: hidden;
-            box-shadow: var(--card-shadow);
-            transition: all 0.3s ease;
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--hover-shadow);
-        }
-
-        .section-header {
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            color: white;
-            padding: 24px 30px;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .section-content {
-            padding: 30px;
-        }
-
-        .demo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin: 24px 0;
-        }
-
-        .demo-card {
-            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
-            border-radius: 15px;
-            padding: 24px;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .demo-card:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-color);
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
-        }
-
-        .demo-card h3 {
-            color: var(--primary-color);
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .canvas-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 24px;
-            margin: 24px 0;
-            flex-wrap: wrap;
-        }
-
-        .canvas-wrapper {
-            text-align: center;
-        }
-
-        .canvas-wrapper h4 {
-            margin-bottom: 12px;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
-
-        canvas {
-            border: 3px solid #e5e7eb;
+        .lab-card {
+            background-color: white;
             border-radius: 12px;
-            background: white;
-            transition: all 0.3s ease;
-            cursor: crosshair;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
         }
 
-        canvas:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
-        }
-
-        .controls {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin: 24px 0;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 15px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .control-group label {
-            font-weight: 600;
-            color: var(--primary-color);
-            font-size: 0.9rem;
-        }
-
-        input[type="range"] {
-            width: 120px;
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(45deg, #6b7280, #9ca3af);
-        }
-
-        .pixel-grid {
-            display: inline-block;
-            border: 2px solid #333;
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
             border-radius: 8px;
-            background: white;
-            padding: 8px;
-            margin: 12px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
         }
 
-        .pixel-row {
-            display: flex;
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
         }
 
-        .pixel {
-            width: 30px;
-            height: 30px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: bold;
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
         }
 
-        .result-box {
-            background: linear-gradient(145deg, #ecfdf5, #d1fae5);
-            border: 2px solid #10b981;
-            border-radius: 15px;
-            padding: 24px;
-            margin: 20px 0;
-            text-align: center;
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
         }
 
-        .result-box h3 {
-            color: #065f46;
-            margin-bottom: 12px;
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
         }
 
-        .formula-box {
-            background: linear-gradient(145deg, #fffbeb, #fef3c7);
-            border-left: 6px solid #f59e0b;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 15px 15px 0;
-            font-family: 'Fira Code', monospace;
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
 
-        .formula-box strong {
-            color: #92400e;
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
 
-        .color-picker {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 16px 0;
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
         }
 
-        .color-swatch {
-            width: 40px;
-            height: 40px;
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
             border-radius: 8px;
-            cursor: pointer;
-            border: 3px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .color-swatch:hover {
-            transform: scale(1.1);
-            border-color: var(--primary-color);
-        }
-
-        .color-swatch.active {
-            border-color: var(--primary-color);
-            transform: scale(1.15);
-        }
-
-        .feature-showcase {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 24px 0;
-        }
-
-        .feature-card {
-            background: linear-gradient(145deg, #ffffff, #f1f5f9);
-            border: 2px solid #e2e8f0;
-            border-radius: 15px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-
-        .feature-card:hover {
-            border-color: var(--accent-color);
-            transform: translateY(-3px);
-        }
-
-        .feature-card .icon {
-            width: 48px;
-            height: 48px;
-            background: var(--bg-gradient);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-        }
-
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            margin: 50px 0 30px;
-            gap: 20px;
-        }
-
-        .nav-btn {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .histogram-container {
-            background: white;
-            border-radius: 10px;
-            padding: 16px;
-            margin: 16px 0;
-            border: 2px solid #e5e7eb;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 15px;
-            }
-
-            .section-content {
-                padding: 20px;
-            }
-
-            .canvas-container {
-                gap: 15px;
-            }
-
-            .navigation {
-                flex-direction: column;
-            }
-
-            .demo-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .arrow {
-            font-size: 2rem;
-            color: var(--accent-color);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="breadcrumb">
-                <i class="fas fa-home"></i> Deep Learning Course → Lecture 13 Part B
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 5: Hyperparameter Optimization (Extended)</h1>
+            <p class="text-xl text-gray-600 mt-4">🎛️ Becoming the master chef of AI: Finding the perfect recipe for
+                your model.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: Keras, Optuna • Estimated Time: 2+ hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: What are Hyperparameters?</h2>
+            <p>Imagine you're baking a cake (our neural network). The ingredients (like flour, sugar, eggs) are your
+                <strong>data</strong>. The recipe instructions (mix, then bake) are your <strong>model code</strong>.
+            </p>
+            <p class="mt-2">But what about the settings you can tweak? How long do you bake it for? At what temperature?
+                How much baking powder do you use? These settings are the <strong>hyperparameters</strong>.</p>
+            <p class="mt-2">In AI, hyperparameters are the high-level settings you choose *before* training begins. They
+                control the learning process itself.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Key Hyperparameters We'll Tune Today:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>Learning Rate:</strong> How big of a step the model takes when adjusting its weights.
+                    </li>
+                    <li><strong>Number of Layers:</strong> How "deep" the network is.</li>
+                    <li><strong>Number of Neurons per Layer:</strong> How "wide" each layer is.</li>
+                    <li><strong>Optimizer:</strong> The specific algorithm used for gradient descent.</li>
+                    <li><strong>Dropout Rate:</strong> A regularization technique to prevent overfitting.</li>
+                </ul>
             </div>
-            <h1><i class="fas fa-eye"></i> Interactive Computer Vision Lab</h1>
-            <p class="subtitle">Hands-on exploration of images, pixels, and basic computer vision operations</p>
-        </div>
+            <p class="mt-4">Finding the right combination is key to building a state-of-the-art model. This process is
+                called <strong>Hyperparameter Optimization</strong> or <strong>Tuning</strong>.</p>
+        </section>
 
-        <!-- Interactive Demo 1: Understanding Pixels -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-th"></i>
-                    Lab 1: Understanding Pixels - The Building Blocks
-                </h2>
+        <!-- Section 2: Base Model Setup -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Our Starting Point - A Baseline Model</h2>
+            <p>Before we can tune, we need a starting point. Let's build a simple model for the Fashion-MNIST dataset.
+                This will be our "baseline" that we'll try to improve.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br><br>
+
+                <span class="comment"># Load and preprocess the Fashion-MNIST dataset</span><br>
+                (x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()<br>
+                x_train = x_train / <span class="number">255.0</span><br>
+                x_test = x_test / <span class="number">255.0</span><br><br>
+
+                <span class="keyword">def</span> create_baseline_model():<br>
+                &nbsp;&nbsp;model = keras.Sequential([<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">128</span>, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                &nbsp;&nbsp;])<br><br>
+                &nbsp;&nbsp;model.compile(optimizer=<span class="string">'adam'</span>, loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> model<br><br>
+
+                baseline_model = create_baseline_model()<br>
+                baseline_model.fit(x_train, y_train, epochs=<span class="number">10</span>, batch_size=<span
+                    class="number">64</span>, verbose=<span class="number">0</span>)<br><br>
+
+                loss, accuracy = baseline_model.evaluate(x_test, y_test, verbose=<span class="number">0</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Baseline Accuracy: {accuracy *
+                    100:.2f}%"</span>)
             </div>
-            <div class="section-content">
-                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
-                    Every digital image is made of tiny squares called pixels. Each pixel has a color value. Let's
-                    explore how this works!
-                </p>
+            <div class="output-box">Baseline Accuracy: 88.45%</div>
+            <p>Okay, our starting point is ~88.5% accuracy after 10 epochs. Our mission is to beat this!</p>
+        </section>
 
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h4>🎨 Draw Your Image</h4>
-                        <canvas id="pixelCanvas" width="240" height="240"></canvas>
-                        <div class="color-picker">
-                            <div class="color-swatch active" style="background: #000000" data-color="#000000"></div>
-                            <div class="color-swatch" style="background: #ffffff" data-color="#ffffff"></div>
-                            <div class="color-swatch" style="background: #ff0000" data-color="#ff0000"></div>
-                            <div class="color-swatch" style="background: #00ff00" data-color="#00ff00"></div>
-                            <div class="color-swatch" style="background: #0000ff" data-color="#0000ff"></div>
-                            <div class="color-swatch" style="background: #ffff00" data-color="#ffff00"></div>
-                        </div>
-                    </div>
-                    <span class="arrow">→</span>
-                    <div class="canvas-wrapper">
-                        <h4>🔍 Pixel Values</h4>
-                        <div id="pixelValues" class="pixel-grid">
-                            <div class="pixel-row">
-                                <div class="pixel">0,0,0</div>
-                                <div class="pixel">0,0,0</div>
-                                <div class="pixel">0,0,0</div>
-                            </div>
-                            <div class="pixel-row">
-                                <div class="pixel">0,0,0</div>
-                                <div class="pixel">0,0,0</div>
-                                <div class="pixel">0,0,0</div>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 8px;">RGB Values (Red, Green, Blue)</p>
-                    </div>
-                </div>
+        <!-- Section 3: Manual Tuning -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Manual Tuning - The Detective Work</h2>
+            <p>Let's start by manually changing one hyperparameter at a time to build our intuition. This will show you
+                why automation is so valuable.</p>
 
-                <div class="formula-box">
-                    <strong>Key Concept:</strong> Each pixel = [Red, Green, Blue] values from 0-255<br>
-                    Black = [0,0,0], White = [255,255,255], Red = [255,0,0]
-                </div>
-
-                <div class="controls">
-                    <button class="btn" onclick="clearCanvas()">
-                        <i class="fas fa-eraser"></i> Clear Canvas
-                    </button>
-                    <button class="btn" onclick="generateRandomImage()">
-                        <i class="fas fa-dice"></i> Random Pattern
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Lab 2: Grayscale Conversion -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-adjust"></i>
-                    Lab 2: Color to Grayscale Conversion
-                </h2>
-            </div>
-            <div class="section-content">
-                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
-                    Convert colorful images to grayscale using the human eye's sensitivity to different colors:
-                </p>
-
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h4>🌈 Original Color</h4>
-                        <canvas id="colorCanvas" width="200" height="200"></canvas>
-                    </div>
-                    <span class="arrow">→</span>
-                    <div class="canvas-wrapper">
-                        <h4>⚫ Grayscale Result</h4>
-                        <canvas id="grayscaleCanvas" width="200" height="200"></canvas>
-                    </div>
-                </div>
-
-                <div class="formula-box">
-                    <strong>Grayscale Formula:</strong><br>
-                    Gray = 0.299 × Red + 0.587 × Green + 0.114 × Blue<br>
-                    <em>Human eyes are most sensitive to green, least to blue</em>
-                </div>
-
-                <div class="controls">
-                    <button class="btn" onclick="createColorImage()">
-                        <i class="fas fa-palette"></i> New Color Image
-                    </button>
-                    <button class="btn" onclick="convertToGrayscale()">
-                        <i class="fas fa-magic"></i> Convert to Grayscale
-                    </button>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #1: Tune the Learning Rate</h4>
+                <p>The `adam` optimizer has a default learning rate of `0.001`. Is that the best? Copy the baseline
+                    model code and create a new optimizer with a different learning rate. Try a few values. What happens
+                    with a very slow rate (`0.0001`) or a very fast rate (`0.01`)?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for one learning rate</span><br>
+                    fast_optimizer = keras.optimizers.Adam(learning_rate=<span class="number">0.01</span>)<br>
+                    model.compile(optimizer=fast_optimizer, loss=<span
+                        class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                        class="string">'accuracy'</span>])
                 </div>
             </div>
-        </div>
 
-        <!-- Lab 3: Basic Image Operations -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-sliders-h"></i>
-                    Lab 3: Image Enhancement Operations
-                </h2>
-            </div>
-            <div class="section-content">
-                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
-                    Adjust brightness, contrast, and apply basic image enhancements:
-                </p>
-
-                <div class="controls">
-                    <div class="control-group">
-                        <label><i class="fas fa-sun"></i> Brightness:</label>
-                        <input type="range" id="brightnessSlider" min="-100" max="100" value="0"
-                            oninput="updateImage()">
-                        <span id="brightnessValue">0</span>
-                    </div>
-                    <div class="control-group">
-                        <label><i class="fas fa-circle-half-stroke"></i> Contrast:</label>
-                        <input type="range" id="contrastSlider" min="0.5" max="2" step="0.1" value="1"
-                            oninput="updateImage()">
-                        <span id="contrastValue">1.0</span>
-                    </div>
-                    <button class="btn" onclick="resetImage()">
-                        <i class="fas fa-undo"></i> Reset
-                    </button>
-                </div>
-
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h4>📸 Original</h4>
-                        <canvas id="originalCanvas" width="180" height="180"></canvas>
-                    </div>
-                    <span class="arrow">→</span>
-                    <div class="canvas-wrapper">
-                        <h4>✨ Enhanced</h4>
-                        <canvas id="enhancedCanvas" width="180" height="180"></canvas>
-                    </div>
-                </div>
-
-                <div class="formula-box">
-                    <strong>Enhancement Formulas:</strong><br>
-                    Brightness: New_pixel = Old_pixel + brightness_value<br>
-                    Contrast: New_pixel = (Old_pixel × contrast_factor)
+            <div class="your-turn-box mt-6">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #2: Tune the Number of Neurons</h4>
+                <p>Our baseline has one hidden layer with `128` neurons. Is this optimal? Try changing this number.
+                    Re-run the training with `64` neurons, and then with `256` neurons. Does a wider or narrower layer
+                    work better?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for changing neurons</span><br>
+                    model = keras.Sequential([<br>
+                    &nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                        class="number">28</span>)),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">256</span>, activation=<span
+                        class="string">'relu'</span>), <span class="comment"># Changed this line</span><br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                        class="string">'softmax'</span>)<br>
+                    ])
                 </div>
             </div>
-        </div>
 
-        <!-- Lab 4: Simple Filtering -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-filter"></i>
-                    Lab 4: Image Filtering Basics
-                </h2>
-            </div>
-            <div class="section-content">
-                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
-                    Apply basic filters to see how neighboring pixels can enhance images:
-                </p>
-
-                <div class="demo-grid">
-                    <div class="demo-card">
-                        <div class="icon" style="background: linear-gradient(45deg, #667eea, #764ba2);">
-                            <i class="fas fa-cloud"></i>
-                        </div>
-                        <h3>Blur Filter</h3>
-                        <p>Smooth the image by averaging neighboring pixels</p>
-                        <button class="btn" onclick="applyFilter('blur')">Apply Blur</button>
-                    </div>
-                    <div class="demo-card">
-                        <div class="icon" style="background: linear-gradient(45deg, #667eea, #764ba2);">
-                            <i class="fas fa-search-plus"></i>
-                        </div>
-                        <h3>Sharpen Filter</h3>
-                        <p>Enhance edges and details in the image</p>
-                        <button class="btn" onclick="applyFilter('sharpen')">Apply Sharpen</button>
-                    </div>
-                    <div class="demo-card">
-                        <div class="icon" style="background: linear-gradient(45deg, #667eea, #764ba2);">
-                            <i class="fas fa-border-all"></i>
-                        </div>
-                        <h3>Edge Detection</h3>
-                        <p>Find boundaries and edges in the image</p>
-                        <button class="btn" onclick="applyFilter('edge')">Find Edges</button>
-                    </div>
-                </div>
-
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h4>Input Image</h4>
-                        <canvas id="filterInputCanvas" width="180" height="180"></canvas>
-                    </div>
-                    <span class="arrow">→</span>
-                    <div class="canvas-wrapper">
-                        <h4>Filtered Result</h4>
-                        <canvas id="filterOutputCanvas" width="180" height="180"></canvas>
-                    </div>
+            <div class="your-turn-box mt-6">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #3: Tune the Number of Layers</h4>
+                <p>What if our model needs to be deeper to understand the data? Try adding a second hidden layer. Re-run
+                    the training with this new architecture. Does a deeper model improve accuracy?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example for adding a layer</span><br>
+                    model = keras.Sequential([<br>
+                    &nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                        class="number">28</span>)),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">128</span>, activation=<span
+                        class="string">'relu'</span>),<br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">64</span>, activation=<span
+                        class="string">'relu'</span>), <span class="comment"># New hidden layer</span><br>
+                    &nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                        class="string">'softmax'</span>)<br>
+                    ])
                 </div>
             </div>
-        </div>
 
-        <!-- Lab 5: Image Histogram -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-chart-bar"></i>
-                    Lab 5: Image Histograms
-                </h2>
+            <p class="mt-6">After trying these, you've probably realized this manual process is slow and painful. You
+                are only changing one thing at a time. What if the best model has a slow learning rate AND two layers?
+                You'd have to test every combination. This is where automated tools shine.</p>
+        </section>
+
+        <!-- Section 4: Automated Tuning with Optuna -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Automated Tuning with Optuna 🤖</h2>
+            <p><strong>Optuna</strong> is a library that automates the search for the best hyperparameters. You define
+                the *range* of values to test, and Optuna intelligently explores that range to find the best
+                combination.</p>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.1 Installing Optuna</h3>
+            <div class="code-block">!pip install optuna</div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.2 Defining the Objective Function</h3>
+            <p>This function tells Optuna how to build and evaluate one version of our model.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> optuna<br><br>
+                <span class="keyword">def</span> objective(trial):<br>
+                &nbsp;&nbsp;<span class="comment"># Suggest a learning rate from 1e-5 to 1e-1 (on a log
+                    scale)</span><br>
+                &nbsp;&nbsp;lr = trial.suggest_float(<span class="string">'learning_rate'</span>, <span
+                    class="number">1e-5</span>, <span class="number">1e-1</span>, log=<span
+                    class="keyword">True</span>)<br>
+                &nbsp;&nbsp;<span class="comment"># Suggest a number of neurons from 32 to 256</span><br>
+                &nbsp;&nbsp;n_units = trial.suggest_int(<span class="string">'n_units'</span>, <span
+                    class="number">32</span>, <span class="number">256</span>)<br><br>
+
+                &nbsp;&nbsp;model = keras.Sequential([<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=n_units, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;keras.layers.Dense(units=<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>)<br>
+                &nbsp;&nbsp;])<br><br>
+
+                &nbsp;&nbsp;model.compile(optimizer=keras.optimizers.Adam(learning_rate=lr), loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br>
+                &nbsp;&nbsp;model.fit(x_train, y_train, epochs=<span class="number">10</span>, batch_size=<span
+                    class="number">64</span>, verbose=<span class="number">0</span>)<br><br>
+
+                &nbsp;&nbsp;loss, accuracy = model.evaluate(x_test, y_test, verbose=<span class="number">0</span>)<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> accuracy
             </div>
-            <div class="section-content">
-                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
-                    Analyze pixel intensity distribution to understand image characteristics:
-                </p>
 
-                <div class="canvas-container">
-                    <div class="canvas-wrapper">
-                        <h4>Sample Images</h4>
-                        <canvas id="histogramCanvas" width="200" height="200"></canvas>
-                        <div style="margin-top: 12px;">
-                            <button class="btn btn-secondary" onclick="createHistogramImage('dark')">Dark Image</button>
-                            <button class="btn btn-secondary" onclick="createHistogramImage('bright')">Bright
-                                Image</button>
-                            <button class="btn btn-secondary" onclick="createHistogramImage('contrast')">High
-                                Contrast</button>
-                        </div>
-                    </div>
-                    <div class="canvas-wrapper">
-                        <h4>Pixel Histogram</h4>
-                        <div class="histogram-container">
-                            <canvas id="histogramChart" width="300" height="150"></canvas>
-                        </div>
-                    </div>
-                </div>
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.3 Running the Study</h3>
+            <p>Now we create a "study" and tell Optuna to run our `objective` function. We'll run 20 trials.</p>
+            <div class="code-block">
+                study = optuna.create_study(direction=<span class="string">'maximize'</span>)<br>
+                study.optimize(objective, n_trials=<span class="number">20</span>)<br><br>
 
-                <div class="formula-box">
-                    <strong>Histogram Analysis:</strong><br>
-                    • Left peak = Dark image<br>
-                    • Right peak = Bright image<br>
-                    • Two peaks = High contrast<br>
-                    • Spread out = Good contrast
-                </div>
+                best_trial = study.best_trial<br>
+                <span class="keyword">print</span>(f<span class="string">"Best Accuracy: {best_trial.value}"</span>)<br>
+                <span class="keyword">print</span>(f<span class="string">"Best Params: {best_trial.params}"</span>)
             </div>
-        </div>
+            <div class="output-box">Best Accuracy: 0.8915...
+                Best Params: {'learning_rate': 0.0008..., 'n_units': 210}</div>
 
-        <!-- Real Applications -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-globe"></i>
-                    Real-World Applications
-                </h2>
+            <h3 class="text-2xl font-semibold mt-8 mb-2">4.4 Visualizing the Results</h3>
+            <p>A huge benefit of Optuna is its built-in visualization tools. They help you understand the search.</p>
+            <div class="code-block">
+                <span class="comment"># Shows how the best score improved over trials</span><br>
+                optuna.visualization.plot_optimization_history(study).show()
             </div>
-            <div class="section-content">
-                <div class="feature-showcase">
-                    <div class="feature-card">
-                        <div class="icon"><i class="fas fa-mobile-alt"></i></div>
-                        <h3>Smartphone Cameras</h3>
-                        <p>Auto-enhance photos, night mode, portrait effects using the techniques you just learned.</p>
-                        <div style="background: #e0e7ff; padding: 12px; border-radius: 8px; margin-top: 12px;">
-                            <strong>Daily Impact:</strong> Billions of enhanced photos
-                        </div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon"><i class="fas fa-heartbeat"></i></div>
-                        <h3>Medical Imaging</h3>
-                        <p>Enhance X-rays and MRI scans for better diagnosis using brightness, contrast, and filtering.
-                        </p>
-                        <div style="background: #ecfdf5; padding: 12px; border-radius: 8px; margin-top: 12px;">
-                            <strong>Life Impact:</strong> Earlier disease detection
-                        </div>
-                    </div>
-                    <div class="feature-card">
-                        <div class="icon"><i class="fas fa-satellite"></i></div>
-                        <h3>Satellite Imaging</h3>
-                        <p>Process Earth observation data for weather, agriculture, and environmental monitoring.</p>
-                        <div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin-top: 12px;">
-                            <strong>Global Impact:</strong> Climate and disaster monitoring
-                        </div>
-                    </div>
-                </div>
+            <img src="https://i.imgur.com/8Qp2gYp.png" alt="Optuna Optimization History Plot"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <div class="code-block">
+                <span class="comment"># Shows which hyperparameters were most important</span><br>
+                optuna.visualization.plot_param_importances(study).show()
             </div>
-        </div>
+            <img src="https://i.imgur.com/k2gE5qH.png" alt="Optuna Parameter Importances Plot"
+                class="mx-auto my-4 rounded-lg shadow-md">
+            <p>From these plots, we can see the `learning_rate` was more important than `n_units` in our search, and the
+                best results were found early on.</p>
+        </section>
 
-        <!-- Summary -->
-        <div class="section">
-            <div class="section-header">
-                <h2 class="section-title">
-                    <i class="fas fa-graduation-cap"></i>
-                    Congratulations! You've Mastered Computer Vision Basics
-                </h2>
+        <!-- Section 5: Advanced Search -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your Mission - The Ultimate Tuner</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Expand the Search Space</h3>
+                <p class="mb-4">Your goal is to find an even better model by giving Optuna more hyperparameters to
+                    search through. Can you break 90% accuracy?</p>
+                <h4 class="font-semibold text-lg mt-4">Your Task:</h4>
+                <p>Modify the `objective` function to search for three more hyperparameters:</p>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Number of Layers:</strong> Use `trial.suggest_int('n_layers', 1, 3)`. Use a `for` loop
+                        to build the model with the chosen number of layers.</li>
+                    <li><strong>Dropout Rate:</strong> For each hidden layer, add a Dropout layer. Suggest a rate with
+                        `trial.suggest_float('dropout', 0.1, 0.5)`. This helps prevent overfitting.</li>
+                    <li><strong>Choice of Optimizer:</strong> Use `trial.suggest_categorical('optimizer', ['adam',
+                        'rmsprop', 'sgd'])`.</li>
+                </ol>
+                <p class="mt-4">Run the study again with this much larger search space for at least <strong>50
+                        trials</strong>. Report the best accuracy and the full set of best parameters you found.</p>
             </div>
-            <div class="section-content">
-                <div class="demo-grid">
-                    <div class="demo-card">
-                        <div class="icon" style="background: linear-gradient(45deg, #10b981, #34d399);">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <h3>Skills Mastered</h3>
-                        <ul style="text-align: left; color: #4b5563;">
-                            <li>Understanding pixels and colors</li>
-                            <li>Grayscale conversion techniques</li>
-                            <li>Basic image enhancement</li>
-                            <li>Simple filtering operations</li>
-                            <li>Histogram analysis</li>
-                        </ul>
-                    </div>
-                    <div class="demo-card">
-                        <div class="icon" style="background: linear-gradient(45deg, #8b5cf6, #a78bfa);">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <h3>Ready for Next Level</h3>
-                        <ul style="text-align: left; color: #4b5563;">
-                            <li>Advanced filtering (convolution)</li>
-                            <li>Feature detection</li>
-                            <li>Machine learning applications</li>
-                            <li>Deep neural networks</li>
-                            <li>Real project development</li>
-                        </ul>
-                    </div>
-                </div>
+        </section>
 
-                <div class="result-box">
-                    <h3><i class="fas fa-trophy"></i> Achievement Unlocked</h3>
-                    <p style="font-size: 1.1rem; margin: 12px 0;">
-                        You now understand how computers "see" and process images! You've learned the fundamental
-                        building blocks that power everything from Instagram filters to medical diagnosis systems.
-                    </p>
-                </div>
+        <!-- Section 6: Pruning -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Going Further - Pruning Unpromising Trials</h2>
+            <p>Running 50+ trials can be slow. What if a trial is obviously doing poorly after just a few epochs? It's a
+                waste of time to finish training it. <strong>Pruning</strong> is a technique to automatically stop these
+                unpromising trials early.</p>
+            <p>We can add a "callback" to our `.fit()` method that reports the validation accuracy to Optuna after each
+                epoch. If it's not looking good, Optuna will raise an exception and stop the trial.</p>
+            <div class="code-block">
+                <span class="keyword">from</span> optuna.integration <span class="keyword">import</span>
+                TFKerasPruningCallback<br><br>
+                <span class="keyword">def</span> objective_with_pruning(trial):<br>
+                &nbsp;&nbsp;<span class="comment"># ... (Suggest all your hyperparameters here as in the assignment)
+                    ...</span><br>
+                &nbsp;&nbsp;n_layers = trial.suggest_int(<span class="string">'n_layers'</span>, <span
+                    class="number">1</span>, <span class="number">3</span>)<br>
+                &nbsp;&nbsp;lr = trial.suggest_float(<span class="string">'learning_rate'</span>, <span
+                    class="number">1e-4</span>, <span class="number">1e-1</span>, log=<span
+                    class="keyword">True</span>)<br><br>
+
+                &nbsp;&nbsp;model = keras.Sequential()<br>
+                &nbsp;&nbsp;model.add(keras.layers.Flatten(input_shape=(<span class="number">28</span>, <span
+                    class="number">28</span>)))<br>
+                &nbsp;&nbsp;<span class="keyword">for</span> i <span class="keyword">in</span> <span
+                    class="keyword">range</span>(n_layers):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;n_units = trial.suggest_int(f<span class="string">'n_units_l{i}'</span>, <span
+                    class="number">32</span>, <span class="number">256</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;model.add(keras.layers.Dense(n_units, activation=<span
+                    class="string">'relu'</span>))<br>
+                &nbsp;&nbsp;model.add(keras.layers.Dense(<span class="number">10</span>, activation=<span
+                    class="string">'softmax'</span>))<br><br>
+
+                &nbsp;&nbsp;model.compile(optimizer=keras.optimizers.Adam(lr), loss=<span
+                    class="string">'sparse_categorical_crossentropy'</span>, metrics=[<span
+                    class="string">'accuracy'</span>])<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># Add the pruning callback</span><br>
+                &nbsp;&nbsp;pruning_callback = TFKerasPruningCallback(trial, <span
+                    class="string">'val_accuracy'</span>)<br><br>
+
+                &nbsp;&nbsp;history = model.fit(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;x_train, y_train, <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;epochs=<span class="number">20</span>, <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;validation_split=<span class="number">0.2</span>, <span class="comment">#
+                    Pruning requires a validation set</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;callbacks=[pruning_callback], <br>
+                &nbsp;&nbsp;&nbsp;&nbsp;verbose=<span class="number">0</span><br>
+                &nbsp;&nbsp;)<br><br>
+                &nbsp;&nbsp;<span class="comment"># Return the last reported validation accuracy</span><br>
+                &nbsp;&nbsp;<span class="keyword">return</span> history.history[<span
+                    class="string">'val_accuracy'</span>][-<span class="number">1</span>]
             </div>
-        </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn #4: Implement Pruning</h4>
+                <p>Integrate the pruning callback into your full assignment solution. Create a new study and run it. You
+                    should see messages like `Trial 5 pruned` in the output. Does this speed up your search?</p>
+            </div>
+        </section>
 
-        <div class="navigation">
-            <a href="index.html" class="nav-btn">
-                <i class="fas fa-arrow-left"></i> Back to Course
-            </a>
-            <a href="lecture-14.html" class="nav-btn">
-                Next: Convolution Operations <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
+        <!-- Section 7: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Bonus - The Housing Price Challenge</h2>
+            <p>Classification is one type of problem. Another is <strong>Regression</strong>, where you predict a
+                continuous number. The classic "House Prices" competition on Kaggle is a perfect place to apply your new
+                tuning skills.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a
+                        href="https://www.kaggle.com/c/house-prices-advanced-regression-techniques" target="_blank"
+                        class="text-indigo-600 hover:underline">Kaggle: House Prices - Advanced Regression
+                        Techniques</a></h4>
+                <p>The goal is to predict the final sale price of a house based on 79 features.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <ol class="list-decimal list-inside ml-4 space-y-2">
+                <li><strong>Setup:</strong> This dataset is more complex. You will need to handle missing values (e.g.,
+                    fill them with the mean/median) and convert categorical features into numbers (e.g., using
+                    `pd.get_dummies`). This preprocessing is a major part of the challenge.</li>
+                <li><strong>Modify the Objective Function:</strong>
+                    <ul>
+                        <li>The final layer must have **1 neuron** with no activation: `keras.layers.Dense(units=1)`.
+                        </li>
+                        <li>The loss function for regression is typically `mean_squared_error`.</li>
+                        <li>The metric you want to MINIMIZE is `root_mean_squared_error`.</li>
+                        <li>Set `direction='minimize'` when you create your Optuna study.</li>
+                    </ul>
+                </li>
+                <li><strong>Run the Study:</strong> Set up an Optuna study to find the best hyperparameters. Report the
+                    lowest error you achieve.</li>
+            </ol>
+        </section>
+
+        <!-- Section 8: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 8: Submission Guidelines</h2>
+            <p>To complete this lab, please follow these instructions carefully.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" in a single Google Colab notebook. The
+                    Kaggle project is a bonus.</li>
+                <li>For the assignment, make sure the output of your final Optuna study (with all hyperparameters and
+                    pruning) is visible, showing the final best value and best parameters.</li>
+                <li>Add a Text Cell at the end summarizing the best accuracy you found and the hyperparameters that
+                    achieved it.</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
     </div>
-
-    <script>
-        // Global variables
-        let currentColor = '#000000';
-        let originalImageData = null;
-
-        // Initialize when page loads
-        window.onload = function () {
-            setupPixelCanvas();
-            createColorImage();
-            createFilterTestImage();
-            createHistogramImage('dark');
-            setupEventListeners();
-        };
-
-        // Setup pixel drawing canvas
-        function setupPixelCanvas() {
-            const canvas = document.getElementById('pixelCanvas');
-            const ctx = canvas.getContext('2d');
-
-            // Draw grid
-            drawGrid(canvas, ctx, 8, 8);
-
-            // Add click event for drawing
-            canvas.addEventListener('click', function (e) {
-                drawPixel(e, canvas, ctx);
-            });
-        }
-
-        function drawGrid(canvas, ctx, rows, cols) {
-            const cellWidth = canvas.width / cols;
-            const cellHeight = canvas.height / rows;
-
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.strokeStyle = '#e5e7eb';
-            ctx.lineWidth = 2;
-
-            for (let i = 0; i <= rows; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * cellHeight);
-                ctx.lineTo(canvas.width, i * cellHeight);
-                ctx.stroke();
-            }
-
-            for (let i = 0; i <= cols; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * cellWidth, 0);
-                ctx.lineTo(i * cellWidth, canvas.height);
-                ctx.stroke();
-            }
-        }
-
-        function drawPixel(e, canvas, ctx) {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            const cellWidth = canvas.width / 8;
-            const cellHeight = canvas.height / 8;
-
-            const gridX = Math.floor(x / cellWidth);
-            const gridY = Math.floor(y / cellHeight);
-
-            ctx.fillStyle = currentColor;
-            ctx.fillRect(gridX * cellWidth + 2, gridY * cellHeight + 2,
-                cellWidth - 4, cellHeight - 4);
-
-            updatePixelValues(gridX, gridY);
-        }
-
-        function updatePixelValues(x, y) {
-            // Convert hex color to RGB
-            const rgb = hexToRgb(currentColor);
-            const pixelDisplay = document.getElementById('pixelValues');
-
-            // Simple display for demonstration
-            const pixels = pixelDisplay.querySelectorAll('.pixel');
-            if (pixels.length > 0) {
-                pixels[0].textContent = `${rgb.r},${rgb.g},${rgb.b}`;
-                pixels[0].style.backgroundColor = currentColor;
-                pixels[0].style.color = rgb.r + rgb.g + rgb.b < 384 ? 'white' : 'black';
-            }
-        }
-
-        function hexToRgb(hex) {
-            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-            return result ? {
-                r: parseInt(result[1], 16),
-                g: parseInt(result[2], 16),
-                b: parseInt(result[3], 16)
-            } : null;
-        }
-
-        function clearCanvas() {
-            const canvas = document.getElementById('pixelCanvas');
-            const ctx = canvas.getContext('2d');
-            drawGrid(canvas, ctx, 8, 8);
-
-            // Reset pixel values display
-            const pixels = document.querySelectorAll('.pixel');
-            pixels.forEach(pixel => {
-                pixel.textContent = '0,0,0';
-                pixel.style.backgroundColor = 'white';
-                pixel.style.color = 'black';
-            });
-        }
-
-        function generateRandomImage() {
-            const canvas = document.getElementById('pixelCanvas');
-            const ctx = canvas.getContext('2d');
-            const cellWidth = canvas.width / 8;
-            const cellHeight = canvas.height / 8;
-
-            drawGrid(canvas, ctx, 8, 8);
-
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#000000', '#ffffff'];
-
-            for (let i = 0; i < 8; i++) {
-                for (let j = 0; j < 8; j++) {
-                    if (Math.random() > 0.7) {
-                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                        ctx.fillStyle = randomColor;
-                        ctx.fillRect(i * cellWidth + 2, j * cellHeight + 2,
-                            cellWidth - 4, cellHeight - 4);
-                    }
-                }
-            }
-        }
-
-        function createColorImage() {
-            const canvas = document.getElementById('colorCanvas');
-            const ctx = canvas.getContext('2d');
-
-            // Create a colorful test pattern
-            const gradient1 = ctx.createLinearGradient(0, 0, 200, 0);
-            gradient1.addColorStop(0, '#ff0000');
-            gradient1.addColorStop(0.5, '#00ff00');
-            gradient1.addColorStop(1, '#0000ff');
-
-            ctx.fillStyle = gradient1;
-            ctx.fillRect(0, 0, 200, 100);
-
-            const gradient2 = ctx.createLinearGradient(0, 100, 200, 200);
-            gradient2.addColorStop(0, '#ffff00');
-            gradient2.addColorStop(0.5, '#ff00ff');
-            gradient2.addColorStop(1, '#00ffff');
-
-            ctx.fillStyle = gradient2;
-            ctx.fillRect(0, 100, 200, 100);
-
-            // Store original image data
-            originalImageData = ctx.getImageData(0, 0, 200, 200);
-        }
-
-        function convertToGrayscale() {
-            const colorCanvas = document.getElementById('colorCanvas');
-            const grayCanvas = document.getElementById('grayscaleCanvas');
-            const colorCtx = colorCanvas.getContext('2d');
-            const grayCtx = grayCanvas.getContext('2d');
-
-            const imageData = colorCtx.getImageData(0, 0, 200, 200);
-            const data = imageData.data;
-
-            for (let i = 0; i < data.length; i += 4) {
-                const gray = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
-                data[i] = gray;     // Red
-                data[i + 1] = gray; // Green
-                data[i + 2] = gray; // Blue
-                // Alpha channel (data[i + 3]) remains unchanged
-            }
-
-            grayCtx.putImageData(imageData, 0, 0);
-        }
-
-        function updateImage() {
-            const brightness = parseInt(document.getElementById('brightnessSlider').value);
-            const contrast = parseFloat(document.getElementById('contrastSlider').value);
-
-            document.getElementById('brightnessValue').textContent = brightness;
-            document.getElementById('contrastValue').textContent = contrast.toFixed(1);
-
-            if (!originalImageData) return;
-
-            const canvas = document.getElementById('enhancedCanvas');
-            const ctx = canvas.getContext('2d');
-
-            const imageData = ctx.createImageData(originalImageData);
-            const data = imageData.data;
-            const originalData = originalImageData.data;
-
-            for (let i = 0; i < data.length; i += 4) {
-                // Apply contrast then brightness
-                data[i] = Math.max(0, Math.min(255, (originalData[i] * contrast) + brightness));
-                data[i + 1] = Math.max(0, Math.min(255, (originalData[i + 1] * contrast) + brightness));
-                data[i + 2] = Math.max(0, Math.min(255, (originalData[i + 2] * contrast) + brightness));
-                data[i + 3] = originalData[i + 3]; // Alpha
-            }
-
-            ctx.putImageData(imageData, 0, 0);
-        }
-
-        function resetImage() {
-            document.getElementById('brightnessSlider').value = 0;
-            document.getElementById('contrastSlider').value = 1;
-            document.getElementById('brightnessValue').textContent = '0';
-            document.getElementById('contrastValue').textContent = '1.0';
-
-            if (originalImageData) {
-                const canvas = document.getElementById('enhancedCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.putImageData(originalImageData, 0, 0);
-            }
-        }
-
-        function createFilterTestImage() {
-            const canvas = document.getElementById('filterInputCanvas');
-            const ctx = canvas.getContext('2d');
-
-            // Create test pattern with shapes
-            ctx.fillStyle = '#888888';
-            ctx.fillRect(0, 0, 180, 180);
-
-            // Add shapes
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(40, 60, 100, 20);  // Horizontal rectangle
-            ctx.fillRect(80, 20, 20, 140);  // Vertical rectangle
-
-            // Add circle
-            ctx.beginPath();
-            ctx.arc(50, 130, 25, 0, 2 * Math.PI);
-            ctx.fill();
-
-            // Add triangle
-            ctx.beginPath();
-            ctx.moveTo(130, 30);
-            ctx.lineTo(150, 60);
-            ctx.lineTo(110, 60);
-            ctx.closePath();
-            ctx.fill();
-        }
-
-        function applyFilter(filterType) {
-            const inputCanvas = document.getElementById('filterInputCanvas');
-            const outputCanvas = document.getElementById('filterOutputCanvas');
-            const inputCtx = inputCanvas.getContext('2d');
-            const outputCtx = outputCanvas.getContext('2d');
-
-            const imageData = inputCtx.getImageData(0, 0, 180, 180);
-
-            if (filterType === 'blur') {
-                // Simple blur effect simulation
-                outputCtx.filter = 'blur(2px)';
-                outputCtx.drawImage(inputCanvas, 0, 0);
-                outputCtx.filter = 'none';
-            } else if (filterType === 'sharpen') {
-                // Enhanced edges effect
-                outputCtx.filter = 'contrast(150%) brightness(110%)';
-                outputCtx.drawImage(inputCanvas, 0, 0);
-                outputCtx.filter = 'none';
-            } else if (filterType === 'edge') {
-                // Edge detection simulation
-                const data = imageData.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-                    const edge = gray > 128 ? 255 : 0;
-                    data[i] = data[i + 1] = data[i + 2] = edge;
-                }
-                outputCtx.putImageData(imageData, 0, 0);
-            }
-        }
-
-        function createHistogramImage(type) {
-            const canvas = document.getElementById('histogramCanvas');
-            const ctx = canvas.getContext('2d');
-
-            ctx.clearRect(0, 0, 200, 200);
-
-            if (type === 'dark') {
-                // Create dark image
-                ctx.fillStyle = '#333333';
-                ctx.fillRect(0, 0, 200, 200);
-                ctx.fillStyle = '#666666';
-                ctx.fillRect(50, 50, 100, 100);
-            } else if (type === 'bright') {
-                // Create bright image
-                ctx.fillStyle = '#cccccc';
-                ctx.fillRect(0, 0, 200, 200);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(50, 50, 100, 100);
-            } else if (type === 'contrast') {
-                // Create high contrast image
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, 100, 200);
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(100, 0, 100, 200);
-            }
-
-            // Update histogram
-            updateHistogram(type);
-        }
-
-        function updateHistogram(type) {
-            const canvas = document.getElementById('histogramChart');
-            const ctx = canvas.getContext('2d');
-
-            ctx.clearRect(0, 0, 300, 150);
-
-            // Draw histogram based on type
-            ctx.fillStyle = '#3b82f6';
-
-            if (type === 'dark') {
-                // Left-skewed histogram
-                for (let i = 0; i < 100; i++) {
-                    const height = Math.max(0, 100 - i) * 0.8;
-                    ctx.fillRect(i * 2, 150 - height, 2, height);
-                }
-            } else if (type === 'bright') {
-                // Right-skewed histogram
-                for (let i = 100; i < 200; i++) {
-                    const height = Math.max(0, i - 100) * 0.8;
-                    ctx.fillRect(i * 1.5, 150 - height, 2, height);
-                }
-            } else if (type === 'contrast') {
-                // Bimodal histogram
-                const height = 120;
-                ctx.fillRect(20, 150 - height, 15, height);  // Dark peak
-                ctx.fillRect(250, 150 - height, 15, height); // Bright peak
-            }
-
-            // Draw axes
-            ctx.strokeStyle = '#374151';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 150);
-            ctx.lineTo(300, 150);
-            ctx.moveTo(0, 0);
-            ctx.lineTo(0, 150);
-            ctx.stroke();
-
-            // Labels
-            ctx.fillStyle = '#374151';
-            ctx.font = '12px Arial';
-            ctx.fillText('0', 5, 145);
-            ctx.fillText('255', 270, 145);
-            ctx.fillText('Intensity', 130, 145);
-        }
-
-        function setupEventListeners() {
-            // Color picker events
-            document.querySelectorAll('.color-swatch').forEach(swatch => {
-                swatch.addEventListener('click', function () {
-                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
-                    currentColor = this.dataset.color;
-                });
-            });
-
-            // Initialize enhanced canvas with original
-            if (originalImageData) {
-                const canvas = document.getElementById('enhancedCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.putImageData(originalImageData, 0, 0);
-            }
-
-            // Button click animations
-            document.querySelectorAll('.btn').forEach(btn => {
-                btn.addEventListener('click', function () {
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                });
-            });
-        }
-    </script>
 </body>
 
 </html>
