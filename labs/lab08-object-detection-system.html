@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 8: Object Detection System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 8: 🎯 Object Detection System</h1>
+            <p class="text-xl text-gray-600 mt-4">Teaching a computer not just *what* an object is, but *where* it is.
+            </p>
+            <p class="text-md text-gray-500 mt-2">Libraries: YOLO (Ultralytics), OpenCV, TensorFlow • Estimated Time: 3
+                hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: Beyond Classification</h2>
+            <p>So far, we've built models that can look at an image and say "this is a cat." That's Image
+                Classification. But what if there's a cat, a dog, and a duck in the same image? How do we find each one?
+            </p>
+            <p class="mt-2">This is Object Detection. The goal is to produce two things for every object in an image:
+            </p>
+            <ol class="list-decimal list-inside ml-4 mt-2">
+                <li>A <span class="font-semibold">Bounding Box</span>: The (x, y) coordinates of a rectangle surrounding
+                    the object.</li>
+                <li>A <span class="font-semibold">Class Label</span>: The name of the object inside the box (e.g.,
+                    "cat", "person").</li>
+            </ol>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Introducing YOLO: You Only Look Once</h3>
+            <p>Older object detection systems were slow. They would look at many different regions of an image one by
+                one. YOLO revolutionized this by being incredibly fast and accurate. It looks at the entire image just
+                once and figures out all the bounding boxes and class probabilities simultaneously.</p>
+            <p class="mt-2">Think of it like this: to find your keys in a room, you don't scan every square inch. You
+                glance around the whole room and your brain instantly picks out key-like shapes. YOLO works in a
+                similar, clever way.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Key Idea of YOLO</h4>
+                <p>YOLO divides the input image into a grid. For each grid cell, it predicts several bounding boxes and
+                    the probability that an object's center falls within that cell. It then combines this with class
+                    predictions to produce the final detections.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Setup -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Setting Up Your YOLO Environment</h2>
+            <p>We'll be using the `ultralytics` library, which provides a super easy-to-use implementation of the latest
+                YOLO models (like YOLOv8). We also need `OpenCV` for handling images and videos.</p>
+            <div class="code-block">
+                <span class="comment"># Install the necessary libraries</span><br>
+                !pip install -q ultralytics opencv-python
+            </div>
+            <div class="code-block">
+                <span class="keyword">import</span> cv2<br>
+                <span class="keyword">from</span> ultralytics <span class="keyword">import</span> YOLO<br>
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br><br>
+
+                <span class="comment"># Load a pre-trained YOLOv8 model</span><br>
+                <span class="comment"># 'yolov8n.pt' is the nano version - small and fast!</span><br>
+                model = YOLO(<span class="string">'yolov8n.pt'</span>)
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Explore Other Models</h4>
+                <p>The `ultralytics` library offers different model sizes, each with a trade-off between speed and
+                    accuracy. Try loading a medium-sized model like `'yolov8m.pt'` or the large (and very accurate)
+                    `'yolov8l.pt'`. The first time you use a model, the library will download it automatically.</p>
+                <div class="code-block text-sm">
+                    model_medium = YOLO(<span class="string">'yolov8m.pt'</span>)
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Detection on a Single Image -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Finding Objects in an Image</h2>
+            <p>Let's start by detecting objects in a single image. First, we need an image. You can upload your own to
+                Colab or download one from the internet.</p>
+            <div class="code-block">
+                <span class="comment"># Download a sample image from the web</span><br>
+                !wget -q https://ultralytics.com/images/bus.jpg -O bus.jpg
+            </div>
+            <div class="code-block">
+                image_path = <span class="string">'bus.jpg'</span><br><br>
+
+                <span class="comment"># Run inference on the image</span><br>
+                results = model(image_path)<br><br>
+
+                <span class="comment"># The 'results' object contains all the detection information.</span><br>
+                <span class="comment"># Ultralytics provides a handy plot() method to visualize the results.</span><br>
+                annotated_image = results[<span class="number">0</span>].plot() <span class="comment"># plot() returns a
+                    NumPy array of the image with boxes drawn on it</span><br><br>
+
+                <span class="comment"># Display the annotated image</span><br>
+                <span class="comment"># Matplotlib expects RGB, but OpenCV (used by plot()) uses BGR, so we
+                    convert.</span><br>
+                plt.imshow(cv2.cvtColor(annotated_image, cv2.COLOR_BGR2RGB))<br>
+                plt.axis(<span class="string">'off'</span>)<br>
+                plt.show()
+            </div>
+            <p>You should see the original image with bounding boxes drawn around the people and the bus, along with
+                their class labels and confidence scores!</p>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Save the Result</h4>
+                <p>Instead of just displaying the image, you can save the annotated version to a file. The `predict`
+                    method has a `save=True` argument that does this automatically, placing the result in a
+                    `runs/detect/predict` folder. Try it!</p>
+                <div class="code-block text-sm">
+                    model.predict(image_path, save=<span class="keyword">True</span>)
+                </div>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">Understanding the Results Object</h3>
+            <p>The `results[0]` object is powerful. You can access the raw data directly.</p>
+            <div class="code-block">
+                <span class="comment"># Access the bounding boxes (in xyxy format), confidence scores, and class
+                    IDs</span><br>
+                boxes = results[<span class="number">0</span>].boxes.xyxy.cpu().numpy()<br>
+                confidences = results[<span class="number">0</span>].boxes.conf.cpu().numpy()<br>
+                class_ids = results[<span class="number">0</span>].boxes.cls.cpu().numpy()<br>
+                class_names = results[<span class="number">0</span>].names <span class="comment"># Dictionary of class
+                    ID -> class name</span><br><br>
+
+                <span class="keyword">print</span>(f<span class="string">"Found {len(boxes)} objects."</span>)<br>
+                <span class="keyword">for</span> i <span class="keyword">in</span> <span
+                    class="keyword">range</span>(len(boxes)):<br>
+                &nbsp;&nbsp;class_name = class_names[class_ids[i]]<br>
+                &nbsp;&nbsp;<span class="keyword">print</span>(f<span class="string">" - Object {i+1}: {class_name}
+                    (Confidence: {confidences[i]:.2f})"</span>)
+            </div>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Adjust the Confidence Threshold</h4>
+                <p>By default, YOLO shows detections with a confidence of 0.25 or higher. You can be more strict. Run
+                    the prediction again, but this time set the `conf` argument. How do the results change if you set it
+                    to `0.7`?</p>
+                <div class="code-block text-sm">
+                    results = model(image_path, conf=<span class="number">0.7</span>)<br>
+                    plt.imshow(cv2.cvtColor(results[<span class="number">0</span>].plot(), cv2.COLOR_BGR2RGB))<br>
+                    plt.show()
+                </div>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Adjust the IoU Threshold</h4>
+                <p>IoU (Intersection over Union) controls how overlapping boxes are handled. A lower `iou` threshold
+                    (e.g., `0.3`) will cause the model to discard more redundant boxes. Run the prediction again, this
+                    time adjusting the `iou` parameter. Do you see any difference in the bus image?</p>
+                <div class="code-block text-sm">
+                    results = model(image_path, iou=<span class="number">0.3</span>)
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Real-Time Detection -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Real-Time Detection on Video</h2>
+            <p>This is where YOLO truly shines. We can run it on a live video stream from your webcam (if you're running
+                this on your local machine) or on a video file in Colab.</p>
+
+            <h3 class="text-2xl font-semibold mt-4 mb-2">Detection on a Video File</h3>
+            <p>First, let's download a sample video.</p>
+            <div class="code-block">
+                !wget -q https://storage.googleapis.com/s4a-prod-share-258/object_detection_files/people-walking.mp4 -O
+                people.mp4
+            </div>
+            <p>Now, we can call the model on the video path. We'll set `stream=True` to process it frame-by-frame
+                efficiently.</p>
+            <div class="code-block">
+                video_path = <span class="string">'people.mp4'</span><br>
+                <span class="comment"># This will run detection and save the output to a file in the
+                    'runs/detect/predict...' folder</span><br>
+                results_generator = model(video_path, stream=<span class="keyword">True</span>, save=<span
+                    class="keyword">True</span>) <br><br>
+                <span class="comment"># We need to iterate through the generator to process it</span><br>
+                <span class="keyword">for</span> result <span class="keyword">in</span> results_generator:<br>
+                &nbsp;&nbsp;<span class="keyword">pass</span> <span class="comment"># The work is done during
+                    iteration</span>
+            </div>
+            <p>After running this, check your file browser in Colab. You'll find a new `runs` directory containing the
+                processed video with bounding boxes drawn on it. You can download and play it!</p>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Filter by Class</h4>
+                <p>What if you only want to detect people and ignore everything else? You can use the `classes`
+                    argument. The class ID for 'person' is 0. Run the prediction on the video again, but only look for
+                    people. Does the output video look cleaner?</p>
+                <div class="code-block text-sm">
+                    model(video_path, stream=<span class="keyword">True</span>, save=<span class="keyword">True</span>,
+                    classes=<span class="number">0</span>)
+                </div>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Speed vs. Accuracy</h4>
+                <p>Processing at a higher resolution gives more accuracy but is slower. Use the `imgsz` argument to set
+                    the image size. Try running detection on the video at `imgsz=320` and then at `imgsz=1280`. It won't
+                    save a video, but it will print the processing speed for each frame. Compare the average speed (in
+                    ms) for each resolution.</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Low resolution (faster)</span><br>
+                    <span class="keyword">for</span> result <span class="keyword">in</span> model(video_path,
+                    stream=<span class="keyword">True</span>, imgsz=<span class="number">320</span>): <span
+                        class="keyword">pass</span><br><br>
+                    <span class="comment"># High resolution (slower, more accurate)</span><br>
+                    <span class="keyword">for</span> result <span class="keyword">in</span> model(video_path,
+                    stream=<span class="keyword">True</span>, imgsz=<span class="number">1280</span>): <span
+                        class="keyword">pass</span><br>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your Mission - Line-Crossing Vehicle Counter</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Advanced Vehicle Counting</h3>
+                <p class="mb-4">Simply counting objects in each frame is flawed. A car that stays in view for 100 frames
+                    gets counted 100 times. A better approach is to count objects as they cross a virtual line. This is
+                    a real-world technique used in traffic analysis.</p>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Find a Video:</strong> Find a short (15-30 seconds) traffic video where vehicles move
+                        horizontally across the screen (e.g., from a highway overpass). Upload it to Colab.</li>
+                    <li><strong>Define a Line:</strong> Define a vertical line on the screen. For an image of width `W`,
+                        a line at `x = W / 2` is a good start.</li>
+                    <li><strong>Loop and Detect:</strong> Open the video with OpenCV. Loop through each frame, and run
+                        YOLO detection on it. Focus only on vehicle classes ('car', 'bus', 'truck', 'motorcycle').</li>
+                    <li><strong>Track Object Centers:</strong> For each detected vehicle, calculate the center of its
+                        bounding box.</li>
+                    <li><strong>Implement Crossing Logic:</strong> To count a vehicle only once, you need to track its
+                        position relative to the line. A simple way is to store the center point of each object from the
+                        *previous* frame. In the current frame, if an object's previous x-coordinate was *less than* the
+                        line and its current x-coordinate is *greater than* the line (or vice versa), it has crossed.
+                        Increment your counter.</li>
+                    <li><strong>Visualize and Report:</strong> Draw your virtual line and the detection boxes on each
+                        frame using OpenCV. Display the running count on the video. At the end, report the final,
+                        accurate vehicle count.</li>
+                </ol>
+                <div class="info-box">
+                    <p><strong>Hint:</strong> You'll need a dictionary to store the positions of objects from the
+                        previous frame. This requires a simple tracking mechanism. A good starting point is to assume an
+                        object in a similar position in the next frame is the same object.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Bonus - Custom Training</h2>
+            <p>The true power of YOLO is training it on your own custom dataset. This is the biggest challenge in object
+                detection and a highly valuable skill.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a href="https://www.kaggle.com/datasets/ultralytics/coco8"
+                        target="_blank" class="text-indigo-600 hover:underline">Dataset: COCO8</a></h4>
+                <p>The `COCO8` dataset is a small example dataset provided by Ultralytics, perfect for learning how to
+                    train. It has 8 images and the corresponding labels in YOLO format.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge: Fine-Tune YOLO</h4>
+            <p>Your goal is to "fine-tune" the pre-trained YOLOv8 model on this tiny dataset. The `ultralytics` library
+                makes this surprisingly easy.</p>
+            <div class="code-block">
+                <span class="comment"># You need a YAML file to define your dataset structure</span><br>
+                <span class="string">"""
+                    # coco8.yaml
+                    train: ./coco8/images/train
+                    val: ./coco8/images/val
+
+                    # number of classes
+                    nc: 80
+
+                    # class names
+                    names: ['person', 'bicycle', 'car', ..., 'toothbrush']
+                    """</span><br><br>
+                <span class="comment"># Load the model</span><br>
+                model = YOLO(<span class="string">'yolov8n.pt'</span>)<br><br>
+
+                <span class="comment"># Train the model</span><br>
+                results = model.train(data=<span class="string">'coco8.yaml'</span>, epochs=<span
+                    class="number">100</span>, imgsz=<span class="number">640</span>)
+            </div>
+            <p class="mt-4">Running this code will download the dataset, start the training process, and save your new,
+                fine-tuned model weights in the `runs/detect/train/` directory. You can then load this new model and use
+                it just like you used the pre-trained one!</p>
+        </section>
+
+        <!-- Section 7: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Submission Guidelines</h2>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" (Line-Crossing Vehicle Counter) in a
+                    single Google Colab notebook. The custom training is a bonus.</li>
+                <li>For the assignment, include the code that loops through the video frames, implements the
+                    line-crossing logic, and draws visualizations.</li>
+                <li>Add a Text Cell at the end reporting your final, accurate vehicle count. Explain your line-crossing
+                    logic.</li>
+                <li>Ensure all your code cells have been run so that their outputs are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>

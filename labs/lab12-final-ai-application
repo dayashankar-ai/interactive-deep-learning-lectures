@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 12: Final AI Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .code-block {
+            background-color: #1f2937; /* Gray 800 */
+            color: #f9fafb; /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .code-block .comment {
+            color: #9ca3af; /* Gray 400 */
+        }
+        .code-block .keyword {
+            color: #c084fc; /* Purple 400 */
+        }
+        .code-block .string {
+            color: #6ee7b7; /* Emerald 300 */
+        }
+        .project-option-card {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .project-option-card:hover {
+            border-color: #6366f1;
+            box-shadow: 0 4px 14px 0 rgb(0 0 0 / 0.1);
+        }
+        .info-box {
+            background-color: #eef2ff; /* Indigo 50 */
+            border-left: 4px solid #6366f1; /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .your-turn-box {
+            background-color: #f0fdf4; /* Green 50 */
+            border-left: 4px solid #4ade80; /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 12: 🚀 Final AI Application</h1>
+            <p class="text-xl text-gray-600 mt-4">Your capstone project: build and deploy a complete AI system from scratch.</p>
+            <p class="text-md text-gray-500 mt-2">Stack: Your Choice • Estimated Time: 3+ hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: The Capstone Challenge</h2>
+            <p>Welcome to your final lab. So far, you have mastered individual components of Artificial Intelligence: you've taught models to classify digits, understand text, detect objects, and even generate new images. Now, you will transition from being an apprentice to being an <span class="font-semibold">AI Architect</span>.</p>
+            <p class="mt-2">An architect doesn't just know how to lay bricks or install plumbing; they design the entire house. Your task is to design and build a complete, end-to-end AI application that integrates multiple skills you've learned into a single, cohesive, and useful product. This project will be the centerpiece of your portfolio.</p>
+        </section>
+
+        <!-- Section 2: Choose Your Mission -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Choose Your Mission</h2>
+            <p>Below are three project ideas. Each combines different skills and has a different focus. While this lab will provide a detailed walkthrough for Project A, feel free to tackle any of them. The goal is to build something you're proud of.</p>
+            
+            <!-- Project A -->
+            <div class="project-option-card">
+                <h3 class="text-2xl font-bold text-indigo-600">Project A (Core): The AI Art Studio</h3>
+                <p class="mt-2">An interactive web app where a user can upload a photo, and the app will 1) identify all the objects in the image, and 2) allow the user to "repaint" the image in the style of a famous artist.</p>
+                <p class="font-semibold mt-3">Skills Used:</p>
+                <ul class="list-disc ml-5 mt-1 text-sm">
+                    <li>Object Detection (Lab 8: YOLO)</li>
+                    <li>Generative AI / Style Transfer (Lab 11: PyTorch)</li>
+                    <li>Web App Deployment (Lab 10: Streamlit)</li>
+                    <li>Using Pre-trained Models (Lab 7)</li>
+                </ul>
+            </div>
+            
+            <!-- Project B -->
+            <div class="project-option-card">
+                <h3 class="text-2xl font-bold text-green-600">Project B (Alternative): The Intelligent Recipe Generator</h3>
+                <p class="mt-2">A web app where a user enters a list of ingredients they have, and the AI generates a unique recipe for them, complete with a generated image of what the final dish might look like.</p>
+                <p class="font-semibold mt-3">Skills Used:</p>
+                 <ul class="list-disc ml-5 mt-1 text-sm">
+                    <li>Text Processing & Generation (Lab 9: RNNs/Transformers)</li>
+                    <li>Generative AI / Image Generation (Lab 11: GANs/Diffusion)</li>
+                    <li>Web App Deployment (Lab 10: Streamlit)</li>
+                    <li>Data Collection (Web Scraping or Datasets)</li>
+                </ul>
+            </div>
+
+            <!-- Project C -->
+            <div class="project-option-card">
+                <h3 class="text-2xl font-bold text-red-600">Project C (Expert): The Live Sign Language Interpreter</h3>
+                <p class="mt-2">A real-time application that uses your webcam to recognize American Sign Language (ASL) gestures for letters or words and displays the translated text on screen.</p>
+                <p class="font-semibold mt-3">Skills Used:</p>
+                 <ul class="list-disc ml-5 mt-1 text-sm">
+                    <li>Custom Object Detection / Image Classification (Lab 8, but requires custom training)</li>
+                    <li>Real-time Video Processing (OpenCV)</li>
+                    <li>Data Collection & Annotation (A major part of the project)</li>
+                    <li>Web App Deployment (Lab 10: Streamlit)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 3: Guided Walkthrough for Project A -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Guided Walkthrough for "The AI Art Studio"</h2>
+            <p>This section will provide a high-level blueprint for building Project A. The goal is not to give you copy-paste code, but to guide your thinking as an architect.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 1: System Design & Environment Setup</h3>
+            <p>First, plan the components. We need a single Python environment with all our tools. Create a new folder for your project.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Project Structure</h4>
+                <p>Your folder should look like this:</p>
+                <div class="code-block text-sm">
+                    /ai-art-studio/<br>
+                    |-- app.py             <span class="comment"># Your main Streamlit application</span><br>
+                    |-- object_detector.py   <span class="comment"># A module for the YOLO logic</span><br>
+                    |-- style_transfer.py    <span class="comment"># A module for the style transfer logic</span><br>
+                    |-- /styles/             <span class="comment"># Folder to store your style images (e.g., van_gogh.jpg)</span><br>
+                    |-- requirements.txt     <span class="comment"># A file listing all needed packages</span>
+                </div>
+            </div>
+            <p>Your `requirements.txt` file will need libraries like `streamlit`, `torch`, `torchvision`, `numpy`, `opencv-python`, `ultralytics`.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 2: Build the Object Detection Module</h3>
+            <p>In `object_detector.py`, create a function that encapsulates the logic from Lab 8.</p>
+            <div class="code-block">
+                <span class="comment"># Inside object_detector.py</span><br>
+                <span class="keyword">from</span> ultralytics <span class="keyword">import</span> YOLO<br>
+                <span class="keyword">import</span> cv2<br><br>
+
+                model = YOLO(<span class="string">'yolov8n.pt'</span>) <span class="comment"># Load a pre-trained model</span><br><br>
+
+                <span class="keyword">def</span> detect_objects(image):<br>
+                &nbsp;&nbsp;<span class="string">"""Takes a PIL image, runs detection, and returns an annotated image."""</span><br>
+                &nbsp;&nbsp;results = model(image)<br>
+                &nbsp;&nbsp;annotated_image = results[<span class="number">0</span>].plot() <span class="comment"># .plot() draws the boxes on the image</span><br>
+                &nbsp;&nbsp;annotated_image_bgr = cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR)<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> annotated_image_bgr<br>
+            </div>
+             <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Extract Labels</h4>
+                <p>Modify the `detect_objects` function. In addition to the annotated image, it should also return a list of the names of all detected objects (e.g., `['person', 'dog', 'car']`). You can get this from the `results` object.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 3: Build the Style Transfer Module</h3>
+            <p>In `style_transfer.py`, adapt your code from Lab 11 (or find a pre-existing implementation) and wrap it in a function. This is the most complex part.</p>
+             <div class="code-block">
+                <span class="comment"># Inside style_transfer.py (This is a simplified example)</span><br>
+                <span class="keyword">import</span> torch<br>
+                <span class="keyword">from</span> torchvision <span class="keyword">import</span> models, transforms<br>
+                <span class="comment"># ... plus all the logic for calculating content and style loss ...</span><br><br>
+
+                vgg = models.vgg19(pretrained=<span class="keyword">True</span>).features<br><br>
+
+                <span class="keyword">def</span> apply_style(content_image, style_image):<br>
+                &nbsp;&nbsp;<span class="string">"""Takes content and style images, returns a stylized image."""</span><br>
+                &nbsp;&nbsp;<span class="comment"># 1. Preprocess images (resize, convert to tensors)</span><br>
+                &nbsp;&nbsp;<span class="comment"># 2. Initialize a target image (e.g., a copy of the content image)</span><br>
+                &nbsp;&nbsp;<span class="comment"># 3. Run an optimization loop to minimize content and style loss</span><br>
+                &nbsp;&nbsp;<span class="comment"># 4. Post-process the final image and return it</span><br>
+                &nbsp;&nbsp;<span class="keyword">pass</span> <span class="comment"># Replace with your implementation</span><br>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 4: Build the Streamlit UI</h3>
+            <p>In `app.py`, use the Streamlit skills from Lab 10 to create the front-end interface.</p>
+            <div class="code-block">
+                <span class="comment"># Inside app.py</span><br>
+                <span class="keyword">import</span> streamlit <span class="keyword">as</span> st<br>
+                <span class="keyword">from</span> PIL <span class="keyword">import</span> Image<br>
+                <span class="comment"># Import your functions</span><br>
+                <span class="keyword">from</span> object_detector <span class="keyword">import</span> detect_objects<br>
+                <span class="keyword">from</span> style_transfer <span class="keyword">import</span> apply_style<br><br>
+
+                st.title(<span class="string">"The AI Art Studio 🎨"</span>)<br><br>
+
+                uploaded_file = st.file_uploader(<span class="string">"Choose an image..."</span>, type=[<span class="string">"jpg"</span>, <span class="string">"png"</span>])<br><br>
+                
+                <span class="keyword">if</span> uploaded_file <span class="keyword">is not</span> <span class="keyword">None</span>:<br>
+                &nbsp;&nbsp;image = Image.open(uploaded_file)<br>
+                &nbsp;&nbsp;st.image(image, caption=<span class="string">'Uploaded Image'</span>, use_column_width=<span class="keyword">True</span>)<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># --- Object Detection Section ---</span><br>
+                &nbsp;&nbsp;<span class="keyword">if</span> st.button(<span class="string">'Detect Objects'</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;annotated_image = detect_objects(image)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;st.image(annotated_image, caption=<span class="string">'Detected Objects'</span>, use_column_width=<span class="keyword">True</span>)<br><br>
+
+                &nbsp;&nbsp;<span class="comment"># --- Style Transfer Section ---</span><br>
+                &nbsp;&nbsp;style_name = st.selectbox(<span class="string">'Choose a style:'</span>, [<span class="string">'Van Gogh'</span>, <span class="string">'Monet'</span>, <span class="string">'Picasso'</span>])<br>
+                &nbsp;&nbsp;<span class="keyword">if</span> st.button(<span class="string">'Apply Style'</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;style_image = Image.open(f<span class="string">"styles/{style_name.lower()}.jpg"</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;stylized_image = apply_style(image, style_image)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;st.image(stylized_image, caption=f<span class="string">"Styled by {style_name}"</span>, use_column_width=<span class="keyword">True</span>)<br>
+            </div>
+             <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Add a Sidebar</h4>
+                <p>Make the UI cleaner. Move the style selection `selectbox` and the action buttons into a sidebar using `st.sidebar`.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Your Mission - Go Beyond</h2>
+             <p>A great project is never truly "finished." Here are some ideas to make your AI Art Studio even more impressive.</p>
+            <ul class="list-disc ml-5 space-y-2 mt-4">
+                <li><strong>Dynamic Captions:</strong> Use the list of detected object labels from your "Your Turn" task to automatically generate a caption for the image, like "I see a person, a dog, and a car."</li>
+                <li><strong>Adjustable Style:</strong> Add a `st.slider` to control the "strength" of the style transfer, passing this value to your `apply_style` function to change the weighting between the content and style losses.</li>
+                <li><strong>Deploy Online:</strong> Deploy your app to Streamlit Community Cloud so anyone in the world can use it. This involves pushing your project to GitHub and linking it to Streamlit.</li>
+                <li><strong>Add Another Model:</strong> Integrate a third AI feature. For example, use a pre-trained image segmentation model to allow the user to apply style transfer to only the background of the image.</li>
+            </ul>
+        </section>
+
+
+        <!-- Section 5: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Final Submission</h2>
+            <p>Your final submission should be a professional showcase of your work.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Create a new public repository on <a href="https://github.com" target="_blank" class="text-indigo-600 hover:underline">GitHub</a> for your project.</li>
+                <li>Your code should be clean, well-commented, and organized into modules as described above.</li>
+                <li>The most important file is `README.md`. It should be a complete project page, including:
+                    <ul class="list-disc ml-6">
+                        <li>A clear title and a one-paragraph summary of what your application does.</li>
+                        <li>A GIF or video demonstrating your application in action. This is critical!</li>
+                        <li>A "Features" section listing the capabilities.</li>
+                        <li>A "How to Run" section with instructions on setting it up locally.</li>
+                        <li>(Optional but highly recommended) A link to your live, deployed application on Streamlit Community Cloud.</li>
+                    </ul>
+                </li>
+                <li>Submit the URL to your public GitHub repository as your final assignment. Congratulations, you are now an AI developer!</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+</html>

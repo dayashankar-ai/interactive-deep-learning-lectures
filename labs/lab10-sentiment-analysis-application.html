@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 10: Sentiment Analysis Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 10: 💭 Sentiment Analysis Application</h1>
+            <p class="text-xl text-gray-600 mt-4">From a trained model in a notebook to a live web app anyone can use.
+            </p>
+            <p class="text-md text-gray-500 mt-2">Libraries: TensorFlow, Keras, Pandas, Streamlit • Estimated Time: 3
+                hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: The Final Step - Deployment</h2>
+            <p>So far, all our amazing models have lived inside a Colab notebook. They can't do anything unless we are
+                there to run the code. The final, crucial step in any real-world AI project is <span
+                    class="font-semibold">deployment</span>—packaging your model into a user-friendly application.</p>
+            <p class="mt-2">Today, we'll build a simple web app for our sentiment analysis model. This means anyone,
+                even someone with no coding knowledge, can visit a webpage, type in a sentence, and get a prediction.
+            </p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Introducing Streamlit: Your AI Swiss Army Knife</h3>
+            <p>Building a web app from scratch usually involves learning HTML, CSS, and JavaScript frameworks. It's
+                complicated! <span class="font-semibold">Streamlit</span> is a magical Python library that lets you
+                build beautiful, interactive web apps for machine learning with just a few lines of Python. No web
+                development experience needed!</p>
+        </section>
+
+        <!-- Section 2: Building the Model -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Train and Save a Sentiment Classifier</h2>
+            <p>Before we can build an app, we need a model. We'll train an LSTM on a real-world dataset of tweets to
+                classify them as positive or negative. The most important new step is <span class="font-semibold">saving
+                    our trained model and tokenizer</span> so our web app can use them later.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 1: Get the Data</h3>
+            <p>We'll use the "Sentiment140" dataset, which contains 1.6 million tweets with sentiment labels (0 =
+                negative, 4 = positive).</p>
+            <div class="code-block">
+                <span class="keyword">import</span> pandas <span class="keyword">as</span> pd<br>
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                <span class="keyword">import</span> pickle<br>
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br><br>
+
+                <span class="comment"># Download the dataset</span><br>
+                !wget --no-check-certificate \
+                http://cs.stanford.edu/people/alecmgo/trainingandtestdata.zip \
+                -O /tmp/trainingandtestdata.zip<br><br>
+
+                <span class="comment"># Unzip it</span><br>
+                <span class="keyword">import</span> zipfile<br>
+                zip_ref = zipfile.ZipFile(<span class="string">"/tmp/trainingandtestdata.zip"</span>, <span
+                    class="string">'r'</span>)<br>
+                zip_ref.extractall(<span class="string">"/tmp/"</span>)<br>
+                zip_ref.close()
+            </div>
+            <div class="code-block">
+                <span class="comment"># Load into a pandas DataFrame</span><br>
+                cols = [<span class="string">'sentiment'</span>, <span class="string">'id'</span>, <span
+                    class="string">'date'</span>, <span class="string">'query'</span>, <span
+                    class="string">'user'</span>, <span class="string">'text'</span>]<br>
+                df = pd.read_csv(<span class="string">'/tmp/training.1600000.processed.noemoticon.csv'</span>,
+                header=<span class="keyword">None</span>, names=cols, encoding=<span
+                    class="string">'ISO-8859-1'</span>)<br><br>
+
+                <span class="comment"># We only need the sentiment and text</span><br>
+                df = df[[<span class="string">'sentiment'</span>, <span class="string">'text'</span>]]<br>
+                df[<span class="string">'sentiment'</span>] = df[<span class="string">'sentiment'</span>].replace(<span
+                    class="number">4</span>, <span class="number">1</span>) <span class="comment"># Change label 4 to 1
+                    for easier use</span><br><br>
+
+                <span class="comment"># For this lab, we'll use a smaller subset to speed up training</span><br>
+                df = df.sample(<span class="number">20000</span>, random_state=<span class="number">42</span>)
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Explore the Dataset</h4>
+                <p>Before diving in, it's always good practice to inspect your data. Use `df.head()` to see the first
+                    few rows and `df['sentiment'].value_counts()` to see if the number of positive and negative tweets
+                    is balanced.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 2: Preprocess and Tokenize</h3>
+            <p>This is the same process as Lab 9: convert text to numbers.</p>
+            <div class="code-block">
+                <span class="keyword">from</span> tensorflow.keras.preprocessing.text <span
+                    class="keyword">import</span> Tokenizer<br>
+                <span class="keyword">from</span> tensorflow.keras.preprocessing.sequence <span
+                    class="keyword">import</span> pad_sequences<br><br>
+
+                vocab_size = <span class="number">10000</span><br>
+                embedding_dim = <span class="number">16</span><br>
+                max_length = <span class="number">100</span><br>
+                trunc_type=<span class="string">'post'</span><br>
+                padding_type=<span class="string">'post'</span><br>
+                oov_tok = <span class="string">"&lt;OOV&gt;"</span><br><br>
+
+                tokenizer = Tokenizer(num_words=vocab_size, oov_token=oov_tok)<br>
+                tokenizer.fit_on_texts(df[<span class="string">'text'</span>])<br><br>
+
+                sequences = tokenizer.texts_to_sequences(df[<span class="string">'text'</span>])<br>
+                padded = pad_sequences(sequences, maxlen=max_length, padding=padding_type,
+                truncating=trunc_type)<br><br>
+
+                labels = df[<span class="string">'sentiment'</span>].values
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 3: Build, Train, and SAVE</h3>
+            <div class="code-block">
+                model = tf.keras.Sequential([<br>
+                &nbsp;&nbsp;tf.keras.layers.Embedding(vocab_size, embedding_dim, input_length=max_length),<br>
+                &nbsp;&nbsp;tf.keras.layers.Bidirectional(tf.keras.layers.LSTM(<span class="number">32</span>)),<br>
+                &nbsp;&nbsp;tf.keras.layers.Dense(<span class="number">24</span>, activation=<span
+                    class="string">'relu'</span>),<br>
+                &nbsp;&nbsp;tf.keras.layers.Dense(<span class="number">1</span>, activation=<span
+                    class="string">'sigmoid'</span>)<br>
+                ])<br><br>
+
+                model.compile(loss=<span class="string">'binary_crossentropy'</span>, optimizer=<span
+                    class="string">'adam'</span>, metrics=[<span class="string">'accuracy'</span>])<br><br>
+
+                history = model.fit(padded, labels, epochs=<span class="number">10</span>, validation_split=<span
+                    class="number">0.2</span>, verbose=<span class="number">2</span>)
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Plot Training History</h4>
+                <p>A key skill is diagnosing your model's training. The `history` object contains the accuracy and loss
+                    for each epoch. Use Matplotlib to plot the training accuracy vs. the validation accuracy. Is the
+                    model overfitting? (Hint: `history.history['accuracy']` and `history.history['val_accuracy']`)</p>
+                <div class="code-block text-sm">
+                    plt.plot(history.history[<span class="string">'accuracy'</span>], label=<span
+                        class="string">'Training Accuracy'</span>)<br>
+                    plt.plot(history.history[<span class="string">'val_accuracy'</span>], label=<span
+                        class="string">'Validation Accuracy'</span>)<br>
+                    plt.legend()<br>
+                    plt.show()
+                </div>
+            </div>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">CRUCIAL STEP: Save Your Tools!</h4>
+                <p>To use this model in another script (our web app), we must save two things: the trained model's
+                    weights and the tokenizer. The tokenizer is just as important as the model, because our app needs to
+                    preprocess user input in the exact same way.</p>
+            </div>
+            <div class="code-block">
+                <span class="comment"># Save the trained model</span><br>
+                model.save(<span class="string">'sentiment_model.h5'</span>)<br><br>
+
+                <span class="comment"># Save the tokenizer object</span><br>
+                <span class="keyword">with</span> open(<span class="string">'tokenizer.pickle'</span>, <span
+                    class="string">'wb'</span>) <span class="keyword">as</span> handle:<br>
+                &nbsp;&nbsp;pickle.dump(tokenizer, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            </div>
+            <p class="mt-2">After running this, use the file browser in Colab to download `sentiment_model.h5` and
+                `tokenizer.pickle` to your computer. You'll need them for the next part.</p>
+        </section>
+
+        <!-- Section 3: Building the App with Streamlit -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Building The App Locally</h2>
+            <p>Now we leave Colab and move to our own computer. Create a new folder on your desktop, and place the two
+                files you just downloaded (`sentiment_model.h5` and `tokenizer.pickle`) inside it.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 1: Install Streamlit and TensorFlow</h3>
+            <p>Open a terminal or command prompt on your computer and run:</p>
+            <div class="code-block">
+                pip install streamlit tensorflow
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 2: Create your app file</h3>
+            <p>Inside your new folder, create a new Python file named `app.py`. Open it in a text editor (like VS Code,
+                Sublime Text, or even Notepad) and paste the following code:</p>
+            <div class="code-block">
+                <span class="keyword">import</span> streamlit <span class="keyword">as</span> st<br>
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">import</span> pickle<br>
+                <span class="keyword">from</span> tensorflow.keras.preprocessing.sequence <span
+                    class="keyword">import</span> pad_sequences<br><br>
+
+                <span class="comment"># --- Load Model and Tokenizer ---</span><br>
+                st.set_page_config(page_title=<span class="string">"Sentiment Analyzer"</span>, page_icon=<span
+                    class="string">"💭"</span>)<br><br>
+
+                <span class="comment"># Use a cache to avoid reloading the model on every interaction</span><br>
+                @st.cache(allow_output_mutation=<span class="keyword">True</span>)<br>
+                <span class="keyword">def</span> load_model_and_tokenizer():<br>
+                &nbsp;&nbsp;model = tf.keras.models.load_model(<span class="string">'sentiment_model.h5'</span>)<br>
+                &nbsp;&nbsp;<span class="keyword">with</span> open(<span class="string">'tokenizer.pickle'</span>, <span
+                    class="string">'rb'</span>) <span class="keyword">as</span> handle:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;tokenizer = pickle.load(handle)<br>
+                &nbsp;&nbsp;<span class="keyword">return</span> model, tokenizer<br><br>
+
+                model, tokenizer = load_model_and_tokenizer()<br><br>
+
+                <span class="comment"># --- App Layout ---</span><br>
+                st.title(<span class="string">"Twitter Sentiment Analyzer"</span>)<br>
+                st.write(<span class="string">"Type a sentence below and I'll tell you if it's positive or
+                    negative!"</span>)<br><br>
+
+                user_input = st.text_area(<span class="string">"Enter your text here:"</span>)<br><br>
+
+                <span class="keyword">if</span> st.button(<span class="string">"Analyze"</span>):<br>
+                &nbsp;&nbsp;<span class="keyword">if</span> user_input:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 1. Preprocess the input</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;sequence = tokenizer.texts_to_sequences([user_input])<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;padded = pad_sequences(sequence, maxlen=<span class="number">100</span>,
+                padding=<span class="string">'post'</span>, truncating=<span class="string">'post'</span>)<br><br>
+
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 2. Make prediction</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;prediction = model.predict(padded)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;sentiment_score = prediction[<span class="number">0</span>][<span
+                    class="number">0</span>]<br><br>
+
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># 3. Display result</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> sentiment_score > <span
+                    class="number">0.5</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.success(f<span class="string">"Positive Sentiment! 👍 (Score:
+                    {sentiment_score:.2f})"</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;st.error(f<span class="string">"Negative Sentiment! 👎 (Score:
+                    {sentiment_score:.2f})"</span>)<br>
+                &nbsp;&nbsp;<span class="keyword">else</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;st.warning(<span class="string">"Please enter some text to analyze."</span>)
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 3: Run the App!</h3>
+            <p>Go back to your terminal, make sure you are in the folder where `app.py` is located, and run this
+                command:</p>
+            <div class="code-block">
+                streamlit run app.py
+            </div>
+            <p>Your web browser should automatically open with your new application running! Try it out!</p>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Add a Spinner</h4>
+                <p>Model prediction isn't instant. To improve the user experience, wrap the prediction logic in a `with
+                    st.spinner('Analyzing...'):` block. This will show a nice loading animation while the model is
+                    working.</p>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Visualize the Score</h4>
+                <p>Instead of just printing the score, use a visual element. After the `st.success` or `st.error`, add
+                    `st.progress(sentiment_score)` to show a progress bar. Or, try `st.bar_chart({'sentiment':
+                    [sentiment_score, 1-sentiment_score]})` to show both positive and negative probabilities.</p>
+            </div>
+        </section>
+
+        <!-- Section 4: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Your Mission - Upgrade the App</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Add More Features</h3>
+                <p class="mb-4">Your base application works, but we can make it better. Your mission is to add new
+                    features to `app.py`.</p>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Add a Header and Sidebar:</strong> Use `st.header()` and `st.sidebar.header()` to
+                        organize your app. Put an "About" section in the sidebar explaining what the app does.</li>
+                    <li><strong>Show More Details:</strong> After a prediction, display the raw sentiment score with
+                        more precision. Also, explain what the score means (e.g., "Scores closer to 1 are more
+                        positive.").</li>
+                    <li><strong>Display an Image:</strong> After a prediction, use `st.image()` to display a happy emoji
+                        picture for a positive result and a sad one for a negative result. Find these images online.
+                    </li>
+                    <li><strong>Add a "Clear" Button:</strong> Add a second button that clears the text area and the
+                        previous result.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 5: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Bonus - A More Complex Classifier</h2>
+            <p>The model we built was simple to keep training fast. A more powerful and modern approach is to use
+                pre-trained word embeddings like GloVe.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a
+                        href="https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews"
+                        target="_blank" class="text-indigo-600 hover:underline">Kaggle: IMDB Movie Reviews</a></h4>
+                <p>This is a classic binary sentiment classification dataset, but the text is much longer and more
+                    complex than tweets.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <p>Your goal is to build a highly accurate sentiment classifier for this dataset and deploy it with
+                Streamlit.</p>
+            <ul class="list-disc ml-5 space-y-2">
+                <li>Download GloVe embeddings (e.g., `glove.6B.100d.txt`).</li>
+                <li>Create an embedding matrix that maps words in your tokenizer's vocabulary to their GloVe vectors.
+                </li>
+                <li>In your Keras model, use this embedding matrix to initialize the `Embedding` layer and set
+                    `trainable=False`. This injects powerful pre-trained knowledge into your model.</li>
+                <li>Train this new model, save it, and update your Streamlit app to use it. Compare its performance to
+                    your original model.</li>
+            </ul>
+        </section>
+
+        <!-- Section 6: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Submission Guidelines</h2>
+            <p>Since this project involves multiple local files, submitting a Colab link isn't enough.</p>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Create a new public repository on <a href="https://github.com" target="_blank"
+                        class="text-indigo-600 hover:underline">GitHub</a>. This is an essential skill for all
+                    developers.</li>
+                <li>Your repository should contain at least three files:
+                    <ul class="list-disc ml-6">
+                        <li>The final, enhanced `app.py`.</li>
+                        <li>The saved `sentiment_model.h5`.</li>
+                        <li>The saved `tokenizer.pickle`.</li>
+                    </ul>
+                </li>
+                <li>Create a `README.md` file in your repository. In this file, write a brief description of your
+                    project and include instructions on how to run it (e.g., "1. Clone the repo. 2. Run `pip install -r
+                    requirements.txt`. 3. Run `streamlit run app.py`").</li>
+                <li>Submit the URL to your public GitHub repository as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 7: Transfer Learning Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .output-box {
+            background-color: #f3f4f6;
+            /* Gray 100 */
+            border: 1px dashed #d1d5db;
+            /* Gray 300 */
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            color: #374151;
+            /* Gray 700 */
+            white-space: pre-wrap;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 7: 🔄 Transfer Learning Project</h1>
+            <p class="text-xl text-gray-600 mt-4">Standing on the shoulders of giants to achieve amazing results, fast.
+            </p>
+            <p class="text-md text-gray-500 mt-2">Libraries: TensorFlow, Keras Applications, PIL • Estimated Time: 3
+                hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: What is Transfer Learning?</h2>
+            <p>Imagine you want to become a world-class Italian chef. You have two options:</p>
+            <ol class="list-decimal list-inside ml-4 mt-2">
+                <li><strong>Start from Scratch:</strong> Learn what an oven is, how heat works, what a knife is, basic
+                    knife skills, what flour is, etc. This would take years.</li>
+                <li><strong>Transfer Learning:</strong> Hire a world-class French chef who already knows all the basics
+                    of cooking (heat, knife skills, textures, flavors). You just need to teach them the specifics of
+                    Italian cuisine (pasta, tomato sauces, etc.). This is much faster!</li>
+            </ol>
+            <p class="mt-4">In AI, building a CNN from scratch is like Option 1. **Transfer Learning** is Option 2. We
+                take a powerful model (like `VGG16`, `ResNet`, or `EfficientNet`) that has already been trained on
+                millions of diverse images (like the French chef) and adapt it for our specific task (like Italian
+                cooking).</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">The Two Main Transfer Learning Strategies:</h4>
+                <ul class="list-disc ml-5">
+                    <li><strong>Feature Extraction:</strong> We use the pre-trained model's convolutional layers as a
+                        fixed "feature extractor." We freeze its weights and only train a new classifier head that we
+                        add on top. This is fast and works well with small datasets.</li>
+                    <li><strong>Fine-Tuning:</strong> We start with a pre-trained model, but we "unfreeze" the top few
+                        layers of the base model and train them with a very low learning rate, along with our new
+                        classifier head. This allows the model to adapt its specialized filters to our new dataset.</li>
+                </ul>
+            </div>
+            <p class="mt-4">Today, we'll use the "Cats vs. Dogs" dataset to explore both of these powerful techniques.
+            </p>
+        </section>
+
+        <!-- Section 2: Setup -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Setup and Data Preparation</h2>
+            <p>First, we need to download and prepare the "Cats vs. Dogs" dataset from Kaggle. In Colab, you can use the
+                Kaggle API for this.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Setting up the Kaggle API</h4>
+                <p>You'll need to upload your `kaggle.json` API token to your Colab environment. Go to your Kaggle
+                    account -> Settings -> API -> Create New Token. Then upload the downloaded file to your Colab
+                    session.</p>
+            </div>
+            <div class="code-block">
+                <span class="comment"># Install Kaggle API and set up credentials</span><br>
+                !pip install -q kaggle<br>
+                !mkdir -p ~/.kaggle<br>
+                !cp kaggle.json ~/.kaggle/<br>
+                !chmod 600 ~/.kaggle/kaggle.json<br><br>
+
+                <span class="comment"># Download and unzip the dataset</span><br>
+                !kaggle competitions download -c dogs-vs-cats<br>
+                !unzip -q dogs-vs-cats.zip<br>
+                !unzip -q train.zip
+            </div>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">from</span> tensorflow <span class="keyword">import</span> keras<br>
+                <span class="keyword">from</span> tensorflow.keras <span class="keyword">import</span> layers<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br>
+                <span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt<br><br>
+
+                <span class="comment"># Define image size and batch size</span><br>
+                IMG_SIZE = (<span class="number">180</span>, <span class="number">180</span>)<br>
+                BATCH_SIZE = <span class="number">32</span><br><br>
+
+                <span class="comment"># Create training and validation datasets from the 'train' directory</span><br>
+                <span class="comment"># This utility automatically labels images based on their folder
+                    structure.</span><br>
+                <span class="comment"># But since dogs-vs-cats doesn't have subfolders, we'll need to sort that
+                    out.</span><br>
+                <span class="comment"># First, let's create the subfolders.</span><br>
+                <span class="keyword">import</span> os, shutil<br>
+                os.makedirs(<span class="string">"data/cats"</span>, exist_ok=<span class="keyword">True</span>)<br>
+                os.makedirs(<span class="string">"data/dogs"</span>, exist_ok=<span class="keyword">True</span>)<br>
+                <span class="keyword">for</span> fname <span class="keyword">in</span> os.listdir(<span
+                    class="string">'train'</span>):<br>
+                &nbsp;&nbsp;<span class="keyword">if</span> fname.startswith(<span class="string">'cat'</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;shutil.move(os.path.join(<span class="string">'train'</span>, fname), <span
+                    class="string">"data/cats"</span>)<br>
+                &nbsp;&nbsp;<span class="keyword">elif</span> fname.startswith(<span class="string">'dog'</span>):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;shutil.move(os.path.join(<span class="string">'train'</span>, fname), <span
+                    class="string">"data/dogs"</span>)<br><br>
+
+                train_dataset = tf.keras.utils.image_dataset_from_directory(<br>
+                &nbsp;&nbsp;<span class="string">"data"</span>,<br>
+                &nbsp;&nbsp;validation_split=<span class="number">0.2</span>,<br>
+                &nbsp;&nbsp;subset=<span class="string">"training"</span>,<br>
+                &nbsp;&nbsp;seed=<span class="number">1337</span>, <span class="comment"># Must be the same seed for
+                    both datasets</span><br>
+                &nbsp;&nbsp;image_size=IMG_SIZE,<br>
+                &nbsp;&nbsp;batch_size=BATCH_SIZE,<br>
+                )<br><br>
+
+                validation_dataset = tf.keras.utils.image_dataset_from_directory(<br>
+                &nbsp;&nbsp;<span class="string">"data"</span>,<br>
+                &nbsp;&nbsp;validation_split=<span class="number">0.2</span>,<br>
+                &nbsp;&nbsp;subset=<span class="string">"validation"</span>,<br>
+                &nbsp;&nbsp;seed=<span class="number">1337</span>,<br>
+                &nbsp;&nbsp;image_size=IMG_SIZE,<br>
+                &nbsp;&nbsp;batch_size=BATCH_SIZE,<br>
+                )
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Inspect the Data</h4>
+                <p>Our `train_dataset` object is a `tf.data.Dataset`. Let's peek inside. Use the `.take(1)` method to
+                    grab one batch of images and labels, then print their shapes. This is a great way to debug your data
+                    pipeline and confirm everything is working as expected.</p>
+                <div class="code-block text-sm">
+                    <span class="keyword">for</span> images, labels <span class="keyword">in</span>
+                    train_dataset.take(<span class="number">1</span>):<br>
+                    &nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Images shape:"</span>,
+                    images.shape)<br>
+                    &nbsp;&nbsp;<span class="keyword">print</span>(<span class="string">"Labels shape:"</span>,
+                    labels.shape)
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Feature Extraction -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Strategy 1 - Feature Extraction</h2>
+            <p>We'll load the `VGG16` model, which was trained on the ImageNet dataset. We'll chop off its classifier
+                head and replace it with our own.</p>
+            <div class="code-block">
+                <span class="comment"># Load the VGG16 base model, excluding its top classification layer</span><br>
+                base_model = keras.applications.VGG16(<br>
+                &nbsp;&nbsp;weights=<span class="string">'imagenet'</span>, <span class="comment"># Load weights
+                    pre-trained on ImageNet.</span><br>
+                &nbsp;&nbsp;input_shape=(<span class="number">180</span>, <span class="number">180</span>, <span
+                    class="number">3</span>),<br>
+                &nbsp;&nbsp;include_top=<span class="keyword">False</span>) <span class="comment"># Do not include the
+                    ImageNet classifier at the top.</span><br><br>
+
+                <span class="comment"># Freeze the base model</span><br>
+                base_model.trainable = <span class="keyword">False</span><br><br>
+
+                <span class="comment"># Create a new model on top</span><br>
+                inputs = keras.Input(shape=(<span class="number">180</span>, <span class="number">180</span>, <span
+                    class="number">3</span>))<br>
+                x = base_model(inputs, training=<span class="keyword">False</span>) <span class="comment"># Set
+                    training=False so it runs in inference mode</span><br>
+                x = layers.GlobalAveragePooling2D()(x) <span class="comment"># Efficient alternative to
+                    Flatten</span><br>
+                x = layers.Dense(<span class="number">256</span>, activation=<span class="string">'relu'</span>)(x)<br>
+                x = layers.Dropout(<span class="number">0.5</span>)(x)<br>
+                outputs = layers.Dense(<span class="number">1</span>, activation=<span
+                    class="string">'sigmoid'</span>)(x) <span class="comment"># Sigmoid for binary
+                    classification</span><br>
+                model = keras.Model(inputs, outputs)<br><br>
+
+                model.summary()
+            </div>
+            <div class="output-box">...
+                Total params: 15,243,329
+                Trainable params: 524,545
+                Non-trainable params: 14,718,784
+            </div>
+            <p>Notice that the vast majority of parameters are "Non-trainable." We are only training our small
+                classifier head.</p>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Classifier Head Complexity</h4>
+                <p>Look at the `model.summary()` again. The trainable parameters come from our new `Dense` layers. Try
+                    changing the number of units in the `Dense(256, ...)` layer to `512`. Re-run `model.summary()`. How
+                    does this impact the number of trainable parameters? It's a good way to see how quickly a dense head
+                    can become complex.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-8 mb-2">Train the Feature Extraction Model</h3>
+            <div class="code-block">
+                model.compile(optimizer=keras.optimizers.Adam(),
+                loss=keras.losses.BinaryCrossentropy(),
+                metrics=[keras.metrics.BinaryAccuracy()])<br><br>
+
+                epochs = <span class="number">10</span><br>
+                history = model.fit(train_dataset, epochs=epochs, validation_data=validation_dataset)
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Plot the Loss</h4>
+                <p>We plotted the accuracy in previous labs, which is great. But loss tells a different story about how
+                    confident the model is. Copy the plotting code from a previous lab and adapt it to plot `'loss'` and
+                    `'val_loss'`. A good model will have both accuracy increasing and loss decreasing.</p>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Try a Different Base Model</h4>
+                <p>Keras offers many pre-trained models. `VGG16` is old and heavy. Repeat the steps above, but this time
+                    use a more modern, efficient model like `EfficientNetB0`. Do you get better results? Does it train
+                    faster?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Example of loading a different model</span><br>
+                    base_model = keras.applications.EfficientNetB0(include_top=<span class="keyword">False</span>,
+                    weights=<span class="string">'imagenet'</span>)
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Fine-Tuning -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Strategy 2 - Fine-Tuning</h2>
+            <p>We've trained our new head. Now, let's unfreeze the top layers of the base model to allow it to
+                specialize on cat and dog features.</p>
+            <div class="code-block">
+                <span class="comment"># First, let's get the base_model back to its initial state</span><br>
+                <span class="comment"># And unfreeze the base model</span><br>
+                base_model.trainable = <span class="keyword">True</span><br><br>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Verify the Change</h4>
+                <p>Before you re-compile and start fine-tuning, run `model.summary()` one more time. Notice how the
+                    number of "Trainable params" has dramatically increased now that `base_model.trainable` is `True`.
+                    Confirm this matches the "Total params".</p>
+            </div>
+
+            <div class="code-block">
+                <span class="comment"># It's important to re-instantiate the optimizer and use a very low learning
+                    rate</span><br>
+                model.compile(optimizer=keras.optimizers.Adam(<span class="number">1e-5</span>), <span class="comment">#
+                    Low learning rate!</span>
+                loss=keras.losses.BinaryCrossentropy(),
+                metrics=[keras.metrics.BinaryAccuracy()])<br><br>
+
+                <span class="comment"># Continue training for a few more epochs</span><br>
+                fine_tune_epochs = <span class="number">10</span><br>
+                total_epochs = epochs + fine_tune_epochs<br><br>
+
+                history_fine = model.fit(train_dataset,
+                epochs=total_epochs,
+                initial_epoch=history.epoch[-<span class="number">1</span>],
+                validation_data=validation_dataset)
+            </div>
+            <p>By training for a few more epochs with the top layers unfrozen, the model should be able to eke out a few
+                more percentage points of accuracy, often reaching 97-98% on this dataset!</p>
+
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Deeper Fine-Tuning</h4>
+                <p>The code above unfreezes the entire `VGG16` model. This can be risky. A better practice is to only
+                    unfreeze the top convolutional block. Look at `base_model.summary()` to find the names of the
+                    layers. Use a `for` loop to freeze all layers up to `block5_conv1`, then unfreeze the rest. Does
+                    this provide more stable training?</p>
+                <div class="code-block text-sm">
+                    <span class="comment"># Hint:</span><br>
+                    <span class="keyword">for</span> layer <span class="keyword">in</span> base_model.layers:<br>
+                    &nbsp;&nbsp;<span class="keyword">if</span> layer.name == <span
+                        class="string">'block5_conv1'</span>:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span><br>
+                    &nbsp;&nbsp;layer.trainable = <span class="keyword">False</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your Mission - Flower Classifier</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Classify 5 Types of Flowers</h3>
+                <p class="mb-4">Your goal is to build a high-accuracy classifier for the `tf_flowers` dataset, which is
+                    available directly in TensorFlow Datasets. You must apply both feature extraction and fine-tuning.
+                </p>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Load Data:</strong> Use `tensorflow_datasets` to load the `tf_flowers` dataset. This
+                        will require a slightly different loading pipeline than the one we used for Kaggle.</li>
+                    <li><strong>Choose a Base Model:</strong> Start with a modern base model like `Xception` or
+                        `InceptionV3`.</li>
+                    <li><strong>Data Augmentation:</strong> Since the dataset is small, data augmentation is crucial.
+                        Add a `Sequential` model with `RandomFlip` and `RandomRotation` as the first layer of your
+                        model.</li>
+                    <li><strong>Feature Extraction:</strong> Freeze the base model and train your classifier head (which
+                        should have 5 outputs with `'softmax'` activation) until validation accuracy plateaus.</li>
+                    <li><strong>Fine-Tuning:</strong> Unfreeze the top 20% of the layers in your base model and continue
+                        training with a very low learning rate (`1e-5`).</li>
+                    <li><strong>Report:</strong> What is the highest validation accuracy you can achieve?</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 6: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Bonus - Medical Image Classification</h2>
+            <p>Transfer learning is incredibly powerful in specialized domains like medical imaging, where labeled data
+                is scarce and expensive.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a href="https://www.kaggle.com/c/histopathologic-cancer-detection"
+                        target="_blank" class="text-indigo-600 hover:underline">Kaggle: Histopathologic Cancer
+                        Detection</a></h4>
+                <p>The goal is to identify metastatic cancer in small image patches taken from lymph node sections. This
+                    is a binary classification task of critical importance.</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <p>Apply the full feature extraction and fine-tuning pipeline you learned in this lab to this dataset. Key
+                challenges will be:</p>
+            <ul class="list-disc ml-5 space-y-2">
+                <li>Handling a very large dataset that may not fit in memory. You will need to use the
+                    `image_dataset_from_directory` utility effectively.</li>
+                <li>Choosing a powerful and appropriate base model. `EfficientNet` models are often a good starting
+                    point.</li>
+                <li>Carefully choosing how many layers to unfreeze during fine-tuning to maximize performance without
+                    overfitting.</li>
+            </ul>
+        </section>
+
+        <!-- Section 7: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Submission Guidelines</h2>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" (Flower Classifier) in a single Google
+                    Colab notebook. The Kaggle project is a bonus.</li>
+                <li>For the assignment, clearly separate your feature extraction and fine-tuning steps. Show the
+                    `model.summary()` after freezing and after unfreezing layers.</li>
+                <li>Show the code used to train your model and plot its full training/validation history (including both
+                    phases).</li>
+                <li>Add a Text Cell at the end reporting the final validation accuracy and summarizing the choices you
+                    made (base model, augmentation, fine-tuning strategy) to get there.</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>

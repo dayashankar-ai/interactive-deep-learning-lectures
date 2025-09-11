@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 9: RNN for Text Processing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .code-block {
+            background-color: #1f2937;
+            /* Gray 800 */
+            color: #f9fafb;
+            /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .comment {
+            color: #9ca3af;
+            /* Gray 400 */
+        }
+
+        .code-block .keyword {
+            color: #c084fc;
+            /* Purple 400 */
+        }
+
+        .code-block .string {
+            color: #6ee7b7;
+            /* Emerald 300 */
+        }
+
+        .code-block .number {
+            color: #f9a8d4;
+            /* Pink 300 */
+        }
+
+        .exercise-box {
+            background-color: #fefce8;
+            /* Yellow 50 */
+            border-left: 4px solid #facc15;
+            /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .info-box {
+            background-color: #eef2ff;
+            /* Indigo 50 */
+            border-left: 4px solid #6366f1;
+            /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .your-turn-box {
+            background-color: #f0fdf4;
+            /* Green 50 */
+            border-left: 4px solid #4ade80;
+            /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 9: 🔄 RNN for Text Processing</h1>
+            <p class="text-xl text-gray-600 mt-4">Teaching a computer to read, understand, and write by giving it a
+                memory.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: TensorFlow, Keras, NLTK • Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: The Power of Memory</h2>
+            <p>Imagine reading a book one word at a time, but with amnesia. Every time you read a new word, you forget
+                all the previous ones. You'd never understand the story!</p>
+            <p class="mt-2">"The cat, which was chased by the ____, climbed the tree."</p>
+            <p>To fill in the blank, you need to remember the word "cat." The CNNs we've used so far are like readers
+                with amnesia—they see an image all at once but have no memory of what came before. They're great for
+                photos, but terrible for sequences like text or stock prices.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Introducing RNNs: Recurrent Neural Networks</h3>
+            <p>An RNN is a special type of network with a loop. When it processes a word, it takes its output and feeds
+                it back into itself as an input for the next word. This feedback loop acts as a <span
+                    class="font-semibold">memory</span>, allowing it to keep track of the context from previous words in
+                the sentence.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">How an RNN Reads a Sentence</h4>
+                <ol class="list-decimal list-inside ml-4">
+                    <li>Reads "The", creates a summary (a hidden state), and passes it to the next step.</li>
+                    <li>Reads "cat", combines it with the summary of "The", creates a new, richer summary, and passes it
+                        on.</li>
+                    <li>Reads "which", combines it with the summary of "The cat", and so on...</li>
+                </ol>
+                <p class="mt-2">This "summary" is just a vector of numbers, but it allows the network to maintain
+                    context through time.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Text Preprocessing -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: From Words to Numbers</h2>
+            <p>A computer can't read words. It only understands numbers. The first and most important step in any NLP
+                task is to convert our text into a numerical format. This is called <span
+                    class="font-semibold">Vectorization</span>.</p>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 1: Get some text</h3>
+            <p>We'll start with a simple text: the script of Shakespeare's Macbeth, which we can download easily.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf<br>
+                <span class="keyword">import</span> numpy <span class="keyword">as</span> np<br><br>
+                path_to_file = tf.keras.utils.get_file(<span class="string">'macbeth.txt'</span>, <span
+                    class="string">'https://www.gutenberg.org/files/2264/2264-0.txt'</span>)<br><br>
+                <span class="comment"># Read, then decode for py2 compat.</span><br>
+                text = open(path_to_file, <span class="string">'rb'</span>).read().decode(encoding=<span
+                    class="string">'utf-8'</span>)
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 2: Tokenization - Splitting Text into Words</h3>
+            <p>Next, we create a "vocabulary" of all the unique words in the text and assign a unique integer to each
+                word. This process is called tokenization.</p>
+            <div class="code-block">
+                <span class="comment"># The Keras Tokenizer does all the heavy lifting for us</span><br>
+                tokenizer = tf.keras.preprocessing.text.Tokenizer(filters=<span class="string">'!"#$%&()*+,-./:;<=>
+                        ?@[\\]^_`{|}~\t\n'</span>, lower=<span class="keyword">True</span>, split=<span class="string">'
+                    '</span>)<br><br>
+
+                <span class="comment"># Give it our text to build the vocabulary</span><br>
+                tokenizer.fit_on_texts([text])<br><br>
+
+                <span class="comment"># We can now see the word -> index mapping</span><br>
+                <span class="keyword">print</span>(list(tokenizer.word_index.items())[:<span
+                    class="number">10</span>])<br><br>
+
+                vocab_size = len(tokenizer.word_index) + <span class="number">1</span> <span class="comment"># Add 1 for
+                    the 0 padding index</span><br>
+                <span class="keyword">print</span>(<span class="string">"Vocabulary Size:"</span>, vocab_size)
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 3: Creating Sequences</h3>
+            <p>Now we convert our long text into many shorter, overlapping sequences. If we have the sentence "The cat
+                sat on the mat", we can create training examples like:</p>
+            <ul class="list-disc ml-6">
+                <li>Input: "The cat", Target: "sat"</li>
+                <li>Input: "The cat sat", Target: "on"</li>
+                <li>Input: "The cat sat on", Target: "the"</li>
+            </ul>
+            <div class="code-block">
+                <span class="comment"># Convert the full text to a sequence of integers</span><br>
+                full_sequence = tokenizer.texts_to_sequences([text])[<span class="number">0</span>]<br><br>
+
+                <span class="comment"># Create training examples and labels</span><br>
+                input_sequences = []<br>
+                <span class="keyword">for</span> i <span class="keyword">in</span> <span
+                    class="keyword">range</span>(<span class="number">1</span>, len(full_sequence)):<br>
+                &nbsp;&nbsp;n_gram_sequence = full_sequence[:i+<span class="number">1</span>]<br>
+                &nbsp;&nbsp;input_sequences.append(n_gram_sequence)<br><br>
+
+                <span class="comment"># Pad sequences so they are all the same length</span><br>
+                max_sequence_len = max([len(x) <span class="keyword">for</span> x <span class="keyword">in</span>
+                input_sequences])<br>
+                input_sequences = np.array(tf.keras.preprocessing.sequence.pad_sequences(input_sequences,
+                maxlen=max_sequence_len, padding=<span class="string">'pre'</span>))<br><br>
+
+                <span class="comment"># Create predictors and labels</span><br>
+                xs, labels = input_sequences[:,:-<span class="number">1</span>],input_sequences[:,-<span
+                    class="number">1</span>]<br>
+                ys = tf.keras.utils.to_categorical(labels, num_classes=vocab_size)<br><br>
+
+                <span class="keyword">print</span>(<span class="string">"Input example:"</span>, xs[<span
+                    class="number">5</span>])<br>
+                <span class="keyword">print</span>(<span class="string">"Label for example:"</span>, labels[<span
+                    class="number">5</span>])
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Decode a Sequence</h4>
+                <p>The numbers above are hard to read. Use the `tokenizer.index_word` dictionary to convert the integer
+                    sequence from `xs[5]` back into human-readable words. This helps verify that your preprocessing is
+                    working correctly.</p>
+            </div>
+        </section>
+
+        <!-- Section 3: Building the RNN -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: Building a Language Model</h2>
+            <p>Now for the fun part. We will build a model that takes a sequence of words as input and tries to predict
+                the very next word.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">Key Keras Layers for NLP</h4>
+                <ul class="list-disc ml-5">
+                    <li><span class="font-semibold">Embedding:</span> This is the magic layer. It turns our integer
+                        indices into dense vectors of a fixed size. It learns to place similar words close to each other
+                        in vector space (e.g., "king" and "queen" will have similar vectors).</li>
+                    <li><span class="font-semibold">LSTM (Long Short-Term Memory):</span> A more advanced and powerful
+                        type of RNN layer that is much better at remembering long-term dependencies. We almost always
+                        use LSTM or GRU instead of a plain `SimpleRNN`.</li>
+                    <li><span class="font-semibold">Dense:</span> Our familiar fully-connected layer for the final
+                        output.</li>
+                </ul>
+            </div>
+            <div class="code-block">
+                model = tf.keras.Sequential([<br>
+                &nbsp;&nbsp;layers.Embedding(vocab_size, <span class="number">100</span>,
+                input_length=max_sequence_len-<span class="number">1</span>),<br>
+                &nbsp;&nbsp;layers.LSTM(<span class="number">150</span>),<br>
+                &nbsp;&nbsp;layers.Dense(vocab_size, activation=<span class="string">'softmax'</span>)<br>
+                ])<br><br>
+
+                model.compile(loss=<span class="string">'categorical_crossentropy'</span>, optimizer=<span
+                    class="string">'adam'</span>, metrics=[<span class="string">'accuracy'</span>])<br>
+                model.summary()
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Experiment with Complexity</h4>
+                <p>The numbers `100` in the Embedding layer and `150` in the LSTM layer are hyperparameters. What
+                    happens to the "Total params" in `model.summary()` if you change the LSTM units to `256`? What if
+                    you change the embedding dimension to `64`? Getting a feel for how these parameters affect model
+                    size is a key skill.</p>
+            </div>
+            <div class="code-block">
+                <span class="comment"># Train the model (this will take a while!)</span><br>
+                history = model.fit(xs, ys, epochs=<span class="number">50</span>, verbose=<span
+                    class="number">1</span>)
+            </div>
+        </section>
+
+        <!-- Section 4: Text Generation -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Generating New Text</h2>
+            <p>Now that our model has been trained to predict the next word, we can use it to generate brand new text
+                that sounds like Shakespeare!</p>
+            <div class="code-block">
+                seed_text = <span class="string">"To be or not to be"</span><br>
+                next_words = <span class="number">100</span><br>
+
+                <span class="keyword">for</span> _ <span class="keyword">in</span> <span
+                    class="keyword">range</span>(next_words):<br>
+                &nbsp;&nbsp;token_list = tokenizer.texts_to_sequences([seed_text])[<span class="number">0</span>]<br>
+                &nbsp;&nbsp;token_list = tf.keras.preprocessing.sequence.pad_sequences([token_list],
+                maxlen=max_sequence_len-<span class="number">1</span>, padding=<span class="string">'pre'</span>)<br>
+                &nbsp;&nbsp;predicted_probs = model.predict(token_list, verbose=<span class="number">0</span>)<br>
+                &nbsp;&nbsp;predicted_index = np.argmax(predicted_probs)<br>
+                &nbsp;&nbsp;output_word = <span class="string">""</span><br>
+                &nbsp;&nbsp;<span class="keyword">for</span> word, index <span class="keyword">in</span>
+                tokenizer.word_index.items():<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> index == predicted_index:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;output_word = word<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">break</span><br>
+                &nbsp;&nbsp;seed_text += <span class="string">" "</span> + output_word<br><br>
+
+                <span class="keyword">print</span>(seed_text)
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Try a Different Seed</h4>
+                <p>The generated text is completely dependent on your starting "seed." Rerun the generation code block,
+                    but this time, try a different famous line from Shakespeare, like `"all the world's a stage"` or
+                    `"what's in a name"`. How does the story change?</p>
+            </div>
+            <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Add Temperature</h4>
+                <p>Taking the `argmax` always picks the most likely word, which can be boring. A common technique is to
+                    use "temperature" to introduce randomness. Instead of `np.argmax`, use
+                    `tf.random.categorical(predicted_probs / temperature, num_samples=1)`. Try a temperature of `1.0`
+                    (more random) and `0.5` (more predictable).</p>
+            </div>
+        </section>
+
+        <!-- Section 5: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Your Mission - Character-Level Text Generator</h2>
+            <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Build a Character-Level Model</h3>
+                <p class="mb-4">Instead of tokenizing by words, you can tokenize by individual characters. This allows
+                    the model to learn spelling, punctuation, and capitalization from scratch. It's often more creative,
+                    though sometimes less coherent.</p>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Get New Data:</strong> Find the plain text of a different book from Project Gutenberg.
+                        Choose something with a distinct style, like Alice in Wonderland or Frankenstein.</li>
+                    <li><strong>Character Tokenization:</strong> Do not use the Keras `Tokenizer`. Instead, create your
+                        vocabulary yourself. The vocabulary will be the set of all unique characters in the text. Create
+                        a `char_to_index` and `index_to_char` dictionary.</li>
+                    <li><strong>Create Sequences:</strong> Create input sequences and target labels. For example, if
+                        your text is "hello" and your sequence length is 3, your first input would be "hel" and the
+                        target would be "l".</li>
+                    <li><strong>Build and Train:</strong> Build an LSTM model similar to the one in this lab. The
+                        `Embedding` layer is not strictly necessary for character models but can still be useful. Train
+                        it on your character sequences.</li>
+                    <li><strong>Generate Text:</strong> Write a generation loop that works at the character level. Give
+                        it a seed like "Alice was" and see what it writes!</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 6: Bonus Kaggle Project -->
+        <section id="kaggle" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Bonus - Sentiment Analysis</h2>
+            <p>Language modeling is fun, but a more common real-world task is classification. Sentiment
+                analysis—determining if a review is positive or negative—is a classic NLP problem.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2"><a
+                        href="https://www.kaggle.com/c/sentiment-analysis-on-movie-reviews" target="_blank"
+                        class="text-indigo-600 hover:underline">Kaggle: Sentiment Analysis on Movie Reviews</a></h4>
+                <p>The goal is to classify the sentiment of movie reviews into 5 categories (negative, somewhat
+                    negative, neutral, somewhat positive, positive).</p>
+            </div>
+
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <p>Use the skills you've learned to build a classifier. Your pipeline will be:</p>
+            <ul class="list-disc ml-5 space-y-2">
+                <li>Load the data using Pandas.</li>
+                <li>Use the Keras `Tokenizer` to vectorize the review phrases.</li>
+                <li>Build a model. A good starting point is `Embedding` -> `LSTM` -> `Dense(5, activation='softmax')`.
+                </li>
+                <li>Train the model and submit your predictions to Kaggle!</li>
+            </ul>
+        </section>
+
+        <!-- Section 7: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 7: Submission Guidelines</h2>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Lab Assignment" (Character-Level Generator) in a single
+                    Google Colab notebook. The Kaggle project is a bonus.</li>
+                <li>For the assignment, clearly show your tokenization, model building, training, and the final
+                    generated text.</li>
+                <li>Add a Text Cell at the end to discuss your results. Did the generated text make sense? What was the
+                    effect of training for more epochs?</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set
+                    access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+
+</html>

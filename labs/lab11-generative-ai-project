@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 11: Generative AI Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+        }
+        h1, h2, h3, h4 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        .lab-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .code-block {
+            background-color: #1f2937; /* Gray 800 */
+            color: #f9fafb; /* Gray 50 */
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Source Code Pro', monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        .code-block .comment {
+            color: #9ca3af; /* Gray 400 */
+        }
+        .code-block .keyword {
+            color: #c084fc; /* Purple 400 */
+        }
+        .code-block .string {
+            color: #6ee7b7; /* Emerald 300 */
+        }
+        .code-block .number {
+            color: #f9a8d4; /* Pink 300 */
+        }
+        .exercise-box {
+            background-color: #fefce8; /* Yellow 50 */
+            border-left: 4px solid #facc15; /* Yellow 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box {
+            background-color: #eef2ff; /* Indigo 50 */
+            border-left: 4px solid #6366f1; /* Indigo 500 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .your-turn-box {
+            background-color: #f0fdf4; /* Green 50 */
+            border-left: 4px solid #4ade80; /* Green 400 */
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">Lab 11: 🎨 Generative AI Project</h1>
+            <p class="text-xl text-gray-600 mt-4">Teaching a computer how to be creative by making two models compete.</p>
+            <p class="text-md text-gray-500 mt-2">Libraries: PyTorch, PIL, Matplotlib • Estimated Time: 3 hours</p>
+        </header>
+
+        <!-- Section 1: The Concept -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 1: The Art Forger and the Detective</h2>
+            <p>Imagine a game between two people: an art forger and an art detective.</p>
+            <ul class="list-disc ml-6 space-y-2 mt-4">
+                <li>The <span class="font-semibold">Forger's</span> job is to create paintings that look exactly like Rembrandts. At first, their forgeries are terrible.</li>
+                <li>The <span class="font-semibold">Detective's</span> job is to look at a painting and decide if it's a real Rembrandt or a fake. At first, they aren't very good at it.</li>
+            </ul>
+            <p class="mt-4">Now, imagine they play this game for months. The forger shows a fake painting to the detective. The detective says "Fake! The brushstrokes are all wrong." The forger learns from this feedback and makes a better forgery next time. But as the forger gets better, the detective also gets better at spotting even tiny imperfections. This competition forces both of them to become world-class experts.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">This is a Generative Adversarial Network (GAN)!</h4>
+                <p>A GAN is just this game, but with two neural networks:</p>
+                <ul class="list-disc ml-5 mt-2">
+                    <li><strong>The Generator (Forger):</strong> Takes random noise as input and tries to generate realistic-looking images.</li>
+                    <li><strong>The Discriminator (Detective):</strong> Takes an image (real or fake) and tries to classify it as real (1) or fake (0).</li>
+                </ul>
+                <p class="mt-2">By training them against each other ("adversarially"), the Generator learns to create incredibly realistic images.</p>
+            </div>
+        </section>
+
+        <!-- Section 2: Building the GAN in PyTorch -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 2: Building the Competitors</h2>
+            <p>Today we'll be using <span class="font-semibold">PyTorch</span>, another major deep learning framework alongside TensorFlow. It's especially popular in research and known for its flexibility.</p>
+            
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 1: Setup and Data Loading</h3>
+            <p>First, let's install PyTorch and load the MNIST dataset of handwritten digits, which our Generator will learn to forge.</p>
+            <div class="code-block">
+                <span class="keyword">import</span> torch<br>
+                <span class="keyword">import</span> torch.nn <span class="keyword">as</span> nn<br>
+                <span class="keyword">import</span> torch.optim <span class="keyword">as</span> optim<br>
+                <span class="keyword">import</span> torchvision<br>
+                <span class="keyword">import</span> torchvision.datasets <span class="keyword">as</span> datasets<br>
+                <span class="keyword">import</span> torchvision.transforms <span class="keyword">as</span> transforms<br>
+                <span class="keyword">from</span> torch.utils.data <span class="keyword">import</span> DataLoader<br>
+                <span class="keyword">from</span> torch.utils.tensorboard <span class="keyword">import</span> SummaryWriter<br><br>
+
+                <span class="comment"># Define transformations: Normalize the images to [-1, 1]</span><br>
+                transform = transforms.Compose([<br>
+                &nbsp;&nbsp;transforms.ToTensor(),<br>
+                &nbsp;&nbsp;transforms.Normalize((<span class="number">0.5</span>,), (<span class="number">0.5</span>,)),<br>
+                ])<br><br>
+
+                <span class="comment"># Load the dataset</span><br>
+                dataset = datasets.MNIST(root=<span class="string">"dataset/"</span>, transform=transform, download=<span class="keyword">True</span>)<br>
+                loader = DataLoader(dataset, batch_size=<span class="number">64</span>, shuffle=<span class="keyword">True</span>)<br>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 2: The Discriminator (The Detective)</h3>
+            <p>Our detective is a simple classifier. It takes a flattened 28x28 image (784 pixels) and outputs a single number—the probability that the image is real.</p>
+            <div class="code-block">
+                <span class="keyword">class</span> Discriminator(nn.Module):<br>
+                &nbsp;&nbsp;<span class="keyword">def</span> __init__(self, in_features):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">super</span>().__init__()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.disc = nn.Sequential(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(in_features, <span class="number">128</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.LeakyReLU(<span class="number">0.1</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(<span class="number">128</span>, <span class="number">1</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Sigmoid(),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;)<br><br>
+                &nbsp;&nbsp;<span class="keyword">def</span> forward(self, x):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.disc(x)<br>
+            </div>
+             <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Make the Detective Smarter</h4>
+                <p>A deeper network might be a better detective. Add another `nn.Linear` layer and `nn.LeakyReLU` activation between the existing two layers. A common size would be `nn.Linear(128, 256)` followed by `nn.Linear(256, 128)`.</p>
+            </div>
+
+            <h3 class="text-2xl font-semibold mt-6 mb-2">Step 3: The Generator (The Forger)</h3>
+            <p>Our forger takes a random "inspiration" (a vector of random numbers called the noise or latent vector) and transforms it into something that looks like a 28x28 image.</p>
+            <div class="code-block">
+                <span class="keyword">class</span> Generator(nn.Module):<br>
+                &nbsp;&nbsp;<span class="keyword">def</span> __init__(self, z_dim, img_dim):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">super</span>().__init__()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;self.gen = nn.Sequential(<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(z_dim, <span class="number">256</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.LeakyReLU(<span class="number">0.1</span>),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Linear(<span class="number">256</span>, img_dim),<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nn.Tanh(),  <span class="comment"># Tanh outputs between -1 and 1, matching our normalized images</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;)<br><br>
+                &nbsp;&nbsp;<span class="keyword">def</span> forward(self, x):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> self.gen(x)<br>
+            </div>
+             <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Change the Inspiration</h4>
+                <p>The `z_dim` is the size of the random noise vector we give the generator. It's like changing the size of the canvas the forger has to work with. How would you change the code if you wanted to use a `z_dim` of `128` instead of `64`? (You'll define this in the next step).</p>
+            </div>
+        </section>
+
+        <!-- Section 3: The Training Loop -->
+        <section class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 3: The Adversarial Training</h2>
+            <p>This is where the magic happens. We set up the game and let the networks compete for many rounds (epochs).</p>
+
+            <div class="code-block">
+                <span class="comment"># Hyperparameters</span><br>
+                device = <span class="string">"cuda"</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">"cpu"</span><br>
+                lr = <span class="number">3e-4</span><br>
+                z_dim = <span class="number">64</span><br>
+                image_dim = <span class="number">28</span> * <span class="number">28</span> * <span class="number">1</span>  <span class="comment"># 784</span><br>
+                batch_size = <span class="number">32</span><br>
+                num_epochs = <span class="number">50</span><br><br>
+
+                <span class="comment"># Initialize networks</span><br>
+                disc = Discriminator(image_dim).to(device)<br>
+                gen = Generator(z_dim, image_dim).to(device)<br>
+                fixed_noise = torch.randn((batch_size, z_dim)).to(device)<br><br>
+
+                <span class="comment"># Optimizers and Loss</span><br>
+                opt_disc = optim.Adam(disc.parameters(), lr=lr)<br>
+                opt_gen = optim.Adam(gen.parameters(), lr=lr)<br>
+                criterion = nn.BCELoss() <span class="comment"># Binary Cross Entropy Loss</span><br><br>
+
+                writer_fake = SummaryWriter(f<span class="string">"logs/fake"</span>)<br>
+                writer_real = SummaryWriter(f<span class="string">"logs/real"</span>)<br>
+                step = <span class="number">0</span><br><br>
+
+                <span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="keyword">range</span>(num_epochs):<br>
+                &nbsp;&nbsp;<span class="keyword">for</span> batch_idx, (real, _) <span class="keyword">in</span> <span class="keyword">enumerate</span>(loader):<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;real = real.view(-<span class="number">1</span>, <span class="number">784</span>).to(device)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;batch_size = real.shape[<span class="number">0</span>]<br><br>
+
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">### Train Discriminator: max log(D(x)) + log(1 - D(G(z)))</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;noise = torch.randn(batch_size, z_dim).to(device)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;fake = gen(noise)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;disc_real = disc(real).view(-<span class="number">1</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossD_real = criterion(disc_real, torch.ones_like(disc_real))<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;disc_fake = disc(fake.detach()).view(-<span class="number">1</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossD_fake = criterion(disc_fake, torch.zeros_like(disc_fake))<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossD = (lossD_real + lossD_fake) / <span class="number">2</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;disc.zero_grad()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossD.backward()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;opt_disc.step()<br><br>
+
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">### Train Generator: min log(1 - D(G(z))) <-> max log(D(G(z))</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;output = disc(fake).view(-<span class="number">1</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossG = criterion(output, torch.ones_like(output))<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;gen.zero_grad()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;lossG.backward()<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;opt_gen.step()<br><br>
+                
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Print losses and visualize</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">if</span> batch_idx == <span class="number">0</span>:<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">print</span>(f<span class="string">"Epoch [{epoch}/{num_epochs}] | Loss D: {lossD:.4f}, loss G: {lossG:.4f}"</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">with</span> torch.no_grad():<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fake = gen(fixed_noise).reshape(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data = real.reshape(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img_grid_fake = torchvision.utils.make_grid(fake, normalize=<span class="keyword">True</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;img_grid_real = torchvision.utils.make_grid(data, normalize=<span class="keyword">True</span>)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer_fake.add_image(<span class="string">"Mnist Fake Images"</span>, img_grid_fake, global_step=step)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer_real.add_image(<span class="string">"Mnist Real Images"</span>, img_grid_real, global_step=step)<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;step += <span class="number">1</span><br>
+            </div>
+             <div class="your-turn-box">
+                <h4 class="font-bold text-lg mb-2">💡 Your Turn: Watch the Fight in Real-Time</h4>
+                <p>The code above saves logs for TensorBoard. After you start training, open TensorBoard in Colab to see the generated images improve over time and to plot the `lossD` and `lossG`. Ideally, you want them to be in a stable equilibrium, not with one overpowering the other. What happens to the generated images if the Generator's loss plummets to near zero?</p>
+            </div>
+        </section>
+        
+        <!-- Section 4: Assignment -->
+        <section id="assignment" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 4: Your Mission - Generate Fashion</h2>
+             <div class="exercise-box">
+                <h3 class="font-bold text-xl mb-2">Assignment: Train a Fashion-GAN</h3>
+                <p class="mb-4">Handwritten digits are a good start, but a bit boring. Your main assignment is to train a GAN on the <span class="font-semibold">Fashion-MNIST</span> dataset, which contains images of clothing items like t-shirts, trousers, and bags.</p>
+                <h4 class="font-semibold text-lg mt-4">Your Tasks:</h4>
+                <ol class="list-decimal list-inside ml-4 space-y-2">
+                    <li><strong>Load Fashion-MNIST:</strong> Change `datasets.MNIST` to `datasets.FashionMNIST`. The rest of the `DataLoader` code stays the same.</li>
+                    <li><strong>Experiment with Architecture:</strong> The simple networks we built might not be powerful enough for this more complex dataset. Experiment with making both the Generator and Discriminator deeper (adding more layers) or wider (more neurons per layer).</li>
+                    <li><strong>Tune Hyperparameters:</strong> Try different learning rates (`lr`) and sizes for the noise vector (`z_dim`). Does a larger `z_dim` lead to more diverse clothing items?</li>
+                    <li><strong>Train and Document:</strong> Train your model for at least 50 epochs. In a text cell, document what architectures and hyperparameters you tried and which combination produced the best-looking results. Show a grid of your final generated fashion items.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Section 5: Bonus - Style Transfer -->
+        <section id="style-transfer" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 5: Bonus - Neural Style Transfer</h2>
+            <p>Style transfer is another fascinating generative technique. The goal is to take two images—a <span class="font-semibold">content</span> image (like a photo of your dog) and a <span class="font-semibold">style</span> image (like a Van Gogh painting)—and create a new image that has the content of your photo but is painted in the style of Van Gogh.</p>
+            <div class="info-box">
+                <h4 class="font-bold text-lg mb-2">How it Works</h4>
+                <p>We use a pre-trained CNN (like VGG19) that already knows how to recognize features. We then define two losses:
+                <ul class="list-disc ml-5 mt-2">
+                    <li><strong>Content Loss:</strong> Measures how different the high-level features of our generated image are from the content image.</li>
+                    <li><strong>Style Loss:</strong> Measures how different the texture, colors, and patterns (the "style") are between our generated image and the style image.</li>
+                </ul>
+                We then optimize a new image (starting from noise) to minimize both of these losses simultaneously.</p>
+            </div>
+            <h4 class="font-semibold text-lg mt-4">Your Challenge:</h4>
+            <p>Find a PyTorch implementation of Neural Style Transfer online (there are many excellent tutorials). Your goal is to apply the style of a famous painting to a personal photograph. In a text cell, show the content image, the style image, and your final creation.</p>
+        </section>
+
+        <!-- Section 6: Submission Guidelines -->
+        <section id="submission" class="lab-card">
+            <h2 class="text-3xl font-bold mb-4 text-gray-800">Part 6: Submission Guidelines</h2>
+            <ol class="list-decimal ml-6 space-y-3 mt-4">
+                <li>Complete all "Your Turn" tasks and the main "Fashion-GAN" assignment in a single Google Colab notebook. The Style Transfer project is a bonus.</li>
+                <li>For the assignment, clearly show your final network architectures, the training loop, and a grid of your best-generated fashion images.</li>
+                <li>Add a Text Cell at the end to discuss your results. What was the biggest challenge? Which hyperparameter had the most impact? Did your GAN suffer from "mode collapse" (where it only generates one type of clothing)?</li>
+                <li>Ensure all your code cells have been run so that their outputs and plots are visible.</li>
+                <li>When you are finished, generate a shareable link. In Colab, click <strong>"Share"</strong> and set access to <strong>"Anyone with the link"</strong> can <strong>"Viewer"</strong>.</li>
+                <li>Click <strong>"Copy link"</strong> and submit this link as your assignment.</li>
+            </ol>
+        </section>
+
+    </div>
+</body>
+</html>
