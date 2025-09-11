@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introduction to Computer Vision: The Digital Photography Shop Story</title>
+    <link rel="stylesheet" href="assets/css/lecture-shared-light.css">
+    <!-- MathJax for equations -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        .process-step {
+            text-align: center;
+            flex: 1;
+            padding: 10px;
+        }
+        .arrow {
+            font-size: 24px;
+            color: #e74c3c;
+            animation: flow 2s infinite;
+        }
+        @keyframes flow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .rgb-demo {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .color-channel {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+        .red-channel { background: #e74c3c; }
+        .green-channel { background: #27ae60; }
+        .blue-channel { background: #3498db; }
+        h1 { color: #2c3e50; font-size: 2.5em; }
+        h2 { color: #3498db; font-size: 1.8em; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        h3 { color: #e74c3c; font-size: 1.4em; }
+        .highlight { background: yellow; padding: 2px 5px; border-radius: 3px; }
+        .summary-box {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .equation {
+            font-size: 1.2em;
+            text-align: center;
+            background: #f1f3f4;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #4285f4;
+        }
+        .filter-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .filter-box {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+        .histogram-visual {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to right, #000 0%, #333 25%, #666 50%, #999 75%, #fff 100%);
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .histogram-bars {
+            position: absolute;
+            bottom: 0;
+            left: 20%;
+            width: 60%;
+            height: 80%;
+            background: repeating-linear-gradient(to right, transparent 0%, transparent 8%, #4285f4 8%, #4285f4 12%);
+            animation: histogram-pulse 2s infinite;
+        }
+        @keyframes histogram-pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        .coordinate-system {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #333;
+            position: relative;
+            margin: 20px auto;
+            background: #f8f9fa;
+        }
+        .pixel-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, #ddd 1px, transparent 1px),
+                linear-gradient(to bottom, #ddd 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .origin-point {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 10px;
+            height: 10px;
+            background: #e74c3c;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Introduction to Computer Vision</h1>
+        <h2>The Digital Photography Shop Story</h2>
+        <div class="pixel-animation"></div>
+        <p><strong>⏱️ 60 Minutes | How Computers See and Understand Pictures</strong></p>
+    </div>
+
+    <div class="story-section">
+        <h2>📸 Welcome to Sarah's Digital Photography Shop!</h2>
+        <p>Meet Sarah, who owns the most amazing digital photography shop in town. Her customers bring in photos, and she has magical tools that can enhance, analyze, and transform any picture. But here's the secret - <strong>Sarah sees pictures completely differently than we do!</strong></p>
+        
+        <p>While we see a beautiful sunset or a cute puppy, Sarah sees something much more interesting: <strong>millions of tiny colored squares called pixels, each with secret numbers that tell her exactly what color it should be.</strong></p>
+        
+        <div class="concept-box">
+            <h3>🎯 What We'll Discover in Sarah's Shop Today:</h3>
+            <p>• How pictures are actually made of tiny numbered squares<br>
+            • The secret color recipe that creates every color you see<br>
+            • How Sarah's tools can detect edges, blur images, and enhance photos<br>
+            • The mathematical magic behind every Instagram filter<br>
+            • How computers learn to recognize cats, cars, and faces</p>
+        </div>
+
+        <p><strong>This is Computer Vision:</strong> Teaching computers to see, understand, and analyze images just like Sarah does in her shop, but using mathematical recipes instead of artistic intuition.</p>
+    </div>
+
+    <div class="story-section">
+        <h2>🧩 The Pixel Mystery: How Pictures Are Really Made</h2>
+        
+        <div class="photo-process">
+            <div class="process-step">
+                <h4>What You See</h4>
+                <p>🌅 Beautiful Sunset</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="process-step">
+                <h4>What Sarah Sees</h4>
+                <p>🔢 Grid of Numbers</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="process-step">
+                <h4>Computer Vision</h4>
+                <p>🤖 Math + Analysis</p>
+            </div>
+        </div>
+
+        <p>Imagine Sarah has a special magnifying glass. When she looks at any photo through it, instead of seeing a smooth image, she sees a giant checkerboard made of tiny squares. Each square is called a <strong>pixel</strong> (short for "picture element").</p>
+
+        <div class="coordinate-system">
+            <div class="pixel-grid"></div>
+            <div class="origin-point"></div>
+        </div>
+        <p style="text-align: center;"><em>A pixel grid: Each square is one pixel with its own coordinates and color values</em></p>
+
+        <div class="math-box">
+            <h4>📐 The Pixel Coordinate System</h4>
+            <div class="equation">Pixel Position = (x, y) where x = column, y = row</div>
+            <p><strong>Sarah's System:</strong> Just like finding a seat in a movie theater!<br>
+            • <strong>x-coordinate:</strong> Which column (left to right, starting from 0)<br>
+            • <strong>y-coordinate:</strong> Which row (top to bottom, starting from 0)<br>
+            • <strong>Important:</strong> Computer images start counting from the TOP-LEFT corner, not bottom-left like math graphs!</p>
+            
+            <p><strong>Example:</strong> In a 1920×1080 photo (Full HD), we have 1,920 columns and 1,080 rows = 2,073,600 total pixels!</p>
+        </div>
+
+        <div class="concept-box">
+            <h3>🔍 Image Dimensions Explained:</h3>
+            <p><strong>Width × Height:</strong> Number of pixels across × Number of pixels down<br>
+            <strong>Resolution:</strong> How many pixels fit in the image (more pixels = sharper image)<br>
+            <strong>Aspect Ratio:</strong> The shape relationship (like 16:9 for widescreen movies)</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🎨 The Color Recipe: RGB Color Channels</h2>
+        
+        <p>Here's Sarah's biggest secret: Every color in every pixel is made by mixing just three colors - <strong>Red, Green, and Blue</strong> - in different amounts. It's like having three paint tubes, and you control how much comes out of each!</p>
+
+        <div class="rgb-demo">
+            <div class="color-channel red-channel">
+                RED<br>Channel
+                <br>0-255
+            </div>
+            <div class="color-channel green-channel">
+                GREEN<br>Channel
+                <br>0-255
+            </div>
+            <div class="color-channel blue-channel">
+                BLUE<br>Channel
+                <br>0-255
+            </div>
+        </div>
+
+        <div class="math-box">
+            <h4>🧮 The RGB Color Recipe</h4>
+            <div class="equation">Any Color = (Red Value, Green Value, Blue Value)</div>
+            <p><strong>The Number System:</strong> Each color channel uses numbers from 0 to 255<br>
+            • <strong>0:</strong> No color at all (like an empty paint tube)<br>
+            • <strong>255:</strong> Maximum color (like squeezing the tube completely)<br>
+            • <strong>Why 255?:</strong> Because computers count in binary, and 2⁸ = 256 possible values (0-255)</p>
+
+            <p><strong>Color Examples:</strong><br>
+            • Pure Red: (255, 0, 0) - Only red tube squeezed<br>
+            • Pure White: (255, 255, 255) - All tubes squeezed fully<br>
+            • Pure Black: (0, 0, 0) - No paint from any tube<br>
+            • Purple: (128, 0, 128) - Half red + half blue<br>
+            • Yellow: (255, 255, 0) - Full red + full green (surprising, right?)</p>
+        </div>
+
+        <div class="concept-box">
+            <h3>🎭 Other Color Systems Sarah Uses:</h3>
+            <p><strong>Grayscale:</strong> Only one number per pixel (0=black, 255=white)<br>
+            <strong>HSV:</strong> Hue (what color), Saturation (how colorful), Value (how bright)<br>
+            <strong>CMYK:</strong> Cyan, Magenta, Yellow, Black (for printing)<br>
+            <strong>Alpha Channel:</strong> Transparency level (0=invisible, 255=solid)</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🔧 Sarah's Magic Tools: Image Processing Operations</h2>
+        
+        <p>Now comes the fun part! Sarah has a toolkit full of mathematical recipes that can transform any image. Each tool applies a simple mathematical operation to every pixel.</p>
+
+        <h3>✨ Basic Pixel Operations</h3>
+
+        <div class="math-box">
+            <h4>🔆 Brightness Adjustment</h4>
+            <div class="equation">New Pixel Value = Old Pixel Value + Brightness Amount</div>
+            <p><strong>Sarah's Method:</strong> "Add the same number to every pixel's color values"<br>
+            <strong>Example:</strong> To make image brighter, add 50 to each RGB value<br>
+            • Original: (100, 150, 200)<br>
+            • Brighter: (150, 200, 250)<br>
+            <strong>Safety Check:</strong> Never go above 255 or below 0!</p>
+        </div>
+
+        <div class="math-box">
+            <h4>🎭 Contrast Adjustment</h4>
+            <div class="equation">New Pixel Value = (Old Pixel Value × Contrast Factor)</div>
+            <p><strong>Sarah's Method:</strong> "Multiply every pixel by the same number"<br>
+            <strong>Contrast > 1:</strong> Makes lights lighter and darks darker<br>
+            <strong>Contrast < 1:</strong> Makes everything more gray and flat<br>
+            <strong>Example:</strong> 1.5× contrast makes (100, 150, 200) become (150, 225, 255)</p>
+        </div>
+
+        <div class="math-box">
+            <h4>🌈 Color Channel Mixing</h4>
+            <div class="equation">Grayscale = 0.299×Red + 0.587×Green + 0.114×Blue</div>
+            <p><strong>Why These Strange Numbers?</strong> Our eyes are most sensitive to green, less to red, and least to blue. This formula mimics how we naturally see brightness!<br>
+            <strong>Sarah's Translation:</strong> "Mix the colors in the same proportions as human vision"</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🎯 Advanced Tools: Filters and Kernels</h2>
+        
+        <p>Sarah's most powerful tools don't work on single pixels - they look at neighborhoods! Imagine each pixel asking its neighbors "What should I become?" and changing based on their values.</p>
+
+        <div class="filter-demo">
+            <div class="filter-box">
+                <h4>🌫️ Blur Filter</h4>
+                <p>Average with neighbors</p>
+            </div>
+            <div class="filter-box">
+                <h4>⚡ Edge Detection</h4>
+                <p>Find differences</p>
+            </div>
+            <div class="filter-box">
+                <h4>🔍 Sharpen</h4>
+                <p>Enhance differences</p>
+            </div>
+        </div>
+
+        <div class="math-box">
+            <h4>🧮 The Kernel Magic</h4>
+            <p>A <strong>kernel</strong> is like Sarah's recipe card - a small grid of numbers that tells her how to mix a pixel with its neighbors.</p>
+
+            <div class="equation">
+                Blur Kernel (3×3):<br>
+                [1/9  1/9  1/9]<br>
+                [1/9  1/9  1/9]<br>
+                [1/9  1/9  1/9]
+            </div>
+            <p><strong>How it Works:</strong> Take the center pixel and its 8 neighbors, multiply each by 1/9, then add them all up. This creates an average = blur effect!</p>
+
+            <div class="equation">
+                Edge Detection Kernel:<br>
+                [-1  -1  -1]<br>
+                [-1   8  -1]<br>
+                [-1  -1  -1]
+            </div>
+            <p><strong>Edge Magic:</strong> If the center pixel is very different from its neighbors, this kernel will give a big positive number (edge found!). If everything is similar, result is near zero (no edge).</p>
+        </div>
+
+        <div class="concept-box">
+            <h3>🔄 Convolution: The Mathematical Dance</h3>
+            <p><strong>Step 1:</strong> Place kernel over pixel and its neighbors<br>
+            <strong>Step 2:</strong> Multiply each kernel number by the corresponding pixel value<br>
+            <strong>Step 3:</strong> Add all the results together<br>
+            <strong>Step 4:</strong> This sum becomes the new pixel value<br>
+            <strong>Step 5:</strong> Slide kernel to next pixel and repeat</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>📊 Understanding Images with Histograms</h2>
+        
+        <p>Sarah has a special analysis tool called a <strong>histogram</strong> - it's like a bar chart that shows her how many pixels of each brightness level exist in an image.</p>
+
+        <div class="histogram-visual">
+            <div class="histogram-bars"></div>
+        </div>
+        <p style="text-align: center;"><em>A histogram showing the distribution of pixel brightness values</em></p>
+
+        <div class="math-box">
+            <h4>📈 Reading Sarah's Histogram</h4>
+            <div class="equation">Histogram[brightness_level] = Count of pixels with that brightness</div>
+            <p><strong>Dark Image:</strong> Most bars on the left (low brightness values)<br>
+            <strong>Bright Image:</strong> Most bars on the right (high brightness values)<br>
+            <strong>Low Contrast:</strong> All bars bunched in the middle<br>
+            <strong>High Contrast:</strong> Bars spread out from dark to bright</p>
+
+            <p><strong>Sarah's Diagnosis Tool:</strong><br>
+            • Underexposed photo: Histogram piled up on the left<br>
+            • Overexposed photo: Histogram piled up on the right<br>
+            • Perfect exposure: Histogram spread nicely across the range</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🏗️ Building Blocks: From Pixels to Understanding</h2>
+        
+        <p>Now Sarah combines all her tools to build something amazing - the ability to understand what's actually IN the pictures!</p>
+
+        <div class="photo-process">
+            <div class="process-step">
+                <h4>Level 1: Pixels</h4>
+                <p>Individual color dots</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="process-step">
+                <h4>Level 2: Edges</h4>
+                <p>Lines and boundaries</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="process-step">
+                <h4>Level 3: Shapes</h4>
+                <p>Circles, rectangles</p>
+            </div>
+            <div class="arrow">→</div>
+            <div class="process-step">
+                <h4>Level 4: Objects</h4>
+                <p>Cars, faces, cats</p>
+            </div>
+        </div>
+
+        <div class="concept-box">
+            <h3>🧠 The Computer Vision Pipeline</h3>
+            <p><strong>Preprocessing:</strong> Clean up the image (noise reduction, normalization)<br>
+            <strong>Feature Extraction:</strong> Find interesting patterns (edges, corners, textures)<br>
+            <strong>Feature Description:</strong> Describe what we found in numbers<br>
+            <strong>Pattern Recognition:</strong> Match patterns to known objects<br>
+            <strong>Decision Making:</strong> "This looks like a cat with 95% confidence"</p>
+        </div>
+
+        <div class="math-box">
+            <h4>🎯 Feature Detection: Finding Interesting Points</h4>
+            <div class="equation">Interest Point = High variation in multiple directions</div>
+            <p><strong>Corner Detection:</strong> Look for pixels where intensity changes rapidly in both horizontal and vertical directions<br>
+            <strong>Blob Detection:</strong> Find regions that are significantly darker or brighter than their surroundings<br>
+            <strong>Edge Linking:</strong> Connect individual edge pixels into continuous lines</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🤖 Modern Magic: Deep Learning in Computer Vision</h2>
+        
+        <p>Sarah's shop has recently upgraded to use AI assistants - special computer programs that can learn to see patterns just like humans do, but using mathematical layers instead of biological neurons.</p>
+
+        <div class="concept-box">
+            <h3>🧪 Convolutional Neural Networks (CNNs)</h3>
+            <p><strong>The Idea:</strong> Stack many convolution operations (like Sarah's kernels) in layers<br>
+            <strong>Learning Process:</strong> The computer figures out what kernel values work best for recognizing specific objects<br>
+            <strong>Hierarchy:</strong> Early layers find edges, middle layers find shapes, final layers recognize complete objects</p>
+        </div>
+
+        <div class="math-box">
+            <h4>📚 The Learning Formula</h4>
+            <div class="equation">Better Kernels = Current Kernels - Learning Rate × Error Gradient</div>
+            <p><strong>Plain English:</strong> "If we made a mistake, adjust our kernels slightly in the direction that would have given the right answer"<br>
+            <strong>Training Data:</strong> Thousands of example images with correct labels<br>
+            <strong>Backpropagation:</strong> Working backwards from mistakes to improve each layer</p>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>🌟 Real-World Applications: Where Sarah's Skills Matter</h2>
+        
+        <div class="filter-demo">
+            <div class="filter-box">
+                <h4>🏥 Medical Imaging</h4>
+                <p>Detecting tumors in X-rays and MRI scans</p>
+            </div>
+            <div class="filter-box">
+                <h4>🚗 Autonomous Vehicles</h4>
+                <p>Recognizing traffic signs, pedestrians, obstacles</p>
+            </div>
+            <div class="filter-box">
+                <h4>🔒 Security Systems</h4>
+                <p>Face recognition, surveillance, access control</p>
+            </div>
+            <div class="filter-box">
+                <h4>📱 Mobile Apps</h4>
+                <p>Photo enhancement, AR filters, object recognition</p>
+            </div>
+            <div class="filter-box">
+                <h4>🏭 Manufacturing</h4>
+                <p>Quality control, defect detection, assembly verification</p>
+            </div>
+            <div class="filter-box">
+                <h4>🌾 Agriculture</h4>
+                <p>Crop monitoring, pest detection, harvest optimization</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="story-section">
+        <h2>⚙️ Practical Implementation: Sarah's Recipe Book</h2>
+        
+        <div class="math-box">
+            <h4>🛠️ Basic Computer Vision Pipeline (Pseudocode)</h4>
+            <div class="equation">
+                1. Load Image → Array of RGB values<br>
+                2. Preprocess → Resize, normalize, denoise<br>
+                3. Apply Filters → Convolution operations<br>
+                4. Extract Features → Find edges, corners, blobs<br>
+                5. Classification → Match patterns to known objects<br>
+                6. Post-process → Clean up results, draw bounding boxes
+            </div>
+        </div>
+
+        <div class="concept-box">
+            <h3>🎯 Performance Considerations</h3>
+            <p><strong>Memory Usage:</strong> Large images require massive amounts of RAM<br>
+            <strong>Processing Speed:</strong> Real-time applications need optimized algorithms<br>
+            <strong>Accuracy vs Speed:</strong> More complex models are more accurate but slower<br>
+            <strong>Hardware Acceleration:</strong> GPUs can process many pixels simultaneously</p>
+        </div>
+    </div>
+
+    <div class="summary-box">
+        <h2>🎯 Sarah's Complete Toolkit: Professional Summary</h2>
+        <div class="pixel-animation"></div>
+        
+        <p><strong>Foundation Concepts:</strong></p>
+        <ul>
+            <li>🧩 <strong>Pixels:</strong> Tiny colored squares with (x,y) coordinates and RGB values (0-255)</li>
+            <li>🎨 <strong>Color Channels:</strong> Red, Green, Blue mixing creates all colors</li>
+            <li>📐 <strong>Coordinate Systems:</strong> (0,0) at top-left, width×height dimensions</li>
+            <li>📊 <strong>Histograms:</strong> Show distribution of brightness values in images</li>
+        </ul>
+        
+        <p><strong>Processing Operations:</strong></p>
+        <ul>
+            <li>🔆 <strong>Point Operations:</strong> Brightness, contrast, color adjustments on individual pixels</li>
+            <li>🎯 <strong>Neighborhood Operations:</strong> Convolution with kernels for blur, edge detection, sharpening</li>
+            <li>🌟 <strong>Morphological Operations:</strong> Shape-based processing for cleanup and enhancement</li>
+            <li>📈 <strong>Geometric Transformations:</strong> Rotation, scaling, translation of entire images</li>
+        </ul>
+
+        <p><strong>Advanced Techniques:</strong></p>
+        <ul>
+            <li>🔍 <strong>Feature Detection:</strong> Finding corners, edges, and interesting points</li>
+            <li>🧠 <strong>Machine Learning:</strong> CNNs that learn optimal filters automatically</li>
+            <li>🎭 <strong>Object Recognition:</strong> Identifying and classifying objects in images</li>
+            <li>📋 <strong>Scene Understanding:</strong> Analyzing relationships between objects</li>
+        </ul>
+        
+        <div class="math-box">
+            <h3>🧮 Master Equations to Remember:</h3>
+            <div class="equation">
+                Image[x,y] = (R, G, B) values at position (x,y)<br>
+                Convolution = Σ(kernel[i,j] × image[x+i, y+j])<br>
+                Grayscale = 0.299×R + 0.587×G + 0.114×B<br>
+                Feature = Pattern with high information content
+            </div>
+        </div>
+        
+        <p style="text-align: center;"><strong>Now you can see the world through Sarah's mathematical eyes! 📸🔍</strong></p>
+    </div>
+
+    <div class="story-section">
+        <h2>📚 Master-Level Practice Challenges</h2>
+        <div class="concept-box">
+            <p><strong>Beginner:</strong> Calculate the RGB values needed to create orange, purple, and brown colors.<br>
+            <strong>Intermediate:</strong> Design a kernel that detects vertical edges vs. horizontal edges.<br>
+            <strong>Advanced:</strong> Explain why convolution with different kernels can detect different types of features.<br>
+            <strong>Expert:</strong> How would you design a system to automatically detect blurry photos?<br>
+            <strong>Professional:</strong> Create a pipeline to identify and count objects of different types in a warehouse photo.</p>
+        </div>
+    </div>
+</body>
+</html>
