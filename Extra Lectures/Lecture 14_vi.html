@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Evidence Summarizer: Pooling & Subsampling - Part 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Comic Sans MS", cursive;
+            line-height: 1.6;
+            color: #ffffff;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #0a0a0a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(255, 255, 0, 0.3);
+            overflow: hidden;
+            border: 3px solid #ffff00;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #000000, #ff0000, #ffff00, #00ff00, #000000);
+            color: #ffffff;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            border-bottom: 4px solid #ffff00;
+        }
+
+        .header::before {
+            content: "🏊📋🔍";
+            font-size: 3em;
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            opacity: 0.6;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+            animation: evidenceGlow 3s infinite;
+            color: #ffff00;
+        }
+
+        @keyframes evidenceGlow {
+            0% {
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px #ffff00;
+            }
+
+            50% {
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 40px #00ff00;
+            }
+
+            100% {
+                text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8), 0 0 20px #ffff00;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            opacity: 0.9;
+            font-weight: normal;
+            color: #00ff00;
+        }
+
+        .timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #ff0000;
+            color: #ffff00;
+            padding: 15px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.5);
+            border: 2px solid #ffff00;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333333;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ffff00;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .nav {
+            background: #1a1a1a;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 3px solid #ffff00;
+        }
+
+        .nav a {
+            display: inline-block;
+            margin: 5px 10px;
+            padding: 12px 20px;
+            background: #000000;
+            color: #ffff00;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s;
+            font-weight: bold;
+            border: 2px solid #ffff00;
+        }
+
+        .nav a:hover {
+            transform: translateY(-3px) scale(1.05);
+            background: #ffff00;
+            color: #000000;
+            box-shadow: 0 5px 15px rgba(255, 255, 0, 0.5);
+        }
+
+        .section {
+            padding: 30px;
+            border-bottom: 2px solid #333333;
+        }
+
+        h2 {
+            color: #ffff00;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            border-bottom: 4px solid #00ff00;
+            padding-bottom: 10px;
+            display: flex;
+            align-items: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        }
+
+        h3 {
+            color: #00ff00;
+            font-size: 1.6em;
+            margin: 20px 0 15px 0;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .story-box {
+            background: linear-gradient(135deg, #ff0000, #000000);
+            color: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4);
+            border: 2px solid #ffff00;
+        }
+
+        .simple-explanation {
+            background: linear-gradient(135deg, #00ff00, #004d00);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border-left: 6px solid #ffff00;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .simple-explanation::before {
+            content: "👶 Simple Words: ";
+            font-weight: bold;
+            color: #ff0000;
+            font-size: 1.1em;
+        }
+
+        .interactive-demo {
+            background: linear-gradient(135deg, #ffff00, #cccc00);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px solid #ff0000;
+            text-align: center;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        .slider-container {
+            margin: 15px 0;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #000000;
+        }
+
+        .slider {
+            width: 100%;
+            height: 10px;
+            background: #333333;
+            outline: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .result-card {
+            background: linear-gradient(135deg, #ff0000, #000000);
+            color: #ffff00;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.4);
+            border: 2px solid #ffff00;
+        }
+
+        .detective-visual {
+            text-align: center;
+            font-size: 2.5em;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        .evidence-board {
+            background: #000000;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 3px solid #ffff00;
+            font-family: 'Courier New', monospace;
+        }
+
+        .pooling-demo {
+            background: linear-gradient(135deg, #00ff00, #003300);
+            color: #000000;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            border: 2px solid #ffff00;
+            font-weight: bold;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            border: 2px solid #ffff00;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .comparison-table th {
+            background: #ff0000;
+            color: #ffff00;
+            font-weight: bold;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .comparison-table tr:nth-child(odd) {
+            background: #0a0a0a;
+            color: #ffffff;
+        }
+
+        .highlight {
+            background: #ffff00;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            color: #000000;
+        }
+
+        .real-world-example {
+            background: linear-gradient(135deg, #000000, #ff0000);
+            color: #ffffff;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px solid #00ff00;
+        }
+
+        .grid-visual {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            max-width: 300px;
+            margin: 15px auto;
+        }
+
+        .grid-cell {
+            background: #ffff00;
+            color: #000000;
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: bold;
+            border: 1px solid #000000;
+            font-size: 1.1em;
+        }
+
+        .pooled-cell {
+            background: #00ff00;
+            color: #000000;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border: 2px solid #000000;
+            font-size: 1.3em;
+        }
+
+        .step-visual {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .arrow {
+            color: #00ff00;
+            font-size: 3em;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+
+        .part-indicator {
+            background: linear-gradient(135deg, #ff0000, #ffff00);
+            color: #000000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 2px solid #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="timer" id="timer">30:00</div>
+    <div class="container">
+        <div class="header">
+            <div class="part-indicator">📖 PART 1: STORYTELLING & INTUITION</div>
+            <h1>🏊 The Evidence Summarizer</h1>
+            <div class="subtitle">Detective Sam's Guide to Pooling & Subsampling!</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <div class="nav">
+            <a href="#intro">Meet Detective Sam</a>
+            <a href="#problem">The Evidence Problem</a>
+            <a href="#maxpooling">Max Pooling Solution</a>
+            <a href="#avgpooling">Average Pooling Magic</a>
+            <a href="#realworld">Real-World Examples</a>
+            <a href="#next">Ready for Part 2?</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🕵️ Meet Detective Sam: The Evidence Specialist</h2>
+            <div class="story-box">
+                <h3>📋 The Overwhelmed Detective</h3>
+                <p>Meet Detective Sam, the most thorough investigator in the city! 🔍 Sam is amazing at finding clues,
+                    but he has one BIG problem - he finds <strong>TOO MANY</strong> clues!</p>
+                <div class="detective-visual">🕵️➡️📋📋📋➡️😵</div>
+                <p>After investigating crime scenes, Sam's evidence boards are MASSIVE! They're covered with thousands
+                    of tiny pieces of evidence. While this thoroughness is great, it creates a huge problem...</p>
+                <p><span class="highlight">Sam can't see the forest for the trees!</span> He gets lost in all the
+                    details and can't quickly identify the most important patterns!</p>
+            </div>
+
+            <div class="simple-explanation">
+                This is exactly what happens in <strong>Convolutional Neural Networks</strong>! After convolution
+                operations, we get huge feature maps full of detailed information. But sometimes we need to
+                <strong>summarize</strong> this information to focus on the most important patterns and make our
+                networks faster and more efficient.
+            </div>
+
+            <div class="evidence-board">
+                <h3>📋 Sam's Typical Evidence Board (Before Summarization)</h3>
+                <div class="grid-visual">
+                    <div class="grid-cell">8.2</div>
+                    <div class="grid-cell">3.1</div>
+                    <div class="grid-cell">9.7</div>
+                    <div class="grid-cell">2.4</div>
+                    <div class="grid-cell">1.5</div>
+                    <div class="grid-cell">7.8</div>
+                    <div class="grid-cell">4.3</div>
+                    <div class="grid-cell">6.9</div>
+                    <div class="grid-cell">5.2</div>
+                    <div class="grid-cell">8.1</div>
+                    <div class="grid-cell">3.6</div>
+                    <div class="grid-cell">7.4</div>
+                    <div class="grid-cell">2.8</div>
+                    <div class="grid-cell">9.3</div>
+                    <div class="grid-cell">1.7</div>
+                    <div class="grid-cell">5.9</div>
+                </div>
+                <p style="text-align: center; margin-top: 15px;">16 pieces of evidence - Too much to process quickly!
+                </p>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Evidence Overload Simulator</h3>
+                <div class="slider-container">
+                    <label>Evidence Detail Level: <span id="detailVal">Medium</span></label>
+                    <input type="range" class="slider" id="detailSlider" min="1" max="5" value="3">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Evidence Pieces: <span id="evidenceCount">64</span></div>
+                    <div class="result-card">Processing Time: <span id="processTime">5 minutes</span></div>
+                    <div class="result-card">Sam's Stress Level: <span id="stressLevel">Medium</span></div>
+                </div>
+                <div id="detail-explanation" class="result-card">Adjust the detail level to see how evidence
+                    accumulates!</div>
+            </div>
+        </div>
+
+        <div class="section" id="problem">
+            <h2>❗ The Great Evidence Crisis</h2>
+            <div class="story-box">
+                <h3>🚨 Sam's Investigation Breakdown</h3>
+                <p>One day, Sam was investigating a complex case and his evidence board was ENORMOUS! 📊 It had
+                    thousands of clues arranged in a giant grid. Sam was drowning in information!</p>
+                <div class="detective-visual">📋➡️📋📋➡️📋📋📋📋➡️🤯</div>
+                <p>"I need a way to <strong>summarize</strong> all this evidence without losing the important stuff!"
+                    Sam exclaimed. "There must be a smart way to reduce this information while keeping what matters
+                    most!"</p>
+            </div>
+
+            <div class="pooling-demo">
+                <h3>🎯 The Three Big Problems Sam Faced:</h3>
+                <div class="comparison-table">
+                    <tr>
+                        <th>Problem</th>
+                        <th>What It Means</th>
+                        <th>Real Impact</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Information Overload</strong></td>
+                        <td>Too many details to process</td>
+                        <td>Can't see big picture patterns</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Processing Speed</strong></td>
+                        <td>Takes forever to analyze everything</td>
+                        <td>Cases solve too slowly</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Storage Space</strong></td>
+                        <td>Evidence boards are massive</td>
+                        <td>Running out of office space!</td>
+                    </tr>
+                    </table>
+                </div>
+
+                <div class="simple-explanation">
+                    In neural networks, this is called the <strong>"computational burden"</strong> problem. Large
+                    feature maps require lots of memory, processing power, and time. We need smart ways to reduce the
+                    size while keeping the important information - just like Sam needs to summarize his evidence!
+                </div>
+
+                <div class="real-world-example">
+                    <h3>🌍 Real-World Example: Satellite Images</h3>
+                    <p><strong>NASA's Challenge:</strong> Satellite images of Earth are HUGE - sometimes 50,000×50,000
+                        pixels! 🛰️</p>
+                    <ul>
+                        <li>📸 <strong>Original Problem:</strong> Analyzing every single pixel takes days</li>
+                        <li>🏊 <strong>Pooling Solution:</strong> Summarize regions to find important features (storms,
+                            fires, cities)</li>
+                        <li>⚡ <strong>Result:</strong> Process images 100x faster while still detecting what matters!
+                        </li>
+                    </ul>
+                    <p>Just like Sam's evidence boards, we need smart summarization!</p>
+                </div>
+            </div>
+
+            <div class="section" id="maxpooling">
+                <h2>🏆 Max Pooling: "Keep Only The Strongest Evidence!"</h2>
+                <div class="story-box">
+                    <h3>💡 Sam's First Brilliant Idea</h3>
+                    <p>Sam had his first breakthrough! 💡 "What if I divide my evidence board into small sections, and
+                        from each section, I only keep the <strong>STRONGEST</strong> piece of evidence?"</p>
+                    <div class="detective-visual">📋➡️🔍➡️🏆</div>
+                    <p>"This way, I'll have a much smaller evidence board, but it will still contain all the most
+                        important clues!" Sam was excited about this <span class="highlight">Max Pooling</span>
+                        strategy!</p>
+                </div>
+
+                <div class="simple-explanation">
+                    <strong>Max Pooling</strong> is exactly like Sam's strategy! We take small regions of our feature
+                    map (like 2×2 squares) and keep only the highest value from each region. It's like keeping only the
+                    "strongest evidence" from each area.
+                </div>
+
+                <div class="pooling-demo">
+                    <h3>🔍 Max Pooling in Action: Sam's Method</h3>
+                    <div class="step-visual">
+                        <div>
+                            <h4>Original Evidence (4×4)</h4>
+                            <div class="grid-visual" style="grid-template-columns: repeat(4, 1fr);">
+                                <div class="grid-cell">8.2</div>
+                                <div class="grid-cell">3.1</div>
+                                <div class="grid-cell">9.7</div>
+                                <div class="grid-cell">2.4</div>
+                                <div class="grid-cell">1.5</div>
+                                <div class="grid-cell">7.8</div>
+                                <div class="grid-cell">4.3</div>
+                                <div class="grid-cell">6.9</div>
+                                <div class="grid-cell">5.2</div>
+                                <div class="grid-cell">8.1</div>
+                                <div class="grid-cell">3.6</div>
+                                <div class="grid-cell">7.4</div>
+                                <div class="grid-cell">2.8</div>
+                                <div class="grid-cell">9.3</div>
+                                <div class="grid-cell">1.7</div>
+                                <div class="grid-cell">5.9</div>
+                            </div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div>
+                            <h4>Max Pooled (2×2)</h4>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 200px;">
+                                <div class="pooled-cell">8.2</div>
+                                <div class="pooled-cell">9.7</div>
+                                <div class="pooled-cell">8.1</div>
+                                <div class="pooled-cell">9.3</div>
+                            </div>
+                            <p style="margin-top: 10px;">75% reduction in evidence!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>🎮 Max Pooling Detective Simulator</h3>
+                    <div class="slider-container">
+                        <label>Pool Size: <span id="poolSizeVal">2×2</span></label>
+                        <input type="range" class="slider" id="poolSizeSlider" min="2" max="4" value="2">
+                    </div>
+                    <div class="slider-container">
+                        <label>Evidence Strength Threshold: <span id="thresholdVal">5.0</span></label>
+                        <input type="range" class="slider" id="thresholdSlider" min="1" max="10" step="0.5" value="5">
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-card">Original Size: <span id="originalSize">16 pieces</span></div>
+                        <div class="result-card">After Max Pool: <span id="maxPoolSize">4 pieces</span></div>
+                        <div class="result-card">Reduction: <span id="reduction">75%</span></div>
+                        <div class="result-card">Strong Evidence Kept: <span id="strongKept">100%</span></div>
+                    </div>
+                    <div id="maxpool-explanation" class="result-card">Sam's max pooling keeps the strongest clues from
+                        each region!</div>
+                </div>
+
+                <div class="real-world-example">
+                    <h3>🌍 Real-World Max Pooling: Medical X-Rays</h3>
+                    <p><strong>Hospital Challenge:</strong> Detecting broken bones in X-ray images 🏥</p>
+                    <ul>
+                        <li>🔍 <strong>Original X-Ray:</strong> 2048×2048 pixels of bone density data</li>
+                        <li>🏆 <strong>Max Pooling Application:</strong> Keep highest bone density values in each region
+                        </li>
+                        <li>💡 <strong>Why It Works:</strong> Fractures show up as sudden changes in bone density</li>
+                        <li>⚡ <strong>Result:</strong> Doctors can spot fractures 10x faster!</li>
+                    </ul>
+                    <p>Max pooling helps preserve the most important medical information!</p>
+                </div>
+            </div>
+
+            <div class="section" id="avgpooling">
+                <h2>⚖️ Average Pooling: "Consider All Evidence Equally!"</h2>
+                <div class="story-box">
+                    <h3>🤔 Sam's Second Strategy</h3>
+                    <p>Sam realized that sometimes keeping only the strongest evidence might miss important patterns! 💭
+                        "What if some cases need me to consider ALL the evidence in each section, not just the
+                        strongest?"</p>
+                    <div class="detective-visual">📋➡️⚖️➡️📊</div>
+                    <p>"I'll try <strong>Average Pooling</strong> - instead of keeping the strongest evidence, I'll take
+                        the average of all evidence in each section! This gives me a balanced summary!"</p>
+                </div>
+
+                <div class="simple-explanation">
+                    <strong>Average Pooling</strong> takes the mathematical average of all values in each region.
+                    Instead of picking the "winner" like max pooling, it considers everyone's opinion equally. It's like
+                    taking a vote where everyone's voice counts the same!
+                </div>
+
+                <div class="pooling-demo">
+                    <h3>📊 Average Pooling in Action: Sam's Balanced Method</h3>
+                    <div class="step-visual">
+                        <div>
+                            <h4>Original Evidence (4×4)</h4>
+                            <div class="grid-visual" style="grid-template-columns: repeat(4, 1fr);">
+                                <div class="grid-cell">8.0</div>
+                                <div class="grid-cell">2.0</div>
+                                <div class="grid-cell">6.0</div>
+                                <div class="grid-cell">4.0</div>
+                                <div class="grid-cell">1.0</div>
+                                <div class="grid-cell">9.0</div>
+                                <div class="grid-cell">3.0</div>
+                                <div class="grid-cell">7.0</div>
+                                <div class="grid-cell">5.0</div>
+                                <div class="grid-cell">3.0</div>
+                                <div class="grid-cell">8.0</div>
+                                <div class="grid-cell">2.0</div>
+                                <div class="grid-cell">4.0</div>
+                                <div class="grid-cell">6.0</div>
+                                <div class="grid-cell">1.0</div>
+                                <div class="grid-cell">9.0</div>
+                            </div>
+                        </div>
+                        <div class="arrow">→</div>
+                        <div>
+                            <h4>Average Pooled (2×2)</h4>
+                            <div
+                                style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 200px;">
+                                <div class="pooled-cell">5.0</div>
+                                <div class="pooled-cell">5.0</div>
+                                <div class="pooled-cell">4.5</div>
+                                <div class="pooled-cell">5.0</div>
+                            </div>
+                            <p style="margin-top: 10px;">Smooth, balanced summary!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>⚖️ Average Pooling Balance Simulator</h3>
+                    <div class="slider-container">
+                        <label>Evidence Variation: <span id="variationVal">Medium</span></label>
+                        <input type="range" class="slider" id="variationSlider" min="1" max="5" value="3">
+                    </div>
+                    <div class="result-grid">
+                        <div class="result-card">Max Pool Result: <span id="maxResult">8.5</span></div>
+                        <div class="result-card">Average Pool Result: <span id="avgResult">5.2</span></div>
+                        <div class="result-card">Smoothness: <span id="smoothness">Good</span></div>
+                        <div class="result-card">Information Preserved: <span id="infoPreserved">85%</span></div>
+                    </div>
+                    <div id="avgpool-explanation" class="result-card">Average pooling creates smoother, more balanced
+                        summaries!</div>
+                </div>
+
+                <div class="comparison-table">
+                    <tr>
+                        <th>Pooling Type</th>
+                        <th>Sam's Strategy</th>
+                        <th>Best For</th>
+                        <th>Characteristic</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Max Pooling</strong></td>
+                        <td>"Keep strongest evidence only!"</td>
+                        <td>Finding clear patterns, edges</td>
+                        <td>Preserves sharp features</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Average Pooling</strong></td>
+                        <td>"Consider all evidence equally!"</td>
+                        <td>Smooth textures, general shapes</td>
+                        <td>Creates smooth summaries</td>
+                    </tr>
+                    </table>
+
+                    <div class="real-world-example">
+                        <h3>🌍 Real-World Average Pooling: Weather Prediction</h3>
+                        <p><strong>Meteorologist Challenge:</strong> Predicting regional weather patterns 🌤️</p>
+                        <ul>
+                            <li>🌡️ <strong>Temperature Data:</strong> Thousands of temperature readings across a city
+                            </li>
+                            <li>⚖️ <strong>Average Pooling Application:</strong> Average temperatures in neighborhoods
+                            </li>
+                            <li>💡 <strong>Why It Works:</strong> Weather patterns are gradual, not sudden</li>
+                            <li>🎯 <strong>Result:</strong> Smooth, accurate regional weather forecasts!</li>
+                        </ul>
+                        <p>Average pooling captures gradual changes better than max pooling!</p>
+                    </div>
+                </div>

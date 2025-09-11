@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧮 CNN Architectures: Mathematical Laboratory - Part 2</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f260 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 20s ease infinite;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            25% {
+                background-position: 100% 50%;
+            }
+
+            50% {
+                background-position: 0% 100%;
+            }
+
+            75% {
+                background-position: 100% 0%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 4px solid #4facfe;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #6c5ce7);
+            color: white;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 15px,
+                    rgba(255, 255, 255, 0.1) 15px,
+                    rgba(255, 255, 255, 0.1) 30px);
+            animation: labShine 4s linear infinite;
+        }
+
+        @keyframes labShine {
+            0% {
+                transform: translateX(-100%) translateY(-100%);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%);
+            }
+        }
+
+        .title {
+            font-size: 4em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 2em;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lab-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.3);
+            padding: 10px 20px;
+            border-radius: 25px;
+            margin: 15px 0;
+            font-size: 1.3em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-container {
+            background: rgba(255, 255, 255, 0.3);
+            height: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00f260, #0575e6, #4facfe);
+            width: 0%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 1.6em;
+            color: #333;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(45deg, #ffeaa7, #fab1a0, #fdcb6e);
+            border-radius: 20px;
+            border: 4px solid #e17055;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-button {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, #764ba2, #667eea);
+        }
+
+        .section {
+            margin: 50px 0;
+            padding: 35px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border-left: 10px solid #4facfe;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, #4facfe, #00f260, #667eea, #4facfe);
+            background-size: 300% 100%;
+            animation: mathShimmer 3s linear infinite;
+        }
+
+        @keyframes mathShimmer {
+            0% {
+                background-position: -300% 0;
+            }
+
+            100% {
+                background-position: 300% 0;
+            }
+        }
+
+        .section h2 {
+            color: #2d3436;
+            font-size: 3em;
+            margin-bottom: 25px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h3 {
+            color: #636e72;
+            font-size: 2.2em;
+            margin: 30px 0 20px 0;
+            border-bottom: 3px solid #74b9ff;
+            padding-bottom: 8px;
+        }
+
+        .professor-lab {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe, #fd79a8);
+            padding: 30px;
+            border-radius: 25px;
+            margin: 25px 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .professor-lab::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 25px,
+                    rgba(255, 255, 255, 0.1) 25px,
+                    rgba(255, 255, 255, 0.1) 50px);
+            animation: labPattern 6s linear infinite;
+        }
+
+        @keyframes labPattern {
+            0% {
+                transform: translateX(-100%) translateY(-100%);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%);
+            }
+        }
+
+        .lab-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .professor-avatar {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: labFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes labFloat {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .math-container {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            border: 3px solid #4facfe;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .math-container::before {
+            content: '🧮';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background: #4facfe;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .equation {
+            font-size: 2.5em;
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .equation-breakdown {
+            margin: 25px 0;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #00cec9;
+        }
+
+        .symbol-meaning {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .symbol {
+            font-size: 2em;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 20px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .meaning {
+            font-size: 1.3em;
+            color: #2d3436;
+            flex: 1;
+        }
+
+        .code-playground {
+            background: linear-gradient(135deg, #2d3436, #636e72);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-playground::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00f260, #4facfe, #667eea);
+            animation: codeFlow 2s linear infinite;
+        }
+
+        @keyframes codeFlow {
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .code-header {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #00f260;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .code-block {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            line-height: 1.8;
+            border: 2px solid #4facfe;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+
+        .python-keyword {
+            color: #ff7675;
+            font-weight: bold;
+        }
+
+        .python-string {
+            color: #00b894;
+        }
+
+        .python-comment {
+            color: #74b9ff;
+            font-style: italic;
+        }
+
+        .python-number {
+            color: #fdcb6e;
+        }
+
+        .interactive-calculator {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: white;
+            padding: 35px;
+            border-radius: 25px;
+            margin: 35px 0;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .calculator-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .control-group {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-label {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-button {
+            padding: 15px 30px;
+            background: white;
+            color: #00b894;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .architecture-implementation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .arch-impl-card {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            border: 4px solid #ddd;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .arch-impl-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(116, 185, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .arch-impl-card:hover::before {
+            left: 100%;
+        }
+
+        .arch-impl-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            border-color: #4facfe;
+        }
+
+        .arch-impl-icon {
+            font-size: 4em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .arch-impl-title {
+            font-size: 2.2em;
+            color: #2d3436;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .performance-metrics {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .advanced-concepts {
+            background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+            color: white;
+            padding: 35px;
+            border-radius: 25px;
+            margin: 40px 0;
+        }
+
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .concept-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .concept-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .final-challenge {
+            background: linear-gradient(135deg, #ff7675, #fd79a8, #fdcb6e);
+            color: white;
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            margin: 50px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .final-challenge::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 30px,
+                    rgba(255, 255, 255, 0.1) 30px,
+                    rgba(255, 255, 255, 0.1) 60px);
+            animation: challengePattern 8s linear infinite;
+        }
+
+        @keyframes challengePattern {
+            0% {
+                transform: translateX(-100%) translateY(-100%) rotate(0deg);
+            }
+
+            100% {
+                transform: translateX(100%) translateY(100%) rotate(360deg);
+            }
+        }
+
+        .challenge-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .network-builder {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 3px solid #74b9ff;
+        }
+
+        .layer-palette {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .layer-tool {
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #4facfe, #00f260);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Comic Sans MS', cursive;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .layer-tool:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .canvas-area {
+            min-height: 200px;
+            border: 2px dashed #ccc;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3em;
+            }
+
+            .subtitle {
+                font-size: 1.5em;
+            }
+
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .architecture-implementation {
+                grid-template-columns: 1fr;
+            }
+
+            .calculator-controls {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="title">🧮 Mathematical Evidence Laboratory</div>
+            <div class="subtitle">Part 2: Formulas, Code & Professional Implementation</div>
+            <div class="lab-badge">🔬 Professor Alex's Advanced Research Lab</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <!-- Timer -->
+        <div class="timer" id="timer">
+            ⏱️ Laboratory Session Time: 30:00 minutes
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="#mathematical-foundations" class="nav-button">🔢 Mathematical Core</a>
+            <a href="#lenet-implementation" class="nav-button">👶 LeNet Lab</a>
+            <a href="#alexnet-implementation" class="nav-button">⚡ AlexNet Lab</a>
+            <a href="#vgg-implementation" class="nav-button">🏗️ VGG Lab</a>
+            <a href="#advanced-techniques" class="nav-button">🚀 Advanced Methods</a>
+            <a href="#final-project" class="nav-button">🎯 Master Project</a>
+        </div>
+
+        <!-- Mathematical Foundations Section -->
+        <div class="section" id="mathematical-foundations">
+            <h2>🔢 Mathematical Foundation Laboratory</h2>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🔬👨‍🏫</div>
+                    <h3>Welcome to Professor Alex's Mathematical Lab!</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "Excellent work completing Part 1! Now we dive deep into the mathematical DNA of CNN
+                        architectures.
+                        In this laboratory, every equation tells a story, every symbol has meaning, and every formula
+                        reveals the secrets behind computer vision magic!"
+                    </p>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🧮 The Core CNN Mathematical Framework</h3>
+
+                <div class="equation">
+                    Y[i,j] = σ(∑∑(X[i+m,j+n] * W[m,n]) + b)
+                </div>
+
+                <div class="equation-breakdown">
+                    <h4>🔍 Breaking Down Every Symbol</h4>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">Y[i,j]</div>
+                        <div class="meaning">
+                            <strong>"The Detective's Conclusion"</strong><br>
+                            This is the output value at position (i,j) in our feature map. Think of it as Professor
+                            Alex's final decision about what feature was detected at this specific location in the
+                            image.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">σ</div>
+                        <div class="meaning">
+                            <strong>"The Decision Maker"</strong><br>
+                            This is the activation function (like ReLU). It's like Professor Alex's brain deciding: "Is
+                            this evidence strong enough to matter?" If yes, keep it; if no, set it to zero.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">∑∑</div>
+                        <div class="meaning">
+                            <strong>"The Evidence Collector"</strong><br>
+                            Double summation means we're adding up ALL the evidence from our filter window. We look at
+                            every pixel in our 3x3 (or larger) detective magnifying glass.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">X[i+m,j+n]</div>
+                        <div class="meaning">
+                            <strong>"The Evidence Pixel"</strong><br>
+                            This is the actual pixel value in the input image. The (i+m, j+n) means we're sliding our
+                            detective glass over different parts of the image to examine each clue.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">W[m,n]</div>
+                        <div class="meaning">
+                            <strong>"The Detective's Training"</strong><br>
+                            These are the filter weights - Professor Alex's learned knowledge about what patterns to
+                            look for. Each weight says how important that specific pixel position is for detecting
+                            features.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">b</div>
+                        <div class="meaning">
+                            <strong>"The Bias Adjustment"</strong><br>
+                            This is like Professor Alex's personal detective intuition - a small adjustment that helps
+                            make better decisions even when the evidence is unclear.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-calculator">
+                <h3>🎮 Live Convolution Calculator</h3>
+                <p>Let's see the math in action! Adjust the values and watch how convolution works step by step.</p>
+
+                <div class="calculator-controls">
+                    <div class="control-group">
+                        <div class="control-label">Filter Size: <span id="filterSizeValue">3</span>x<span
+                                id="filterSizeValue2">3</span></div>
+                        <input type="range" min="1" max="5" value="3" class="slider" id="filterSize"
+                            oninput="updateCalculation()" 
+                            title="Adjust filter size for convolution"
+                            aria-label="Filter size slider">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">Input Value: <span id="inputValue">128</span></div>
+                        <input type="range" min="0" max="255" value="128" class="slider" id="inputSlider"
+                            oninput="updateCalculation()"
+                            title="Adjust input value"
+                            aria-label="Input value slider">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">Filter Weight: <span id="weightValue">0.5</span></div>
+                        <input type="range" min="-1" max="1" step="0.1" value="0.5" class="slider" id="weightSlider"
+                            oninput="updateCalculation()"
+                            title="Adjust filter weight"
+                            aria-label="Filter weight slider">
+                    </div>
+                </div>
+
+                <div id="calculationResult"
+                    style="margin-top: 30px; padding: 25px; background: rgba(255, 255, 255, 0.2); border-radius: 15px; font-size: 1.3em;">
+                    Adjust the sliders above to see the convolution calculation!
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <button class="demo-button" onclick="demonstrateStep('convolution')">Show Convolution Step</button>
+                    <button class="demo-button" onclick="demonstrateStep('activation')">Show Activation Step</button>
+                    <button class="demo-button" onclick="demonstrateStep('pooling')">Show Pooling Step</button>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>📊 Pooling Mathematics Revealed</h3>
+
+                <div class="equation">
+                    Max Pool: P[i,j] = max(X[2i:2i+2, 2j:2j+2])
+                </div>
+
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">P[i,j]</div>
+                        <div class="meaning">
+                            <strong>"The Summary Report"</strong><br>
+                            This is the pooled output value. Professor Alex takes a 2x2 area of detective evidence and
+                            summarizes it into one strong conclusion.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">max(...)</div>
+                        <div class="meaning">
+                            <strong>"Keep Only the Strongest Evidence"</strong><br>
+                            From all the values in our 2x2 window, we keep only the largest one. It's like Professor
+                            Alex saying "This is the most important clue in this area!"
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">2i:2i+2</div>
+                        <div class="meaning">
+                            <strong>"The Evidence Window"</strong><br>
+                            This defines our 2x2 sliding window. We move this window across the feature map, taking the
+                            best evidence from each area and making our summary smaller but more focused.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equation">
+                    Average Pool: P[i,j] = (1/4) * ∑∑X[2i+m, 2j+n]
+                </div>
+
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">(1/4)</div>
+                        <div class="meaning">
+                            <strong>"The Fair Judge"</strong><br>
+                            We divide by 4 because we're averaging 4 values. Professor Alex considers all evidence
+                            equally important and finds the average conclusion.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LeNet Implementation Section -->
+        <div class="section" id="lenet-implementation">
+            <h2>👶 LeNet-5 Implementation Laboratory</h2>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🔬👶</div>
+                    <h3>Building Our First CNN: LeNet-5</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "Let's build the grandfather of all CNNs! LeNet-5 may seem simple now, but every modern
+                        architecture owes its existence to this pioneering design. We'll implement it from scratch and
+                        understand every mathematical detail!"
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <div class="code-header">
+                    💻 Complete LeNet-5 Implementation
+                </div>
+                <div class="code-block">
+                    <span class="python-keyword">import</span> torch
+                    <span class="python-keyword">import</span> torch.nn <span class="python-keyword">as</span> nn
+                    <span class="python-keyword">import</span> torch.nn.functional <span
+                        class="python-keyword">as</span> F
+
+                    <span class="python-keyword">class</span> LeNet5(nn.Module):
+                    <span class="python-comment"># Professor Alex's Original LeNet-5 Architecture</span>
+                    <span class="python-keyword">def</span> __init__(self, num_classes=<span
+                        class="python-number">10</span>):
+                    <span class="python-keyword">super</span>(LeNet5, self).__init__()
+
+                    <span class="python-comment"># Layer 1: First Convolution + Activation</span>
+                    self.conv1 = nn.Conv2d(<span class="python-number">1</span>, <span class="python-number">6</span>,
+                    kernel_size=<span class="python-number">5</span>)
+                    <span class="python-comment"># Input: 32x32x1, Output: 28x28x6</span>
+
+                    <span class="python-comment"># Layer 2: First Pooling (Subsampling)</span>
+                    self.pool1 = nn.AvgPool2d(<span class="python-number">2</span>)
+                    <span class="python-comment"># Input: 28x28x6, Output: 14x14x6</span>
+
+                    <span class="python-comment"># Layer 3: Second Convolution + Activation</span>
+                    self.conv2 = nn.Conv2d(<span class="python-number">6</span>, <span class="python-number">16</span>,
+                    kernel_size=<span class="python-number">5</span>)
+                    <span class="python-comment"># Input: 14x14x6, Output: 10x10x16</span>
+
+                    <span class="python-comment"># Layer 4: Second Pooling</span>
+                    self.pool2 = nn.AvgPool2d(<span class="python-number">2</span>)
+                    <span class="python-comment"># Input: 10x10x16, Output: 5x5x16</span>
+
+                    <span class="python-comment"># Layer 5: Flatten and First Fully Connected</span>
+                    self.fc1 = nn.Linear(<span class="python-number">16</span> * <span class="python-number">5</span> *
+                    <span class="python-number">5</span>, <span class="python-number">120</span>)
+
+                    <span class="python-comment"># Layer 6: Second Fully Connected</span>
+                    self.fc2 = nn.Linear(<span class="python-number">120</span>, <span class="python-number">84</span>)
+
+                    <span class="python-comment"># Layer 7: Output Layer</span>
+                    self.fc3 = nn.Linear(<span class="python-number">84</span>, num_classes)
+
+                    <span class="python-keyword">def</span> forward(self, x):
+                    <span class="python-comment"># Professor Alex's Forward Pass Journey</span>
+
+                    <span class="python-comment"># Step 1: First Convolution + Sigmoid Activation</span>
+                    x = torch.sigmoid(self.conv1(x))
+                    <span class="python-string">print(f"After Conv1: {x.shape}")</span>
+
+                    <span class="python-comment"># Step 2: First Pooling</span>
+                    x = self.pool1(x)
+                    <span class="python-string">print(f"After Pool1: {x.shape}")</span>
+
+                    <span class="python-comment"># Step 3: Second Convolution + Sigmoid</span>
+                    x = torch.sigmoid(self.conv2(x))
+                    <span class="python-string">print(f"After Conv2: {x.shape}")</span>
+
+                    <span class="python-comment"># Step 4: Second Pooling</span>
+                    x = self.pool2(x)
+                    <span class="python-string">print(f"After Pool2: {x.shape}")</span>
+
+                    <span class="python-comment"># Step 5: Flatten for Fully Connected Layers</span>
+                    x = x.view(-<span class="python-number">1</span>, <span class="python-number">16</span> * <span
+                        class="python-number">5</span> * <span class="python-number">5</span>)
+                    <span class="python-string">print(f"After Flatten: {x.shape}")</span>
+
+                    <span class="python-comment"># Step 6: First Fully Connected + Sigmoid</span>
+                    x = torch.sigmoid(self.fc1(x))
+
+                    <span class="python-comment"># Step 7: Second Fully Connected + Sigmoid</span>
+                    x = torch.sigmoid(self.fc2(x))
+
+                    <span class="python-comment"># Step 8: Output Layer</span>
+                    x = self.fc3(x)
+
+                    <span class="python-keyword">return</span> x
+
+                    <span class="python-comment"># Let's create and test our LeNet-5!</span>
+                    model = LeNet5()
+                    <span class="python-string">print("LeNet-5 Architecture:")</span>
+                    <span class="python-string">print(model)</span>
+
+                    <span class="python-comment"># Test with a sample input</span>
+                    sample_input = torch.randn(<span class="python-number">1</span>, <span
+                        class="python-number">1</span>, <span class="python-number">32</span>, <span
+                        class="python-number">32</span>) <span class="python-comment"># Batch=1, Channels=1, Height=32,
+                        Width=32</span>
+                    output = model(sample_input)
+                    <span class="python-string">print(f"Final Output Shape: {output.shape}")</span>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 LeNet-5 Mathematical Analysis</h3>
+
+                <div class="equation">
+                    Parameters = (5×5×1×6) + 6 + (2×2×6×1) + ... ≈ 60,000
+                </div>
+
+                <div class="equation-breakdown">
+                    <h4>Parameter Calculation Breakdown:</h4>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">5×5×1×6</div>
+                        <div class="meaning">
+                            <strong>First Convolution Layer</strong><br>
+                            5×5 filter size × 1 input channel × 6 output filters = 150 weights + 6 biases = 156
+                            parameters
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">5×5×6×16</div>
+                        <div class="meaning">
+                            <strong>Second Convolution Layer</strong><br>
+                            5×5 filter size × 6 input channels × 16 output filters = 2,400 weights + 16 biases = 2,416
+                            parameters
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">400×120</div>
+                        <div class="meaning">
+                            <strong>First Fully Connected</strong><br>
+                            400 inputs (16×5×5 flattened) × 120 outputs = 48,000 weights + 120 biases = 48,120
+                            parameters
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="performance-metrics">
+                <h3>📊 LeNet-5 Performance Analysis</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">~60K</div>
+                        <div class="metric-label">Total Parameters</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">99%+</div>
+                        <div class="metric-label">MNIST Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">7</div>
+                        <div class="metric-label">Total Layers</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">32×32</div>
+                        <div class="metric-label">Input Size</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AlexNet Implementation Section -->
+        <div class="section" id="alexnet-implementation">
+            <h2>⚡ AlexNet Implementation Laboratory</h2>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🔬⚡</div>
+                    <h3>The Revolutionary AlexNet</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "Now we build the architecture that changed everything! AlexNet introduced ReLU, dropout, and
+                        GPU training. This is where modern deep learning truly began. Let's implement this revolutionary
+                        design!"
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <div class="code-header">
+                    💻 Complete AlexNet Implementation
+                </div>
+                <div class="code-block">
+                    <span class="python-keyword">import</span> torch
+                    <span class="python-keyword">import</span> torch.nn <span class="python-keyword">as</span> nn
+
+                    <span class="python-keyword">class</span> AlexNet(nn.Module):
+                    <span class="python-comment"># Professor Alex's Revolutionary AlexNet</span>
+                    <span class="python-keyword">def</span> __init__(self, num_classes=<span
+                        class="python-number">1000</span>):
+                    <span class="python-keyword">super</span>(AlexNet, self).__init__()
+
+                    <span class="python-comment"># Feature Extraction Layers</span>
+                    self.features = nn.Sequential(
+                    <span class="python-comment"># Layer 1: Large Convolution + ReLU + Pooling</span>
+                    nn.Conv2d(<span class="python-number">3</span>, <span class="python-number">64</span>,
+                    kernel_size=<span class="python-number">11</span>, stride=<span class="python-number">4</span>,
+                    padding=<span class="python-number">2</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>), <span class="python-comment">#
+                        Revolutionary ReLU!</span>
+                    nn.MaxPool2d(kernel_size=<span class="python-number">3</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Layer 2: Second Convolution</span>
+                    nn.Conv2d(<span class="python-number">64</span>, <span class="python-number">192</span>,
+                    kernel_size=<span class="python-number">5</span>, padding=<span class="python-number">2</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">3</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Layer 3: Third Convolution</span>
+                    nn.Conv2d(<span class="python-number">192</span>, <span class="python-number">384</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+
+                    <span class="python-comment"># Layer 4: Fourth Convolution</span>
+                    nn.Conv2d(<span class="python-number">384</span>, <span class="python-number">256</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+
+                    <span class="python-comment"># Layer 5: Fifth Convolution</span>
+                    nn.Conv2d(<span class="python-number">256</span>, <span class="python-number">256</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">3</span>, stride=<span
+                        class="python-number">2</span>),
+                    )
+
+                    <span class="python-comment"># Classifier Layers</span>
+                    self.classifier = nn.Sequential(
+                    nn.Dropout(), <span class="python-comment"># Revolutionary Dropout!</span>
+                    nn.Linear(<span class="python-number">256</span> * <span class="python-number">6</span> * <span
+                        class="python-number">6</span>, <span class="python-number">4096</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Dropout(),
+                    nn.Linear(<span class="python-number">4096</span>, <span class="python-number">4096</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Linear(<span class="python-number">4096</span>, num_classes),
+                    )
+
+                    <span class="python-keyword">def</span> forward(self, x):
+                    <span class="python-comment"># Feature extraction journey</span>
+                    x = self.features(x)
+                    <span class="python-string">print(f"After Features: {x.shape}")</span>
+
+                    <span class="python-comment"># Flatten for classifier</span>
+                    x = x.view(x.size(<span class="python-number">0</span>), -<span class="python-number">1</span>)
+                    <span class="python-string">print(f"After Flatten: {x.shape}")</span>
+
+                    <span class="python-comment"># Classification</span>
+                    x = self.classifier(x)
+                    <span class="python-keyword">return</span> x
+
+                    <span class="python-comment"># Let's analyze AlexNet's revolutionary features</span>
+                    model = AlexNet()
+
+                    <span class="python-comment"># Count parameters</span>
+                    total_params = sum(p.numel() <span class="python-keyword">for</span> p <span
+                        class="python-keyword">in</span> model.parameters())
+                    <span class="python-string">print(f"AlexNet Total Parameters: {total_params:,}")</span>
+
+                    <span class="python-comment"># Test with ImageNet-sized input</span>
+                    sample_input = torch.randn(<span class="python-number">1</span>, <span
+                        class="python-number">3</span>, <span class="python-number">224</span>, <span
+                        class="python-number">224</span>)
+                    output = model(sample_input)
+                    <span class="python-string">print(f"Final Output Shape: {output.shape}")</span>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 AlexNet's Revolutionary Mathematics</h3>
+
+                <div class="equation">
+                    ReLU(x) = max(0, x)
+                </div>
+
+                <div class="equation-breakdown">
+                    <h4>🚀 Why ReLU Changed Everything:</h4>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">max(0, x)</div>
+                        <div class="meaning">
+                            <strong>"The Simple Genius"</strong><br>
+                            If the input is positive, keep it. If negative, make it zero. This simple function solved
+                            the "vanishing gradient" problem that plagued deep networks!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equation">
+                    Dropout: y = x * Bernoulli(p) / p
+                </div>
+
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Bernoulli(p)</div>
+                        <div class="meaning">
+                            <strong>"Random Learning Mask"</strong><br>
+                            Randomly sets some neurons to 0 during training. It's like Professor Alex randomly covering
+                            some evidence to force the network to not rely on any single clue!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-calculator">
+                <h3>🎮 ReLU vs Sigmoid Comparison</h3>
+                <p>See why ReLU revolutionized deep learning!</p>
+
+                <div class="calculator-controls">
+                    <div class="control-group">
+                        <div class="control-label">Input Value: <span id="activationInput">-2</span></div>
+                        <input type="range" min="-5" max="5" step="0.1" value="-2" class="slider" id="activationSlider"
+                            oninput="compareActivations()">
+                    </div>
+                </div>
+
+                <div id="activationComparison"
+                    style="margin-top: 30px; padding: 25px; background: rgba(255, 255, 255, 0.2); border-radius: 15px; font-size: 1.3em;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <h4>🐌 Sigmoid Output:</h4>
+                            <div id="sigmoidResult" style="font-size: 1.5em; color: #fd79a8;"></div>
+                        </div>
+                        <div>
+                            <h4>⚡ ReLU Output:</h4>
+                            <div id="reluResult" style="font-size: 1.5em; color: #00f260;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="performance-metrics">
+                <h3>📊 AlexNet's Revolutionary Impact</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">60M</div>
+                        <div class="metric-label">Parameters</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">84.7%</div>
+                        <div class="metric-label">ImageNet Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">8</div>
+                        <div class="metric-label">Total Layers</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">15%</div>
+                        <div class="metric-label">Error Reduction</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VGG Implementation Section -->
+        <div class="section" id="vgg-implementation">
+            <h2>🏗️ VGG Implementation Laboratory</h2>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🔬🏗️</div>
+                    <h3>The Systematic VGG Architecture</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "VGG taught us that systematic design beats complexity! Using only 3×3 filters throughout, they
+                        proved that depth and consistency create powerful architectures. Let's build this masterpiece of
+                        systematic thinking!"
+                    </p>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <div class="code-header">
+                    💻 Complete VGG-16 Implementation
+                </div>
+                <div class="code-block">
+                    <span class="python-keyword">import</span> torch
+                    <span class="python-keyword">import</span> torch.nn <span class="python-keyword">as</span> nn
+
+                    <span class="python-keyword">class</span> VGG16(nn.Module):
+                    <span class="python-comment"># Professor Alex's Systematic VGG-16</span>
+                    <span class="python-keyword">def</span> __init__(self, num_classes=<span
+                        class="python-number">1000</span>):
+                    <span class="python-keyword">super</span>(VGG16, self).__init__()
+
+                    <span class="python-comment"># VGG's Systematic Block Design</span>
+                    self.features = nn.Sequential(
+                    <span class="python-comment"># Block 1: 64 filters</span>
+                    nn.Conv2d(<span class="python-number">3</span>, <span class="python-number">64</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">64</span>, <span class="python-number">64</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">2</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Block 2: 128 filters</span>
+                    nn.Conv2d(<span class="python-number">64</span>, <span class="python-number">128</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">128</span>, <span class="python-number">128</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">2</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Block 3: 256 filters</span>
+                    nn.Conv2d(<span class="python-number">128</span>, <span class="python-number">256</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">256</span>, <span class="python-number">256</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">256</span>, <span class="python-number">256</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">2</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Block 4: 512 filters</span>
+                    nn.Conv2d(<span class="python-number">256</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">512</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">512</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">2</span>, stride=<span
+                        class="python-number">2</span>),
+
+                    <span class="python-comment"># Block 5: 512 filters</span>
+                    nn.Conv2d(<span class="python-number">512</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">512</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Conv2d(<span class="python-number">512</span>, <span class="python-number">512</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(kernel_size=<span class="python-number">2</span>, stride=<span
+                        class="python-number">2</span>),
+                    )
+
+                    <span class="python-comment"># Classifier layers</span>
+                    self.classifier = nn.Sequential(
+                    nn.Linear(<span class="python-number">512</span> * <span class="python-number">7</span> * <span
+                        class="python-number">7</span>, <span class="python-number">4096</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Dropout(),
+                    nn.Linear(<span class="python-number">4096</span>, <span class="python-number">4096</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Dropout(),
+                    nn.Linear(<span class="python-number">4096</span>, num_classes),
+                    )
+
+                    <span class="python-keyword">def</span> forward(self, x):
+                    x = self.features(x)
+                    x = x.view(x.size(<span class="python-number">0</span>), -<span class="python-number">1</span>)
+                    x = self.classifier(x)
+                    <span class="python-keyword">return</span> x
+
+                    <span class="python-comment"># Create and analyze VGG-16</span>
+                    model = VGG16()
+                    total_params = sum(p.numel() <span class="python-keyword">for</span> p <span
+                        class="python-keyword">in</span> model.parameters())
+                    <span class="python-string">print(f"VGG-16 Total Parameters: {total_params:,}")</span>
+
+                    <span class="python-comment"># Helper function to understand VGG's design principle</span>
+                    <span class="python-keyword">def</span> analyze_receptive_field():
+                    <span class="python-string">"""
+                        Why 3x3 filters? Let's calculate receptive fields!
+
+                        Two 3x3 convolutions = 5x5 receptive field
+                        Three 3x3 convolutions = 7x7 receptive field
+
+                        But 3x3 has fewer parameters and more non-linearity!
+                        """</span>
+                    <span class="python-keyword">pass</span>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 VGG's Genius: Small Filters, Big Impact</h3>
+
+                <div class="equation">
+                    Receptive Field: RF = (k-1) * stride + 1
+                </div>
+
+                <div class="equation-breakdown">
+                    <h4>🧠 Why 3×3 Filters are Brilliant:</h4>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">2×3×3</div>
+                        <div class="meaning">
+                            <strong>"Two Small Detectives vs One Big Detective"</strong><br>
+                            Two 3×3 convolutions cover the same area as one 5×5, but with fewer parameters (18 vs 25)
+                            and more non-linearity (2 ReLU vs 1)!
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">3×3×3</div>
+                        <div class="meaning">
+                            <strong>"Three Small vs One Large"</strong><br>
+                            Three 3×3 convolutions = 7×7 receptive field with 27 parameters vs 49 parameters for single
+                            7×7. More learning power with less computation!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="equation">
+                    Parameters_3x3 = 3 × (3×3×C×C) = 27C²
+                    Parameters_7x7 = 1 × (7×7×C×C) = 49C²
+                </div>
+
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">27C² vs 49C²</div>
+                        <div class="meaning">
+                            <strong>"45% Fewer Parameters!"</strong><br>
+                            VGG proved that stacking small filters is more efficient and effective than using large
+                            filters. This principle revolutionized CNN design!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-calculator">
+                <h3>🎮 Filter Size Comparison Calculator</h3>
+                <p>Compare different filter strategies and see why VGG's approach was genius!</p>
+
+                <div class="calculator-controls">
+                    <div class="control-group">
+                        <div class="control-label">Channels: <span id="channelCount">64</span></div>
+                        <input type="range" min="32" max="512" step="32" value="64" class="slider" id="channelSlider"
+                            oninput="compareFilters()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">Strategy:</div>
+                        <select id="strategySelect" onchange="compareFilters()"
+                            style="width: 100%; padding: 10px; border-radius: 10px; border: none; font-family: 'Comic Sans MS';"
+                            title="Select filter strategy"
+                            aria-label="Filter strategy selection">
+                            <option value="single7">Single 7×7 Filter</option>
+                            <option value="triple3">Three 3×3 Filters</option>
+                            <option value="single5">Single 5×5 Filter</option>
+                            <option value="double3">Two 3×3 Filters</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="filterComparison"
+                    style="margin-top: 30px; padding: 25px; background: rgba(255, 255, 255, 0.2); border-radius: 15px; font-size: 1.2em;">
+                    Adjust the controls above to compare filter strategies!
+                </div>
+            </div>
+
+            <div class="performance-metrics">
+                <h3>📊 VGG-16 Systematic Excellence</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">138M</div>
+                        <div class="metric-label">Parameters</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">92.7%</div>
+                        <div class="metric-label">ImageNet Accuracy</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">16</div>
+                        <div class="metric-label">Total Layers</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">3×3</div>
+                        <div class="metric-label">Filter Size</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Techniques Section -->
+        <div class="section" id="advanced-techniques">
+            <h2>🚀 Advanced Professional Techniques</h2>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🔬🚀</div>
+                    <h3>Master-Level CNN Optimization</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "Now you're ready for the advanced laboratory! These are the professional techniques that
+                        separate good CNN implementations from extraordinary ones. Let's explore optimization,
+                        regularization, and performance tuning!"
+                    </p>
+                </div>
+            </div>
+
+            <div class="advanced-concepts">
+                <h3>🎯 Professional CNN Optimization Techniques</h3>
+                <div class="concept-grid">
+                    <div class="concept-card">
+                        <h4>⚡ Batch Normalization</h4>
+                        <p><strong>Mathematical Formula:</strong></p>
+                        <p>y = γ(x-μ)/σ + β</p>
+                        <p><strong>Why it works:</strong> Normalizes inputs to each layer, allowing higher learning
+                            rates and faster training.</p>
+                    </div>
+
+                    <div class="concept-card">
+                        <h4>🎯 Learning Rate Scheduling</h4>
+                        <p><strong>Step Decay:</strong></p>
+                        <p>lr = lr₀ × γ^⌊epoch/step⌋</p>
+                        <p><strong>Purpose:</strong> Gradually reduce learning rate to fine-tune the model as training
+                            progresses.</p>
+                    </div>
+
+                    <div class="concept-card">
+                        <h4>🔄 Data Augmentation</h4>
+                        <p><strong>Transformations:</strong></p>
+                        <p>Rotation, scaling, flipping, cropping</p>
+                        <p><strong>Benefit:</strong> Artificially increase dataset size and improve generalization.</p>
+                    </div>
+
+                    <div class="concept-card">
+                        <h4>📊 Transfer Learning</h4>
+                        <p><strong>Strategy:</strong></p>
+                        <p>Pre-trained weights + fine-tuning</p>
+                        <p><strong>Advantage:</strong> Leverage knowledge from large datasets for specialized tasks.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-playground">
+                <div class="code-header">
+                    💻 Advanced CNN with All Optimizations
+                </div>
+                <div class="code-block">
+                    <span class="python-keyword">import</span> torch
+                    <span class="python-keyword">import</span> torch.nn <span class="python-keyword">as</span> nn
+                    <span class="python-keyword">import</span> torch.optim <span class="python-keyword">as</span> optim
+                    <span class="python-keyword">from</span> torch.optim.lr_scheduler <span
+                        class="python-keyword">import</span> StepLR
+
+                    <span class="python-keyword">class</span> AdvancedCNN(nn.Module):
+                    <span class="python-comment"># Professor Alex's Optimized CNN</span>
+                    <span class="python-keyword">def</span> __init__(self, num_classes=<span
+                        class="python-number">10</span>):
+                    <span class="python-keyword">super</span>(AdvancedCNN, self).__init__()
+
+                    <span class="python-comment"># Modern CNN block with all optimizations</span>
+                    self.features = nn.Sequential(
+                    <span class="python-comment"># Block 1: Conv + BatchNorm + ReLU + Dropout</span>
+                    nn.Conv2d(<span class="python-number">3</span>, <span class="python-number">64</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.BatchNorm2d(<span class="python-number">64</span>), <span class="python-comment"># Stabilizes
+                        training</span>
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Dropout2d(<span class="python-number">0.1</span>), <span class="python-comment"># Spatial
+                        dropout</span>
+
+                    nn.Conv2d(<span class="python-number">64</span>, <span class="python-number">64</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.BatchNorm2d(<span class="python-number">64</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(<span class="python-number">2</span>),
+
+                    <span class="python-comment"># Block 2: Deeper with more features</span>
+                    nn.Conv2d(<span class="python-number">64</span>, <span class="python-number">128</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.BatchNorm2d(<span class="python-number">128</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.Dropout2d(<span class="python-number">0.2</span>),
+
+                    nn.Conv2d(<span class="python-number">128</span>, <span class="python-number">128</span>,
+                    kernel_size=<span class="python-number">3</span>, padding=<span class="python-number">1</span>),
+                    nn.BatchNorm2d(<span class="python-number">128</span>),
+                    nn.ReLU(inplace=<span class="python-keyword">True</span>),
+                    nn.MaxPool2d(<span class="python-number">2</span>),
+
+                    <span class="python-comment"># Global Average Pooling (modern replacement for FC)</span>
+                    nn.AdaptiveAvgPool2d((<span class="python-number">1</span>, <span class="python-number">1</span>))
+                    )
+
+                    <span class="python-comment"># Simple classifier</span>
+                    self.classifier = nn.Linear(<span class="python-number">128</span>, num_classes)
+
+                    <span class="python-comment"># Initialize weights properly</span>
+                    self._initialize_weights()
+
+                    <span class="python-keyword">def</span> _initialize_weights(self):
+                    <span class="python-comment"># Xavier/Glorot initialization for better training</span>
+                    <span class="python-keyword">for</span> m <span class="python-keyword">in</span> self.modules():
+                    <span class="python-keyword">if</span> isinstance(m, nn.Conv2d):
+                    nn.init.xavier_uniform_(m.weight)
+                    <span class="python-keyword">if</span> m.bias <span class="python-keyword">is</span> <span
+                        class="python-keyword">not</span> <span class="python-keyword">None</span>:
+                    nn.init.constant_(m.bias, <span class="python-number">0</span>)
+                    <span class="python-keyword">elif</span> isinstance(m, nn.Linear):
+                    nn.init.xavier_uniform_(m.weight)
+                    nn.init.constant_(m.bias, <span class="python-number">0</span>)
+
+                    <span class="python-keyword">def</span> forward(self, x):
+                    x = self.features(x)
+                    x = x.view(x.size(<span class="python-number">0</span>), -<span class="python-number">1</span>)
+                    x = self.classifier(x)
+                    <span class="python-keyword">return</span> x
+
+                    <span class="python-comment"># Professional training setup</span>
+                    <span class="python-keyword">def</span> create_optimized_training():
+                    model = AdvancedCNN()
+
+                    <span class="python-comment"># Modern optimizer with momentum</span>
+                    optimizer = optim.SGD(model.parameters(),
+                    lr=<span class="python-number">0.01</span>,
+                    momentum=<span class="python-number">0.9</span>,
+                    weight_decay=<span class="python-number">1e-4</span>)
+
+                    <span class="python-comment"># Learning rate scheduler</span>
+                    scheduler = StepLR(optimizer, step_size=<span class="python-number">30</span>, gamma=<span
+                        class="python-number">0.1</span>)
+
+                    <span class="python-comment"># Modern loss function</span>
+                    criterion = nn.CrossEntropyLoss(label_smoothing=<span class="python-number">0.1</span>)
+
+                    <span class="python-keyword">return</span> model, optimizer, scheduler, criterion
+
+                    <span class="python-comment"># Data augmentation pipeline</span>
+                    <span class="python-keyword">from</span> torchvision <span class="python-keyword">import</span>
+                    transforms
+
+                    train_transform = transforms.Compose([
+                    transforms.RandomHorizontalFlip(<span class="python-number">0.5</span>),
+                    transforms.RandomRotation(<span class="python-number">10</span>),
+                    transforms.ColorJitter(brightness=<span class="python-number">0.1</span>, contrast=<span
+                        class="python-number">0.1</span>),
+                    transforms.ToTensor(),
+                    transforms.Normalize((<span class="python-number">0.485</span>, <span
+                        class="python-number">0.456</span>, <span class="python-number">0.406</span>),
+                    (<span class="python-number">0.229</span>, <span class="python-number">0.224</span>, <span
+                        class="python-number">0.225</span>))
+                    ])
+
+                    <span class="python-string">print("Advanced CNN with professional optimizations ready!")</span>
+                </div>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 Batch Normalization Deep Dive</h3>
+
+                <div class="equation">
+                    BN(x) = γ × (x - μ_B)/√(σ²_B + ε) + β
+                </div>
+
+                <div class="equation-breakdown">
+                    <h4>🧮 Every Symbol Explained:</h4>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">μ_B</div>
+                        <div class="meaning">
+                            <strong>"Batch Mean"</strong><br>
+                            Average value across the current batch. Like Professor Alex finding the average evidence
+                            strength across all current cases.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">σ²_B</div>
+                        <div class="meaning">
+                            <strong>"Batch Variance"</strong><br>
+                            How spread out the values are in this batch. Measures the diversity of evidence in the
+                            current group of cases.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">γ, β</div>
+                        <div class="meaning">
+                            <strong>"Learnable Parameters"</strong><br>
+                            γ (scale) and β (shift) are learned during training. They let the network decide the optimal
+                            normalization for each layer.
+                        </div>
+                    </div>
+
+                    <div class="symbol-meaning">
+                        <div class="symbol">ε</div>
+                        <div class="meaning">
+                            <strong>"Numerical Stability"</strong><br>
+                            Small constant (like 1e-5) to prevent division by zero. Professor Alex's safety net for
+                            mathematical calculations.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-calculator">
+                <h3>🎮 Optimization Technique Simulator</h3>
+                <p>See how different optimization techniques affect training!</p>
+
+                <div class="calculator-controls">
+                    <div class="control-group">
+                        <div class="control-label">Learning Rate: <span id="learningRate">0.01</span></div>
+                        <input type="range" min="0.001" max="0.1" step="0.001" value="0.01" class="slider" id="lrSlider"
+                            oninput="simulateOptimization()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">Batch Size: <span id="batchSize">32</span></div>
+                        <input type="range" min="8" max="128" step="8" value="32" class="slider" id="batchSlider"
+                            oninput="simulateOptimization()">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">Dropout Rate: <span id="dropoutRate">0.2</span></div>
+                        <input type="range" min="0" max="0.5" step="0.05" value="0.2" class="slider" id="dropoutSlider"
+                            oninput="simulateOptimization()">
+                    </div>
+                </div>
+
+                <div id="optimizationResults"
+                    style="margin-top: 30px; padding: 25px; background: rgba(255, 255, 255, 0.2); border-radius: 15px; font-size: 1.2em;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div>
+                            <h4>🚀 Training Speed:</h4>
+                            <div id="trainingSpeed" style="font-size: 1.5em; color: #00f260;"></div>
+                        </div>
+                        <div>
+                            <h4>🎯 Accuracy:</h4>
+                            <div id="accuracy" style="font-size: 1.5em; color: #4facfe;"></div>
+                        </div>
+                        <div>
+                            <h4>📊 Stability:</h4>
+                            <div id="stability" style="font-size: 1.5em; color: #fd79a8;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Final Master Project Section -->
+        <div class="section" id="final-project">
+            <h2>🎯 Master's Final Challenge</h2>
+
+            <div class="final-challenge">
+                <div class="challenge-content">
+                    <h3>🏆 Build Your Own CNN Architecture!</h3>
+                    <p style="font-size: 1.4em; margin: 20px 0;">
+                        "Congratulations! You've mastered the mathematical foundations and implementation details of CNN
+                        architectures.
+                        Now it's time for your final test: Design and build your own CNN architecture using everything
+                        you've learned!"
+                    </p>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 15px;">
+                            <h4>📐 Design Principles</h4>
+                            <p>Apply VGG's systematic approach with LeNet's simplicity and AlexNet's innovations</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 15px;">
+                            <h4>🧮 Mathematical Understanding</h4>
+                            <p>Use proper parameter calculations and optimization techniques</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 15px;">
+                            <h4>💻 Implementation Skills</h4>
+                            <p>Write clean, efficient PyTorch code with professional practices</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="network-builder">
+                <h3>🏗️ Interactive CNN Architecture Builder</h3>
+                <p>Design your masterpiece by selecting layers and seeing the architecture grow!</p>
+
+                <div class="layer-palette">
+                    <button class="layer-tool" onclick="addLayer('input')">📷 Input Layer</button>
+                    <button class="layer-tool" onclick="addLayer('conv')">🔍 Conv Layer</button>
+                    <button class="layer-tool" onclick="addLayer('pool')">📉 Pool Layer</button>
+                    <button class="layer-tool" onclick="addLayer('batch')">⚖️ BatchNorm</button>
+                    <button class="layer-tool" onclick="addLayer('dropout')">🎲 Dropout</button>
+                    <button class="layer-tool" onclick="addLayer('fc')">🧠 Fully Connected</button>
+                    <button class="layer-tool" onclick="addLayer('output')">🎯 Output</button>
+                    <button class="layer-tool" onclick="clearArchitecture()"
+                        style="background: linear-gradient(45deg, #ff7675, #fd79a8);">🗑️ Clear</button>
+                </div>
+
+                <div class="canvas-area" id="architectureCanvas">
+                    <p style="color: #666; font-size: 1.2em;">Start building your CNN by adding layers above!</p>
+                </div>
+
+                <div style="margin: 20px 0;">
+                    <button class="demo-button" onclick="generateCode()">💻 Generate PyTorch Code</button>
+                    <button class="demo-button" onclick="analyzeArchitecture()">📊 Analyze Architecture</button>
+                    <button class="demo-button" onclick="exportArchitecture()">💾 Export Design</button>
+                </div>
+
+                <div id="generatedCode" style="margin-top: 20px;"></div>
+                <div id="architectureAnalysis" style="margin-top: 20px;"></div>
+            </div>
+
+            <div class="professor-lab">
+                <div class="lab-content">
+                    <div class="professor-avatar">🎓👨‍🏫</div>
+                    <h3>Professor Alex's Final Words</h3>
+                    <p style="font-size: 1.4em; margin-top: 20px;">
+                        "Amazing work! You've journeyed from simple convolution concepts to implementing
+                        professional-grade CNN architectures.
+                        You understand the mathematics, can write the code, and know the design principles.
+                        You're now ready to contribute to the future of computer vision!"
+                    </p>
+
+                    <div
+                        style="margin: 30px 0; padding: 25px; background: rgba(255, 255, 255, 0.2); border-radius: 15px;">
+                        <h4 style="margin-bottom: 15px;">🌟 What You've Mastered:</h4>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>✅ CNN Mathematical Foundations</div>
+                            <div>✅ LeNet-5 Implementation</div>
+                            <div>✅ AlexNet Innovations</div>
+                            <div>✅ VGG Systematic Design</div>
+                            <div>✅ Advanced Optimization</div>
+                            <div>✅ Professional Practices</div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 1.8em; margin: 20px 0;">🚀 Your Next Steps:</h4>
+                    <p style="font-size: 1.2em;">
+                        • Explore ResNet, DenseNet, and Transformer architectures<br>
+                        • Build projects with real datasets<br>
+                        • Contribute to open-source computer vision projects<br>
+                        • Research new architectural innovations<br>
+                        • Teach others what you've learned!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Timer functionality
+        let timeLeft = 30 * 60; // 30 minutes
+        let currentProgress = 0;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').innerHTML =
+                `⏱️ Laboratory Session Time: ${minutes}:${seconds.toString().padStart(2, '0')} minutes`;
+
+            if (timeLeft > 0) {
+                timeLeft--;
+                currentProgress = ((30 * 60 - timeLeft) / (30 * 60)) * 100;
+                document.getElementById('progressBar').style.width = currentProgress + '%';
+            }
+        }
+
+        setInterval(updateTimer, 1000);
+
+        // Interactive calculation functions
+        function updateCalculation() {
+            const filterSize = document.getElementById('filterSize').value;
+            const inputVal = document.getElementById('inputSlider').value;
+            const weightVal = document.getElementById('weightSlider').value;
+
+            document.getElementById('filterSizeValue').textContent = filterSize;
+            document.getElementById('filterSizeValue2').textContent = filterSize;
+            document.getElementById('inputValue').textContent = inputVal;
+            document.getElementById('weightValue').textContent = weightVal;
+
+            // Simple convolution calculation
+            const result = (inputVal * weightVal).toFixed(2);
+
+            document.getElementById('calculationResult').innerHTML = `
+                <h4>🧮 Convolution Result:</h4>
+                <p><strong>Input × Weight = ${inputVal} × ${weightVal} = ${result}</strong></p>
+                <p>With a ${filterSize}×${filterSize} filter, this calculation happens ${filterSize * filterSize} times per output pixel!</p>
+                <p>🔍 <em>Each output pixel requires ${filterSize * filterSize} multiply-add operations.</em></p>
+            `;
+        }
+
+        function demonstrateStep(step) {
+            const display = document.getElementById('calculationResult');
+            switch (step) {
+                case 'convolution':
+                    display.innerHTML = `
+                        <h4>🔍 Convolution Step Demonstrated:</h4>
+                        <p><strong>Element-wise multiplication:</strong> [1, 2, 3] ⊗ [0.5, -0.2, 0.8] = [0.5, -0.4, 2.4]</p>
+                        <p><strong>Sum:</strong> 0.5 + (-0.4) + 2.4 = 2.5</p>
+                        <p><strong>Add bias:</strong> 2.5 + 0.1 = 2.6</p>
+                        <p>This gives us one output pixel value!</p>
+                    `;
+                    break;
+                case 'activation':
+                    display.innerHTML = `
+                        <h4>⚡ Activation (ReLU) Step:</h4>
+                        <p><strong>Input:</strong> [-1.2, 0.5, -0.3, 2.1]</p>
+                        <p><strong>ReLU Applied:</strong> [0, 0.5, 0, 2.1]</p>
+                        <p><strong>Rule:</strong> Keep positive values, zero out negative ones</p>
+                        <p>This adds non-linearity to help learn complex patterns!</p>
+                    `;
+                    break;
+                case 'pooling':
+                    display.innerHTML = `
+                        <h4>📉 Max Pooling Step:</h4>
+                        <p><strong>2×2 Input Window:</strong> [1.2, 0.8, 0.3, 2.1]</p>
+                        <p><strong>Max Operation:</strong> max(1.2, 0.8, 0.3, 2.1) = 2.1</p>
+                        <p><strong>Result:</strong> Single value 2.1 represents this 2×2 region</p>
+                        <p>Reduces size while keeping strongest features!</p>
+                    `;
+                    break;
+            }
+        }
+
+        function compareActivations() {
+            const input = parseFloat(document.getElementById('activationSlider').value);
+            document.getElementById('activationInput').textContent = input.toFixed(1);
+
+            const sigmoid = 1 / (1 + Math.exp(-input));
+            const relu = Math.max(0, input);
+
+            document.getElementById('sigmoidResult').textContent = sigmoid.toFixed(3);
+            document.getElementById('reluResult').textContent = relu.toFixed(3);
+        }
+
+        function compareFilters() {
+            const channels = parseInt(document.getElementById('channelSlider').value);
+            const strategy = document.getElementById('strategySelect').value;
+
+            document.getElementById('channelCount').textContent = channels;
+
+            let params, receptiveField, nonLinearities;
+
+            switch (strategy) {
+                case 'single7':
+                    params = 7 * 7 * channels * channels + channels;
+                    receptiveField = 7;
+                    nonLinearities = 1;
+                    break;
+                case 'triple3':
+                    params = 3 * (3 * 3 * channels * channels + channels);
+                    receptiveField = 7;
+                    nonLinearities = 3;
+                    break;
+                case 'single5':
+                    params = 5 * 5 * channels * channels + channels;
+                    receptiveField = 5;
+                    nonLinearities = 1;
+                    break;
+                case 'double3':
+                    params = 2 * (3 * 3 * channels * channels + channels);
+                    receptiveField = 5;
+                    nonLinearities = 2;
+                    break;
+            }
+
+            document.getElementById('filterComparison').innerHTML = `
+                <h4>📊 Strategy Analysis:</h4>
+                <p><strong>Parameters:</strong> ${params.toLocaleString()}</p>
+                <p><strong>Receptive Field:</strong> ${receptiveField}×${receptiveField}</p>
+                <p><strong>Non-linearities:</strong> ${nonLinearities} ReLU activations</p>
+                <p><strong>Efficiency:</strong> ${nonLinearities > 1 ? '✅ More learning capacity!' : '⚠️ Limited learning capacity'}</p>
+            `;
+        }

@@ -1,0 +1,68 @@
+/* Shared professional light theme for all lectures */
+body {
+  background: #f7f7fa;
+  color: #222;
+  font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+header, footer {
+  background: #e3eafc;
+  color: #222;
+  text-align: center;
+  padding: 1em 0;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #d0d7e5;
+}
+h1, h2, h3, h4 {
+  color: #2a4d9b;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+table {
+  width: auto;
+  margin: 1em auto;
+  border-collapse: collapse;
+  background: #fff;
+  color: #222;
+  box-shadow: 0 2px 8px #0001;
+  border-radius: 8px;
+  overflow: hidden;
+}
+th, td {
+  border: 1px solid #d0d7e5;
+  padding: 0.6em 1.2em;
+  text-align: center;
+}
+th {
+  background: #e3eafc;
+  color: #2a4d9b;
+  font-weight: bold;
+}
+tr:nth-child(even) {
+  background: #f2f6ff;
+}
+tr:nth-child(odd) {
+  background: #fff;
+}
+.math-block {
+  text-align: center;
+  margin: 2em 0;
+  font-size: 1.2em;
+  color: #2a4d9b;
+}
+.section {
+  max-width: 900px;
+  margin: 2em auto;
+  padding: 2em;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #0001;
+}
+.table-title {
+  color: #2a4d9b;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 1em;
+}
+a { color: #1565c0; }

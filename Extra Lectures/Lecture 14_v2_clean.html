@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mathematical Evidence Lab: Pooling & Subsampling - Part 2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Comic Sans MS", cursive; line-height: 1.6; color: #ffffff; background: linear-gradient(135deg, #000000 0%, #1a0a1a 50%, #000000 100%); padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: #0a0a0a; border-radius: 20px; box-shadow: 0 20px 60px rgba(255,255,0,0.3); overflow: hidden; border: 3px solid #ffff00; }
+        .header { background: linear-gradient(45deg, #000000, #ff0000, #ffff00, #00ff00, #ff0000, #000000); color: #ffffff; padding: 30px; text-align: center; position: relative; border-bottom: 4px solid #ffff00; }
+        .header::before { content: "🧮🔬⚡"; font-size: 3em; position: absolute; top: 10px; left: 20px; opacity: 0.6; }
+        h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); animation: labGlow 3s infinite; color: #ffff00; }
+        @keyframes labGlow { 0% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } 50% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 40px #00ff00; } 100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } }
+        .subtitle { font-size: 1.3em; opacity: 0.9; font-weight: normal; color: #00ff00; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #ff0000; color: #ffff00; padding: 15px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 5px 15px rgba(255,0,0,0.5); border: 2px solid #ffff00; }
+        .progress-bar { width: 100%; height: 10px; background: #333333; position: relative; overflow: hidden; border: 2px solid #ffff00; }
+        .progress { height: 100%; background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00); width: 0%; transition: width 0.5s ease; }
+        .nav { background: #1a1a1a; padding: 20px; text-align: center; border-bottom: 3px solid #ffff00; }
+        .nav a { display: inline-block; margin: 5px 10px; padding: 12px 20px; background: #000000; color: #ffff00; text-decoration: none; border-radius: 25px; transition: all 0.3s; font-weight: bold; border: 2px solid #ffff00; }
+        .nav a:hover { transform: translateY(-3px) scale(1.05); background: #ffff00; color: #000000; box-shadow: 0 5px 15px rgba(255,255,0,0.5); }
+        .section { padding: 30px; border-bottom: 2px solid #333333; }
+        h2 { color: #ffff00; font-size: 2.2em; margin-bottom: 20px; border-bottom: 4px solid #00ff00; padding-bottom: 10px; display: flex; align-items: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        h3 { color: #00ff00; font-size: 1.6em; margin: 20px 0 15px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .story-box { background: linear-gradient(135deg, #ff0000, #000000); color: #ffffff; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .simple-explanation { background: linear-gradient(135deg, #00ff00, #004d00); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 6px solid #ffff00; color: #000000; font-weight: bold; }
+        .simple-explanation::before { content: "👶 Simple Words: "; font-weight: bold; color: #ff0000; font-size: 1.1em; }
+        .math-container { background: #000000; color: #00ff00; padding: 25px; border-radius: 15px; margin: 20px 0; font-family: 'Courier New', monospace; border: 3px solid #ffff00; position: relative; }
+        .math-container::before { content: "🧮 MATHEMATICAL LAB"; position: absolute; top: -15px; left: 20px; background: #000000; padding: 0 10px; color: #ffff00; font-weight: bold; border: 1px solid #ffff00; }
+        .equation { text-align: center; font-size: 1.4em; font-weight: bold; color: #ffff00; margin: 15px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px; border: 1px solid #ffff00; }
+        .equation-breakdown { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #00ff00; }
+        .symbol-meaning { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin: 5px 0; }
+        .symbol { color: #ffff00; font-weight: bold; font-size: 1.2em; }
+        .meaning { color: #ffffff; }
+        .interactive-demo { background: linear-gradient(135deg, #ffff00, #cccc00); padding: 25px; border-radius: 15px; margin: 20px 0; border: 3px solid #ff0000; text-align: center; color: #000000; font-weight: bold; }
+        .slider-container { margin: 15px 0; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 2px solid #000000; }
+        .slider { width: 100%; height: 10px; background: #333333; outline: none; border-radius: 4px; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .result-card { background: linear-gradient(135deg, #ff0000, #000000); color: #ffff00; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 8px 25px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .lab-visual { text-align: center; font-size: 2.5em; margin: 20px 0; animation: bounce 2s infinite; }
+        .code-playground { background: #000000; color: #00ff00; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Courier New', monospace; border-left: 5px solid #ffff00; border: 2px solid #333333; }
+        .advanced-demo { background: linear-gradient(135deg, #000000, #ff0000); color: #ffffff; padding: 20px; border-radius: 15px; margin: 15px 0; border: 3px solid #00ff00; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .comparison-table th, .comparison-table td { border: 2px solid #ffff00; padding: 15px; text-align: center; }
+        .comparison-table th { background: #ff0000; color: #ffff00; font-weight: bold; }
+        .comparison-table tr:nth-child(even) { background: #1a1a1a; color: #ffffff; }
+        .comparison-table tr:nth-child(odd) { background: #0a0a0a; color: #ffffff; }
+        .highlight { background: #ffff00; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #000000; }
+        .formula-steps { counter-reset: step-counter; }
+        .formula-step { counter-increment: step-counter; margin: 15px 0; padding: 20px; background: rgba(0, 255, 0, 0.1); border-radius: 10px; border-left: 5px solid #00ff00; border: 2px solid #00ff00; }
+        .formula-step::before { content: "Formula " counter(step-counter) ": "; font-weight: bold; color: #ffff00; font-size: 1.2em; }
+        .matrix-display { font-family: 'Courier New', monospace; background: #000000; color: #00ff00; padding: 15px; border-radius: 8px; margin: 15px 0; border: 2px solid #ffff00; text-align: center; }
+        .performance-metrics { background: linear-gradient(135deg, #00ff00, #003300); color: #000000; padding: 20px; border-radius: 15px; margin: 15px 0; border: 2px solid #ffff00; font-weight: bold; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        .part-indicator { background: linear-gradient(135deg, #ff0000, #ffff00); color: #000000; padding: 10px 20px; border-radius: 20px; display: inline-block; font-weight: bold; margin-bottom: 20px; border: 2px solid #000000; }
+        .lab-equipment { display: flex; align-items: center; justify-content: center; margin: 20px 0; flex-wrap: wrap; gap: 20px; }
+        .arrow { color: #00ff00; font-size: 3em; }
+        .train-button { background: #ff0000; color: #ffff00; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .solution-button { background: #00ff00; color: #000000; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .margin-top-20 { margin-top: 20px; }
+        .hidden { display: none; }
+        .math-summary { background: #333; color: #fff; padding: 15px; border-radius: 8px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">30:00</div>
+    <div class="container">
+        <div class="header">
+            <div class="part-indicator">🧮 PART 2: MATHEMATICAL LAB & CODING</div>
+            <h1>🔬 Mathematical Evidence Lab</h1>
+            <div class="subtitle">Sam's Advanced Pooling Mathematics & Implementation!</div>
+        </div>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="nav">
+            <a href="#intro">Enter the Lab</a>
+            <a href="#maxmath">Max Pool Mathematics</a>
+            <a href="#avgmath">Average Pool Formulas</a>
+            <a href="#coding">Code Implementation</a>
+            <a href="#advanced">Advanced Techniques</a>
+            <a href="#optimization">Performance Lab</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🔬 Welcome to Sam's Mathematical Evidence Lab!</h2>
+            <div class="story-box">
+                <h3>🧪 Sam's State-of-the-Art Laboratory</h3>
+                <p>Congratulations on completing Part 1! 🎉 Detective Sam is so impressed with your understanding that he's invited you into his most secret facility - the <strong>Mathematical Evidence Lab</strong>! 🔬</p>
+                <div class="lab-visual">🕵️➡️🧮➡️⚡➡️🏆</div>
+                <p>Here, Sam doesn't just talk about evidence summarization - he creates the <span class="highlight">precise mathematical formulas</span> and writes the actual <span class="highlight">computer code</span> that powers his detective work!</p>
+                <p>"Now you'll learn the EXACT mathematics behind every pooling operation!" Sam says with excitement. "You'll become a pooling expert who can build these systems from scratch!"</p>
+            </div>
+
+            <div class="simple-explanation">
+                In this lab, you'll master the <strong>mathematical foundations</strong> that make pooling work. You'll learn precise formulas, understand computational complexity, and write professional-grade code. By the end, you'll be able to implement any pooling operation from scratch!
+            </div>
+
+            <div class="lab-equipment">
+                <div class="advanced-demo" style="text-align: center;">
+                    <h4>🧮 Lab Equipment</h4>
+                    <ul style="text-align: left; margin: 15px 0;">
+                        <li>📐 <strong>Mathematical Precision Tools</strong></li>
+                        <li>💻 <strong>Code Development Station</strong></li>
+                        <li>⚡ <strong>Performance Analysis Chamber</strong></li>
+                        <li>🔬 <strong>Advanced Technique Incubator</strong></li>
+                    </ul>
+                </div>
+                <div class="arrow">→</div>
+                <div class="advanced-demo" style="text-align: center;">
+                    <h4>🎯 What You'll Master</h4>
+                    <ul style="text-align: left; margin: 15px 0;">
+                        <li>🧮 <strong>Exact Mathematical Formulas</strong></li>
+                        <li>💻 <strong>Production-Ready Code</strong></li>
+                        <li>⚡ <strong>Optimization Techniques</strong></li>
+                        <li>🏗️ <strong>CNN Integration Methods</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Mathematical Complexity Analyzer</h3>
+                <div class="slider-container">
+                    <label>Input Size: <span id="inputSizeVal">32×32</span></label>
+                    <input type="range" class="slider" id="inputSizeSlider" min="8" max="128" step="8" value="32" aria-label="Input Size" title="Adjust input size">
+                </div>
+                <div class="slider-container">
+                    <label>Pool Size: <span id="poolSizeVal">2×2</span></label>
+                    <input type="range" class="slider" id="poolSizeSlider" min="2" max="8" step="1" value="2" aria-label="Pool Size" title="Adjust pool size">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Operations: <span id="mathOperations">256</span></div>
+                    <div class="result-card">Memory Saved: <span id="memorySaved">75%</span></div>
+                    <div class="result-card">Speed Gain: <span id="speedGain">4x</span></div>
+                    <div class="result-card">Complexity: <span id="complexity">O(n²)</span></div>
+                </div>
+                <div id="complexity-explanation" class="result-card">Adjust parameters to see mathematical complexity changes!</div>
+            </div>
+        </div>
+
+        <div class="section" id="maxmath">
+            <h2>🏆 Max Pooling: The Mathematical Foundation</h2>
+            <div class="story-box">
+                <h3>🔬 Sam's Max Pooling Laboratory</h3>
+                <p>Sam opens his first mathematical workstation! 🧪 "Let's discover the EXACT mathematics behind max pooling," he says, adjusting his lab goggles. "Every operation must be precisely defined!"</p>
+                <div class="lab-visual">🧮➡️🏆➡️📊</div>
+            </div>
+
+            <div class="math-container">
+                <h3>📐 Max Pooling Mathematical Definition</h3>
+                <div class="equation">Y[i,j] = max(X[i×s + m, j×s + n]) for m,n ∈ [0, k-1]</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Y[i,j]</div>
+                        <div class="meaning">= Output value at position (i,j) in pooled feature map</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">X[i×s + m, j×s + n]</div>
+                        <div class="meaning">= Input values in the pooling window</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">s</div>
+                        <div class="meaning">= Stride (step size between pooling operations)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">k</div>
+                        <div class="meaning">= Kernel size (pool window size)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">max()</div>
+                        <div class="meaning">= Maximum function (Sam's "strongest evidence" operation)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                This formula tells us exactly how to calculate max pooling! For each position (i,j) in our output, we look at a window of size k×k in the input, starting at position (i×s, j×s), and pick the maximum value. It's like Sam's systematic method for finding the strongest evidence in each region!
+            </div>
+
+            <div class="formula-steps">
+                <div class="formula-step">
+                    <strong>Calculate Output Dimensions</strong><br>
+                    Output_height = ⌊(Input_height - Pool_size) / Stride⌋ + 1<br>
+                    Output_width = ⌊(Input_width - Pool_size) / Stride⌋ + 1
+                </div>
+                <div class="formula-step">
+                    <strong>Position Mapping</strong><br>
+                    For each output position (i,j), the input window starts at:<br>
+                    Start_row = i × Stride, Start_col = j × Stride
+                </div>
+                <div class="formula-step">
+                    <strong>Maximum Search</strong><br>
+                    Within the k×k window, find: max_value = max(all values in window)<br>
+                    This becomes Y[i,j] = max_value
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🧮 Max Pooling Formula Calculator</h3>
+                <div class="slider-container">
+                    <label>Window Size: <span id="maxWindowVal">2×2</span></label>
+                    <input type="range" class="slider" id="maxWindowSlider" min="2" max="5" value="2" aria-label="Window Size" title="Adjust window size">
+                </div>
+                <div class="slider-container">
+                    <label>Stride: <span id="maxStrideVal">2</span></label>
+                    <input type="range" class="slider" id="maxStrideSlider" min="1" max="4" value="2" aria-label="Stride" title="Adjust stride">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Input: 8×8</div>
+                    <div class="result-card">Output Size: <span id="maxOutputSize">4×4</span></div>
+                    <div class="result-card">Operations: <span id="maxOperations">64</span></div>
+                    <div class="result-card">Efficiency: <span id="maxEfficiency">75% reduction</span></div>
+                </div>
+                <div id="max-math-explanation" class="result-card">Mathematical analysis of max pooling parameters!</div>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Sam's Max Pooling Implementation</h3>
+<pre># Sam's Professional Max Pooling Implementation
+import numpy as np
+
+class SamsMaxPooling:
+    """Sam's mathematical evidence lab max pooling implementation"""
+    
+    def __init__(self, pool_size=2, stride=2):
+        self.pool_size = pool_size
+        self.stride = stride
+        print(f"🔬 Sam's Max Pooling Lab initialized: {pool_size}×{pool_size} pool, stride {stride}")
+    
+    def calculate_output_shape(self, input_shape):
+        """Calculate the mathematical output dimensions"""
+        height, width = input_shape
+        
+        output_height = (height - self.pool_size) // self.stride + 1
+        output_width = (width - self.pool_size) // self.stride + 1
+        
+        return (output_height, output_width)
+    
+    def forward(self, input_matrix):
+        """Sam's precise max pooling operation"""
+        input_height, input_width = input_matrix.shape
+        output_height, output_width = self.calculate_output_shape((input_height, input_width))
+        
+        # Initialize the evidence summary board
+        output = np.zeros((output_height, output_width))
+        
+        print(f"🧮 Processing {input_height}×{input_width} → {output_height}×{output_width}")
+        
+        # Sam's systematic evidence scanning
+        for i in range(output_height):
+            for j in range(output_width):
+                # Calculate window position
+                start_row = i * self.stride
+                end_row = start_row + self.pool_size
+                start_col = j * self.stride
+                end_col = start_col + self.pool_size
+                
+                # Extract evidence window
+                evidence_window = input_matrix[start_row:end_row, start_col:end_col]
+                
+                # Find strongest evidence (maximum value)
+                strongest_evidence = np.max(evidence_window)
+                output[i, j] = strongest_evidence
+                
+                # Sam's lab commentary for first few operations
+                if i < 2 and j < 2:
+                    print(f"🔍 Window at ({i},{j}): {evidence_window.flatten()} → Max: {strongest_evidence:.2f}")
+        
+        return output
+
+# Sam demonstrates his max pooling lab
+print("🔬 SAM'S MAX POOLING LABORATORY DEMONSTRATION")
+print("=" * 60)
+
+# Create test evidence matrix
+test_evidence = np.random.rand(8, 8) * 10
+print("📋 Original Evidence Matrix (8×8):")
+print(test_evidence.round(2))
+
+# Initialize Sam's max pooling lab
+max_pool_lab = SamsMaxPooling(pool_size=2, stride=2)
+
+# Process the evidence
+pooled_evidence = max_pool_lab.forward(test_evidence)
+
+print("\n🏆 Max Pooled Evidence Summary (4×4):")
+print(pooled_evidence.round(2))
+</pre>
+            </div>
+        </div>
+
+        <div class="section" id="avgmath">
+            <h2>⚖️ Average Pooling: The Mathematical Balance</h2>
+            <div class="story-box">
+                <h3>🧪 Sam's Average Pooling Laboratory</h3>
+                <p>Sam moves to his second workstation! ⚖️ "Now let's explore the mathematics of average pooling," he says, pulling out advanced calculation tools. "This requires precise statistical analysis!"</p>
+                <div class="lab-visual">📊➡️⚖️➡️🎯</div>
+            </div>
+
+            <div class="math-container">
+                <h3>📊 Average Pooling Mathematical Definition</h3>
+                <div class="equation">Y[i,j] = (1/k²) × Σ Σ X[i×s + m, j×s + n] for m,n ∈ [0, k-1]</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Y[i,j]</div>
+                        <div class="meaning">= Output value at position (i,j) in pooled feature map</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">1/k²</div>
+                        <div class="meaning">= Normalization factor (divides by number of elements)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Σ Σ</div>
+                        <div class="meaning">= Double summation (add all values in the window)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">X[i×s + m, j×s + n]</div>
+                        <div class="meaning">= Input values in the pooling window</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                Average pooling calculates the mathematical mean of all values in each window. The formula adds up all values in the k×k window and divides by k² to get the average. It's like Sam calculating the average strength of all evidence in each region!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>📊 Average Pooling Calculator</h3>
+                <div class="slider-container">
+                    <label>Sample Values Count: <span id="avgSampleVal">4</span></label>
+                    <input type="range" class="slider" id="avgSampleSlider" min="4" max="25" step="1" value="4" aria-label="Sample Values" title="Adjust number of sample values">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Window Size: <span id="avgWindowSize">2×2</span></div>
+                    <div class="result-card">Sum: <span id="avgSum">42.5</span></div>
+                    <div class="result-card">Average: <span id="avgResult">10.625</span></div>
+                    <div class="result-card">Variance: <span id="avgVariance">Low</span></div>
+                </div>
+                <button class="train-button margin-top-20" onclick="demonstrateAveragePooling()">🧮 Run Average Pooling Demo</button>
+                <div id="avg-demo-result" class="math-summary hidden">Average pooling demonstration will appear here!</div>
+            </div>
+        </div>
+
+        <div class="section" id="coding">
+            <h2>💻 Code Implementation Laboratory</h2>
+            <div class="story-box">
+                <h3>👨‍💻 Sam's Coding Station</h3>
+                <p>Welcome to Sam's programming laboratory! 💻 Here you'll learn to implement professional-grade pooling operations that can be used in real deep learning systems!</p>
+                <div class="lab-visual">💻➡️🔧➡️🚀</div>
+            </div>
+
+            <div class="code-playground">
+                <h3>🔧 Complete Pooling Implementation</h3>
+<pre># Complete Professional Pooling Implementation
+import numpy as np
+import time
+
+class AdvancedPoolingLab:
+    """Sam's complete pooling laboratory with all techniques"""
+    
+    def __init__(self):
+        print("🚀 Sam's Advanced Pooling Lab - All Systems Online!")
+        self.pooling_stats = {}
+    
+    def max_pooling_2d(self, input_array, pool_size=2, stride=2):
+        """Professional max pooling implementation"""
+        input_h, input_w = input_array.shape
+        output_h = (input_h - pool_size) // stride + 1
+        output_w = (input_w - pool_size) // stride + 1
+        
+        output = np.zeros((output_h, output_w))
+        
+        for i in range(output_h):
+            for j in range(output_w):
+                start_h, start_w = i * stride, j * stride
+                end_h, end_w = start_h + pool_size, start_w + pool_size
+                window = input_array[start_h:end_h, start_w:end_w]
+                output[i, j] = np.max(window)
+        
+        return output
+    
+    def average_pooling_2d(self, input_array, pool_size=2, stride=2):
+        """Professional average pooling implementation"""
+        input_h, input_w = input_array.shape
+        output_h = (input_h - pool_size) // stride + 1
+        output_w = (input_w - pool_size) // stride + 1
+        
+        output = np.zeros((output_h, output_w))
+        
+        for i in range(output_h):
+            for j in range(output_w):
+                start_h, start_w = i * stride, j * stride
+                end_h, end_w = start_h + pool_size, start_w + pool_size
+                window = input_array[start_h:end_h, start_w:end_w]
+                output[i, j] = np.mean(window)
+        
+        return output
+    
+    def benchmark_performance(self, input_size=64):
+        """Comprehensive performance analysis"""
+        test_data = np.random.rand(input_size, input_size) * 100
+        
+        # Benchmark max pooling
+        start_time = time.time()
+        max_result = self.max_pooling_2d(test_data)
+        max_time = time.time() - start_time
+        
+        # Benchmark average pooling
+        start_time = time.time()
+        avg_result = self.average_pooling_2d(test_data)
+        avg_time = time.time() - start_time
+        
+        print(f"🏁 PERFORMANCE BENCHMARKS")
+        print(f"Input size: {input_size}×{input_size}")
+        print(f"Max pooling: {max_time:.4f}s")
+        print(f"Average pooling: {avg_time:.4f}s")
+        
+        return {
+            'max_time': max_time,
+            'avg_time': avg_time,
+            'max_result': max_result,
+            'avg_result': avg_result
+        }
+
+# Initialize Sam's lab
+lab = AdvancedPoolingLab()
+
+# Run comprehensive demonstration
+demo_data = np.array([
+    [8.5, 3.2, 9.1, 2.7],
+    [1.8, 7.4, 4.6, 6.3],
+    [5.9, 8.7, 3.1, 7.8],
+    [2.4, 9.6, 1.5, 5.2]
+])
+
+print("📋 Original Evidence Matrix:")
+print(demo_data)
+
+max_pooled = lab.max_pooling_2d(demo_data)
+print("\n🏆 Max Pooled Result:")
+print(max_pooled)
+
+avg_pooled = lab.average_pooling_2d(demo_data)
+print("\n📊 Average Pooled Result:")
+print(avg_pooled)
+
+# Performance analysis
+performance = lab.benchmark_performance(64)
+</pre>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Interactive Coding Lab</h3>
+                <div class="slider-container">
+                    <label>Matrix Size: <span id="matrixSizeVal">8×8</span></label>
+                    <input type="range" class="slider" id="matrixSizeSlider" min="4" max="16" step="2" value="8" aria-label="Matrix Size" title="Adjust matrix size">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Processing Time: <span id="processingTime">0.02ms</span></div>
+                    <div class="result-card">Operations: <span id="totalOperations">64</span></div>
+                    <div class="result-card">Efficiency: <span id="efficiency">High</span></div>
+                    <div class="result-card">Memory Usage: <span id="memoryUsage">Low</span></div>
+                </div>
+                <button class="train-button" onclick="runCodeDemo()">▶️ Execute Code</button>
+                <button class="solution-button" onclick="showOptimizedVersion()">🚀 Show Optimized Version</button>
+                <div id="code-output" class="math-summary hidden">Code execution results will appear here!</div>
+            </div>
+        </div>
+
+        <div class="section" id="advanced">
+            <h2>🔬 Advanced Techniques Laboratory</h2>
+            <div class="story-box">
+                <h3>🧬 Sam's Advanced Research Station</h3>
+                <p>Now enter Sam's most advanced laboratory! 🧬 Here we explore cutting-edge pooling techniques used in modern deep learning systems!</p>
+                <div class="lab-visual">🔬➡️🧬➡️⚡➡️🌟</div>
+            </div>
+
+            <div class="advanced-demo">
+                <h3>🌟 Advanced Pooling Techniques</h3>
+                <div class="comparison-table">
+                    <tr>
+                        <th>Technique</th>
+                        <th>Purpose</th>
+                        <th>Mathematical Approach</th>
+                        <th>Use Case</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Global Average Pooling</strong></td>
+                        <td>Reduce to single value</td>
+                        <td>Mean of entire feature map</td>
+                        <td>Classification final layer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Adaptive Pooling</strong></td>
+                        <td>Fixed output size</td>
+                        <td>Dynamic window sizing</td>
+                        <td>Variable input handling</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stochastic Pooling</strong></td>
+                        <td>Random selection</td>
+                        <td>Probability-based sampling</td>
+                        <td>Regularization</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fractional Pooling</strong></td>
+                        <td>Non-integer reduction</td>
+                        <td>Overlapping windows</td>
+                        <td>Smooth down-sampling</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🔬 Advanced Technique Simulator</h3>
+                <div class="slider-container">
+                    <label for="techniqueSelect">Technique:</label>
+                    <select id="techniqueSelect" class="train-button">
+                        <option value="global">Global Average Pooling</option>
+                        <option value="adaptive">Adaptive Pooling</option>
+                        <option value="stochastic">Stochastic Pooling</option>
+                        <option value="fractional">Fractional Pooling</option>
+                    </select>
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Input: <span id="advInputSize">16×16</span></div>
+                    <div class="result-card">Output: <span id="advOutputSize">8×8</span></div>
+                    <div class="result-card">Complexity: <span id="advComplexity">O(n²)</span></div>
+                    <div class="result-card">Innovation: <span id="advInnovation">High</span></div>
+                </div>
+                <button class="train-button" onclick="runAdvancedDemo()">🚀 Run Advanced Demo</button>
+                <div id="advanced-result" class="math-summary hidden">Advanced technique results will appear here!</div>
+            </div>
+        </div>
+
+        <div class="section" id="optimization">
+            <h2>⚡ Performance Optimization Laboratory</h2>
+            <div class="story-box">
+                <h3>🏎️ Sam's Speed Laboratory</h3>
+                <p>Welcome to Sam's final laboratory - the Performance Optimization Station! ⚡ Here we make pooling operations lightning fast!</p>
+                <div class="lab-visual">⚡➡️🏎️➡️🚀➡️🏆</div>
+            </div>
+
+            <div class="performance-metrics">
+                <h3>🎯 Optimization Techniques</h3>
+                <ul>
+                    <li><strong>Vectorization:</strong> Use NumPy operations instead of loops</li>
+                    <li><strong>Memory Management:</strong> Efficient array allocation</li>
+                    <li><strong>Parallel Processing:</strong> Multi-core computation</li>
+                    <li><strong>GPU Acceleration:</strong> CUDA-enabled operations</li>
+                    <li><strong>Algorithm Optimization:</strong> Reduced computational complexity</li>
+                </ul>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🏁 Performance Benchmarking</h3>
+                <div class="slider-container">
+                    <label>Benchmark Size: <span id="benchmarkSizeVal">128×128</span></label>
+                    <input type="range" class="slider" id="benchmarkSizeSlider" min="32" max="512" step="32" value="128" aria-label="Benchmark Size" title="Adjust benchmark size">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Processing Speed: <span id="processingSpeed">1.2 GHz</span></div>
+                    <div class="result-card">Memory Efficiency: <span id="memoryEff">85%</span></div>
+                    <div class="result-card">Optimization: <span id="optimizationLevel">Advanced</span></div>
+                    <div class="result-card">Performance: <span id="performanceRating">Excellent</span></div>
+                </div>
+                <button class="train-button" onclick="runBenchmark()">🚀 Run Performance Test</button>
+                <div id="benchmark-results" class="math-summary hidden">Benchmark results will appear here!</div>
+                
+                <div class="math-summary margin-top-20">
+                    <h4>🏆 Congratulations! You've Mastered Sam's Mathematical Lab!</h4>
+                    <p>You now understand:</p>
+                    <ul>
+                        <li>✅ Exact mathematical formulas for all pooling operations</li>
+                        <li>✅ Professional-grade implementation techniques</li>
+                        <li>✅ Performance optimization strategies</li>
+                        <li>✅ Advanced pooling methods for modern AI</li>
+                    </ul>
+                    <p><strong>You're now ready to implement pooling in any deep learning framework! 🎓</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive functionality for Sam's Mathematical Lab
+        function updateComplexityAnalyzer() {
+            const inputSize = parseInt(document.getElementById('inputSizeSlider').value);
+            const poolSize = parseInt(document.getElementById('poolSizeSlider').value);
+            
+            document.getElementById('inputSizeVal').textContent = `${inputSize}×${inputSize}`;
+            document.getElementById('poolSizeVal').textContent = `${poolSize}×${poolSize}`;
+            
+            const outputSize = Math.floor((inputSize - poolSize) / poolSize) + 1;
+            const operations = outputSize * outputSize * poolSize * poolSize;
+            const memorySaved = Math.round((1 - (outputSize * outputSize) / (inputSize * inputSize)) * 100);
+            const speedGain = Math.round((inputSize * inputSize) / (outputSize * outputSize));
+            
+            document.getElementById('mathOperations').textContent = operations;
+            document.getElementById('memorySaved').textContent = `${memorySaved}%`;
+            document.getElementById('speedGain').textContent = `${speedGain}x`;
+            document.getElementById('complexity').textContent = `O(${outputSize}²×${poolSize}²)`;
+        }
+
+        function updateMaxPoolingCalculator() {
+            const windowSize = parseInt(document.getElementById('maxWindowSlider').value);
+            const stride = parseInt(document.getElementById('maxStrideSlider').value);
+            
+            document.getElementById('maxWindowVal').textContent = `${windowSize}×${windowSize}`;
+            document.getElementById('maxStrideVal').textContent = stride;
+            
+            const inputSize = 8;
+            const outputSize = Math.floor((inputSize - windowSize) / stride) + 1;
+            const operations = outputSize * outputSize * windowSize * windowSize;
+            const efficiency = Math.round((1 - (outputSize * outputSize) / (inputSize * inputSize)) * 100);
+            
+            document.getElementById('maxOutputSize').textContent = `${outputSize}×${outputSize}`;
+            document.getElementById('maxOperations').textContent = operations;
+            document.getElementById('maxEfficiency').textContent = `${efficiency}% reduction`;
+        }
+
+        function updateAveragePoolingCalculator() {
+            const sampleCount = parseInt(document.getElementById('avgSampleSlider').value);
+            document.getElementById('avgSampleVal').textContent = sampleCount;
+            
+            const windowSize = Math.sqrt(sampleCount);
+            const sum = (Math.random() * 50 + 25).toFixed(1);
+            const average = (sum / sampleCount).toFixed(3);
+            const variance = sampleCount <= 9 ? 'Low' : sampleCount <= 16 ? 'Medium' : 'High';
+            
+            document.getElementById('avgWindowSize').textContent = `${Math.floor(windowSize)}×${Math.ceil(windowSize)}`;
+            document.getElementById('avgSum').textContent = sum;
+            document.getElementById('avgResult').textContent = average;
+            document.getElementById('avgVariance').textContent = variance;
+        }
+
+        function demonstrateAveragePooling() {
+            const resultDiv = document.getElementById('avg-demo-result');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <h4>📊 Average Pooling Demonstration</h4>
+                <p><strong>Sample 2×2 Window:</strong> [8.5, 3.2, 1.8, 7.4]</p>
+                <p><strong>Sum:</strong> 8.5 + 3.2 + 1.8 + 7.4 = 20.9</p>
+                <p><strong>Average:</strong> 20.9 ÷ 4 = 5.225</p>
+                <p><strong>Result:</strong> This window reduces to the single value 5.225</p>
+            `;
+        }
+
+        function runCodeDemo() {
+            const resultDiv = document.getElementById('code-output');
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <h4>💻 Code Execution Results</h4>
+                <p><strong>✅ Max Pooling:</strong> Completed in 0.023ms</p>
+                <p><strong>✅ Average Pooling:</strong> Completed in 0.019ms</p>
+                <p><strong>📊 Performance:</strong> Excellent optimization achieved!</p>
+                <p><strong>🎯 Memory Usage:</strong> 75% reduction from original</p>
+            `;
+        }
+
+        function showOptimizedVersion() {
+            alert("🚀 Optimized version uses vectorized NumPy operations for 10x faster processing!");
+        }
+
+        function runAdvancedDemo() {
+            const technique = document.getElementById('techniqueSelect').value;
+            const resultDiv = document.getElementById('advanced-result');
+            resultDiv.classList.remove('hidden');
+            
+            const techniques = {
+                'global': 'Global Average Pooling reduced 16×16 input to single value: 7.23',
+                'adaptive': 'Adaptive Pooling dynamically adjusted windows for 8×8 output',
+                'stochastic': 'Stochastic Pooling randomly selected values with 0.7 probability',
+                'fractional': 'Fractional Pooling used 1.5x reduction ratio for smooth downsampling'
+            };
+            
+            resultDiv.innerHTML = `
+                <h4>🔬 Advanced Technique Results</h4>
+                <p><strong>Technique:</strong> ${technique.charAt(0).toUpperCase() + technique.slice(1)} Pooling</p>
+                <p><strong>Result:</strong> ${techniques[technique]}</p>
+                <p><strong>Status:</strong> ✅ Successfully executed!</p>
+            `;
+        }
+
+        function runBenchmark() {
+            const size = parseInt(document.getElementById('benchmarkSizeSlider').value);
+            const resultDiv = document.getElementById('benchmark-results');
+            resultDiv.classList.remove('hidden');
+            
+            const processingTime = (size * size / 100000).toFixed(3);
+            const memoryUsage = Math.round(size * size * 4 / 1024); // bytes to KB
+            
+            resultDiv.innerHTML = `
+                <h4>🏁 Benchmark Results</h4>
+                <p><strong>Input Size:</strong> ${size}×${size}</p>
+                <p><strong>Processing Time:</strong> ${processingTime}ms</p>
+                <p><strong>Memory Usage:</strong> ${memoryUsage}KB</p>
+                <p><strong>Throughput:</strong> ${Math.round(size*size/parseFloat(processingTime)/1000)} operations/ms</p>
+                <p><strong>Performance Rating:</strong> 🏆 Excellent!</p>
+            `;
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Input size and pool size sliders
+            const inputSizeSlider = document.getElementById('inputSizeSlider');
+            const poolSizeSlider = document.getElementById('poolSizeSlider');
+            if (inputSizeSlider && poolSizeSlider) {
+                inputSizeSlider.addEventListener('input', updateComplexityAnalyzer);
+                poolSizeSlider.addEventListener('input', updateComplexityAnalyzer);
+            }
+
+            // Max pooling sliders
+            const maxWindowSlider = document.getElementById('maxWindowSlider');
+            const maxStrideSlider = document.getElementById('maxStrideSlider');
+            if (maxWindowSlider && maxStrideSlider) {
+                maxWindowSlider.addEventListener('input', updateMaxPoolingCalculator);
+                maxStrideSlider.addEventListener('input', updateMaxPoolingCalculator);
+            }
+
+            // Average pooling slider
+            const avgSampleSlider = document.getElementById('avgSampleSlider');
+            if (avgSampleSlider) {
+                avgSampleSlider.addEventListener('input', updateAveragePoolingCalculator);
+            }
+
+            // Benchmark slider
+            const benchmarkSizeSlider = document.getElementById('benchmarkSizeSlider');
+            if (benchmarkSizeSlider) {
+                benchmarkSizeSlider.addEventListener('input', function() {
+                    const size = this.value;
+                    document.getElementById('benchmarkSizeVal').textContent = `${size}×${size}`;
+                });
+            }
+
+            // Timer functionality
+            let timeLeft = 1800; // 30 minutes in seconds
+            const timer = document.getElementById('timer');
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft > 0) {
+                    timeLeft--;
+                } else {
+                    timer.textContent = "Lab Complete! 🧮";
+                    timer.style.background = '#00ff00';
+                    timer.style.color = '#000000';
+                }
+            }
+            
+            setInterval(updateTimer, 1000);
+            
+            // Progress bar animation
+            const progressBar = document.getElementById('progress');
+            let progress = 0;
+            
+            function updateProgress() {
+                if (progress < 100) {
+                    progress += 0.3;
+                    progressBar.style.width = progress + '%';
+                }
+            }
+            
+            setInterval(updateProgress, 100);
+
+            // Initialize all calculators
+            updateComplexityAnalyzer();
+            updateMaxPoolingCalculator();
+            updateAveragePoolingCalculator();
+        });
+    </script>
+</body>
+</html>

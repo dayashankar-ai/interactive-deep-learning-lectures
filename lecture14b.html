@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 14 Part 2: Interactive Convolution Operations</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 24px 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .demo-card {
+            background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+            border-radius: 15px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .demo-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+        }
+
+        .canvas-wrapper {
+            text-align: center;
+        }
+
+        .canvas-wrapper h4 {
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        canvas {
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        canvas:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 24px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        input[type="range"] {
+            width: 120px;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6b7280, #9ca3af);
+        }
+
+        .kernel-display {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 16px;
+            border-radius: 10px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin: 12px 0;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-box {
+            background: linear-gradient(145deg, #ecfdf5, #d1fae5);
+            border: 2px solid #10b981;
+            border-radius: 15px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .result-box h3 {
+            color: #065f46;
+            margin-bottom: 12px;
+        }
+
+        .formula-box {
+            background: linear-gradient(145deg, #fffbeb, #fef3c7);
+            border-left: 6px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 15px 15px 0;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .formula-box strong {
+            color: #92400e;
+        }
+
+        .feature-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, #ffffff, #f1f5f9);
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .feature-card .icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 50px 0 30px;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+
+            .canvas-container {
+                gap: 15px;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumb">
+                <i class="fas fa-home"></i> Deep Learning Course → Lecture 14 Part 2
+            </div>
+            <h1><i class="fas fa-brain"></i> Interactive Convolution Operations</h1>
+            <p class="subtitle">Hands-on exploration of the mathematical operation that powers computer vision</p>
+        </div>
+
+        <!-- Interactive Demo 1: Basic Convolution -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-microscope"></i>
+                    Interactive Demo 1: Understanding Convolution Step-by-Step
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Convolution is like sliding a pattern detector (kernel) over an image to find specific features.
+                    Watch how it works pixel by pixel!
+                </p>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>📸 Input Image (5×5)</h4>
+                        <canvas id="inputCanvas" width="150" height="150"></canvas>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="canvas-wrapper">
+                        <h4>🔍 Kernel (3×3)</h4>
+                        <canvas id="kernelCanvas" width="90" height="90"></canvas>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="canvas-wrapper">
+                        <h4>✨ Output (3×3)</h4>
+                        <canvas id="outputCanvas" width="90" height="90"></canvas>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <strong>Convolution Formula:</strong> Output[i,j] = Σ(Image[i+m,j+n] × Kernel[m,n])
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="generateRandomImage()">
+                        <i class="fas fa-dice"></i> Generate New Image
+                    </button>
+                    <button class="btn" onclick="performConvolution()">
+                        <i class="fas fa-play"></i> Apply Convolution
+                    </button>
+                    <button class="btn btn-secondary" onclick="animateConvolution()">
+                        <i class="fas fa-film"></i> Show Animation
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Different Kernels Demo -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-filter"></i>
+                    Demo 2: Different Kernels, Different Features
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Each kernel detects different patterns in images. Try these common computer vision filters:
+                </p>
+
+                <div class="demo-grid">
+                    <div class="demo-card">
+                        <div class="icon"><i class="fas fa-bolt"></i></div>
+                        <h3>Edge Detection</h3>
+                        <div class="kernel-display">
+                            [-1 0 1]<br>
+                            [-2 0 2]<br>
+                            [-1 0 1]
+                        </div>
+                        <button class="btn" onclick="applyKernel('edge')">Apply Edge Filter</button>
+                    </div>
+                    <div class="demo-card">
+                        <div class="icon"><i class="fas fa-cloud"></i></div>
+                        <h3>Blur Filter</h3>
+                        <div class="kernel-display">
+                            [1 1 1]<br>
+                            [1 1 1] ÷ 9<br>
+                            [1 1 1]
+                        </div>
+                        <button class="btn" onclick="applyKernel('blur')">Apply Blur Filter</button>
+                    </div>
+                    <div class="demo-card">
+                        <div class="icon"><i class="fas fa-search-plus"></i></div>
+                        <h3>Sharpen Filter</h3>
+                        <div class="kernel-display">
+                            [ 0 -1 0]<br>
+                            [-1 5 -1]<br>
+                            [ 0 -1 0]
+                        </div>
+                        <button class="btn" onclick="applyKernel('sharpen')">Apply Sharpen</button>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>Original Test Image</h4>
+                        <canvas id="testCanvas" width="200" height="200"></canvas>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="canvas-wrapper">
+                        <h4>Filtered Result</h4>
+                        <canvas id="resultCanvas" width="200" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stride and Padding -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Demo 3: Stride & Padding Controls
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Control how the kernel moves (stride) and how borders are handled (padding):
+                </p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label><i class="fas fa-step-forward"></i> Stride:</label>
+                        <input type="range" id="strideSlider" min="1" max="3" value="1" oninput="updateStride()">
+                        <span id="strideValue" style="font-weight: bold; color: var(--primary-color);">1</span>
+                    </div>
+                    <div class="control-group">
+                        <label><i class="fas fa-border-all"></i> Padding:</label>
+                        <input type="range" id="paddingSlider" min="0" max="2" value="0" oninput="updatePadding()">
+                        <span id="paddingValue" style="font-weight: bold; color: var(--primary-color);">0</span>
+                    </div>
+                    <button class="btn" onclick="applyStrideAndPadding()">
+                        <i class="fas fa-calculator"></i> Apply Settings
+                    </button>
+                </div>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-ruler"></i> Output Size Calculation</h3>
+                    <div id="sizeCalculation" style="font-size: 1.1rem; font-family: 'Fira Code', monospace;">
+                        Input: 6×6, Kernel: 3×3, Stride: 1, Padding: 0<br>
+                        Output = (6 + 2×0 - 3) / 1 + 1 = <strong>4×4</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multiple Feature Maps -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Demo 4: Multiple Feature Maps
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Modern CNNs use many filters simultaneously to detect different features. See how one input creates
+                    multiple feature maps:
+                </p>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>Input Image</h4>
+                        <canvas id="multiInputCanvas" width="120" height="120"></canvas>
+                    </div>
+                    <span class="arrow">→</span>
+                    <div class="canvas-wrapper">
+                        <h4>Horizontal Edges</h4>
+                        <canvas id="feature1Canvas" width="100" height="100"></canvas>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <h4>Vertical Edges</h4>
+                        <canvas id="feature2Canvas" width="100" height="100"></canvas>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <h4>Diagonal Features</h4>
+                        <canvas id="feature3Canvas" width="100" height="100"></canvas>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin: 24px 0;">
+                    <button class="btn" onclick="generateFeatureMaps()">
+                        <i class="fas fa-magic"></i> Generate Feature Maps
+                    </button>
+                </div>
+
+                <div class="formula-box">
+                    <strong>Key Insight:</strong> 1 Input Image + N Filters = N Feature Maps<br>
+                    Each feature map detects different patterns in the same image!
+                </div>
+            </div>
+        </div>
+
+        <!-- Real Applications -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-globe"></i>
+                    Real-World Applications
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="feature-showcase">
+                    <div class="feature-card">
+                        <div class="icon"><i class="fas fa-heartbeat"></i></div>
+                        <h3>Medical Imaging</h3>
+                        <p>Detect tumors in X-rays and MRI scans with 95%+ accuracy. Early diagnosis saves lives.</p>
+                        <div style="background: #ecfdf5; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                            <strong>Impact:</strong> Millions of diagnoses annually
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon"><i class="fas fa-car"></i></div>
+                        <h3>Autonomous Vehicles</h3>
+                        <p>Real-time object detection and lane recognition at 30+ FPS for safer roads.</p>
+                        <div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                            <strong>Impact:</strong> Reducing traffic accidents by 40%
+                        </div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+                        <h3>Smartphone Cameras</h3>
+                        <p>Portrait mode, night mode, and photo enhancement in billions of devices.</p>
+                        <div style="background: #e0e7ff; padding: 12px; border-radius: 8px; margin-top: 12px;">
+                            <strong>Impact:</strong> Professional photos for everyone
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    Congratulations! You've Mastered Interactive Convolution
+                </h2>
+            </div>
+            <div class="section-content">
+                <div class="demo-grid">
+                    <div class="demo-card">
+                        <div class="icon"><i class="fas fa-check-circle"></i></div>
+                        <h3>Skills Mastered</h3>
+                        <ul style="text-align: left; color: #4b5563;">
+                            <li>Convolution mathematics</li>
+                            <li>Different kernel effects</li>
+                            <li>Stride and padding impact</li>
+                            <li>Feature map generation</li>
+                            <li>Real-world applications</li>
+                        </ul>
+                    </div>
+                    <div class="demo-card">
+                        <div class="icon"><i class="fas fa-rocket"></i></div>
+                        <h3>Next Steps</h3>
+                        <ul style="text-align: left; color: #4b5563;">
+                            <li>Build your first CNN</li>
+                            <li>Try transfer learning</li>
+                            <li>Experiment with architectures</li>
+                            <li>Apply to real problems</li>
+                            <li>Join the CV community</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="index.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Back to Course
+            </a>
+            <a href="lecture-15.html" class="nav-btn">
+                Next: Pooling & Subsampling <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let inputData = [];
+        let currentKernel = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]];
+
+        // Predefined kernels
+        const kernels = {
+            edge: [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]],
+            blur: [[1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9], [1 / 9, 1 / 9, 1 / 9]],
+            sharpen: [[0, -1, 0], [-1, 5, -1], [0, -1, 0]]
+        };
+
+        // Initialize everything when page loads
+        window.onload = function () {
+            generateRandomImage();
+            createTestImage();
+            generateFeatureMaps();
+            drawKernel(currentKernel);
+        };
+
+        function generateRandomImage() {
+            inputData = [];
+            for (let i = 0; i < 5; i++) {
+                inputData[i] = [];
+                for (let j = 0; j < 5; j++) {
+                    inputData[i][j] = Math.floor(Math.random() * 256);
+                }
+            }
+            drawImage('inputCanvas', inputData, 30);
+        }
+
+        function drawImage(canvasId, data, cellSize) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < data.length; i++) {
+                for (let j = 0; j < data[i].length; j++) {
+                    const value = Math.max(0, Math.min(255, Math.abs(data[i][j])));
+                    const grayValue = Math.floor(value);
+
+                    ctx.fillStyle = `rgb(${grayValue}, ${grayValue}, ${grayValue})`;
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    // Add border
+                    ctx.strokeStyle = '#e5e7eb';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    // Add value text for small grids
+                    if (cellSize > 25) {
+                        ctx.fillStyle = grayValue > 128 ? '#000' : '#fff';
+                        ctx.font = '10px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(Math.floor(data[i][j]), j * cellSize + cellSize / 2, i * cellSize + cellSize / 2 + 3);
+                    }
+                }
+            }
+        }
+
+        function drawKernel(kernel) {
+            const canvas = document.getElementById('kernelCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const cellSize = 30;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const value = kernel[i][j];
+
+                    // Color based on value
+                    let color;
+                    if (value > 0) {
+                        const intensity = Math.min(255, Math.abs(value) * 100 + 100);
+                        color = `rgb(${intensity}, 100, 100)`;
+                    } else if (value < 0) {
+                        const intensity = Math.min(255, Math.abs(value) * 100 + 100);
+                        color = `rgb(100, 100, ${intensity})`;
+                    } else {
+                        color = `rgb(200, 200, 200)`;
+                    }
+
+                    ctx.fillStyle = color;
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    // Border
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    // Value text
+                    ctx.fillStyle = '#000';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(value.toFixed(1), j * cellSize + 15, i * cellSize + 18);
+                }
+            }
+            currentKernel = kernel;
+        }
+
+        function performConvolution() {
+            if (inputData.length === 0) {
+                generateRandomImage();
+            }
+
+            const outputData = [];
+            for (let i = 0; i < 3; i++) {
+                outputData[i] = [];
+                for (let j = 0; j < 3; j++) {
+                    let sum = 0;
+                    for (let ki = 0; ki < 3; ki++) {
+                        for (let kj = 0; kj < 3; kj++) {
+                            sum += inputData[i + ki][j + kj] * currentKernel[ki][kj];
+                        }
+                    }
+                    outputData[i][j] = sum;
+                }
+            }
+
+            drawImage('outputCanvas', outputData, 30);
+        }
+
+        function animateConvolution() {
+            // Simple animation - just perform convolution with visual feedback
+            generateRandomImage();
+            setTimeout(() => {
+                performConvolution();
+            }, 500);
+        }
+
+        function applyKernel(kernelType) {
+            const kernel = kernels[kernelType];
+            drawKernel(kernel);
+
+            // Apply to test image
+            const canvas = document.getElementById('resultCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Simple visual effect based on kernel type
+            if (kernelType === 'edge') {
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(0, 0, 200, 200);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(50, 50, 100, 20);
+                ctx.strokeRect(90, 30, 20, 140);
+            } else if (kernelType === 'blur') {
+                // Create blur effect
+                ctx.filter = 'blur(3px)';
+                ctx.fillStyle = '#666';
+                ctx.fillRect(0, 0, 200, 200);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(50, 50, 100, 20);
+                ctx.fillRect(90, 30, 20, 140);
+                ctx.fillRect(130, 130, 40, 40);
+                ctx.filter = 'none';
+            } else if (kernelType === 'sharpen') {
+                // Create sharpen effect
+                ctx.fillStyle = '#666';
+                ctx.fillRect(0, 0, 200, 200);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(50, 50, 100, 20);
+                ctx.fillRect(90, 30, 20, 140);
+                ctx.fillRect(130, 130, 40, 40);
+                // Add sharp borders
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(50, 50, 100, 20);
+                ctx.strokeRect(90, 30, 20, 140);
+                ctx.strokeRect(130, 130, 40, 40);
+            }
+        }
+
+        function createTestImage() {
+            const canvas = document.getElementById('testCanvas');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#666';
+            ctx.fillRect(0, 0, 200, 200);
+
+            // Add geometric shapes
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(50, 50, 100, 20);  // Horizontal rectangle
+            ctx.fillRect(90, 30, 20, 140);  // Vertical rectangle
+            ctx.fillRect(130, 130, 40, 40); // Square
+
+            // Add circle
+            ctx.beginPath();
+            ctx.arc(60, 150, 20, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function updateStride() {
+            const stride = document.getElementById('strideSlider').value;
+            document.getElementById('strideValue').textContent = stride;
+            updateSizeCalculation();
+        }
+
+        function updatePadding() {
+            const padding = document.getElementById('paddingSlider').value;
+            document.getElementById('paddingValue').textContent = padding;
+            updateSizeCalculation();
+        }
+
+        function updateSizeCalculation() {
+            const stride = parseInt(document.getElementById('strideSlider').value);
+            const padding = parseInt(document.getElementById('paddingSlider').value);
+            const input = 6, kernel = 3;
+            const output = Math.floor((input + 2 * padding - kernel) / stride) + 1;
+
+            document.getElementById('sizeCalculation').innerHTML = `
+                Input: ${input}×${input}, Kernel: ${kernel}×${kernel}, Stride: ${stride}, Padding: ${padding}<br>
+                Output = (${input} + 2×${padding} - ${kernel}) / ${stride} + 1 = <strong>${output}×${output}</strong>
+            `;
+        }
+
+        function applyStrideAndPadding() {
+            updateSizeCalculation();
+            // Visual feedback
+            const resultBox = document.querySelector('.result-box');
+            resultBox.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                resultBox.style.transform = 'scale(1)';
+            }, 200);
+        }
+
+        function generateFeatureMaps() {
+            // Generate sample input for feature maps
+            const inputCanvas = document.getElementById('multiInputCanvas');
+            if (!inputCanvas) return;
+
+            const ctx = inputCanvas.getContext('2d');
+            ctx.fillStyle = '#888';
+            ctx.fillRect(0, 0, 120, 120);
+
+            // Add patterns
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(20, 40, 80, 8);    // Horizontal line
+            ctx.fillRect(56, 10, 8, 100);   // Vertical line
+            ctx.fillRect(80, 80, 30, 30);   // Square
+
+            // Create feature maps
+            createFeatureMap('feature1Canvas', 'horizontal');
+            createFeatureMap('feature2Canvas', 'vertical');
+            createFeatureMap('feature3Canvas', 'diagonal');
+        }
+
+        function createFeatureMap(canvasId, type) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (type === 'horizontal') {
+                // Highlight horizontal edges
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(15, 32, 70, 6);
+            } else if (type === 'vertical') {
+                // Highlight vertical edges  
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(46, 8, 6, 84);
+            } else if (type === 'diagonal') {
+                // Highlight diagonal features
+                ctx.fillStyle = '#000';
+                ctx.fillRect(0, 0, 100, 100);
+                ctx.fillStyle = '#fff';
+                ctx.fillRect(66, 66, 25, 25);
+            }
+        }
+
+        // Add some interactive animations
+        document.querySelectorAll('.demo-card').forEach(card => {
+            card.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Initialize tooltips and interactions
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add click animations to buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,631 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vision Detective Academy: CNN Fundamentals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Comic Sans MS", cursive; line-height: 1.6; color: #ffffff; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #000000 100%); padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: #1a1a1a; border-radius: 20px; box-shadow: 0 20px 60px rgba(255,255,0,0.3); overflow: hidden; border: 3px solid #ffff00; }
+        .header { background: linear-gradient(45deg, #000000, #ff0000, #ffff00, #00ff00, #000000); color: #ffffff; padding: 30px; text-align: center; position: relative; border-bottom: 4px solid #ffff00; }
+        .header::before { content: "🔍👁️🧠 "; font-size: 3em; position: absolute; top: 10px; left: 20px; opacity: 0.6; }
+        h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); animation: detectiveGlow 3s infinite; color: #ffff00; }
+        @keyframes detectiveGlow { 0% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } 50% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 40px #00ff00; } 100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } }
+        .subtitle { font-size: 1.3em; opacity: 0.9; font-weight: normal; color: #00ff00; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #ff0000; color: #ffff00; padding: 15px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 5px 15px rgba(255,0,0,0.5); border: 2px solid #ffff00; }
+        .progress-bar { width: 100%; height: 10px; background: #333333; position: relative; overflow: hidden; border: 2px solid #ffff00; }
+        .progress { height: 100%; background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00); width: 0%; transition: width 0.5s ease; }
+        .nav { background: #2d2d2d; padding: 20px; text-align: center; border-bottom: 3px solid #ffff00; }
+        .nav a { display: inline-block; margin: 5px 10px; padding: 12px 20px; background: #000000; color: #ffff00; text-decoration: none; border-radius: 25px; transition: all 0.3s; font-weight: bold; border: 2px solid #ffff00; }
+        .nav a:hover { transform: translateY(-3px) scale(1.05); background: #ffff00; color: #000000; box-shadow: 0 5px 15px rgba(255,255,0,0.5); }
+        .section { padding: 30px; border-bottom: 2px solid #333333; }
+        h2 { color: #ffff00; font-size: 2.2em; margin-bottom: 20px; border-bottom: 4px solid #00ff00; padding-bottom: 10px; display: flex; align-items: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        h3 { color: #00ff00; font-size: 1.6em; margin: 20px 0 15px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .story-box { background: linear-gradient(135deg, #ff0000, #000000); color: #ffffff; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .simple-explanation { background: linear-gradient(135deg, #00ff00, #2d5a2d); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 6px solid #ffff00; color: #000000; font-weight: bold; }
+        .simple-explanation::before { content: "👶 Simple Words: "; font-weight: bold; color: #ff0000; font-size: 1.1em; }
+        .math-container { background: #000000; color: #00ff00; padding: 25px; border-radius: 15px; margin: 20px 0; font-family: 'Courier New', monospace; border: 3px solid #ffff00; position: relative; }
+        .math-container::before { content: "🧮 MATH DETECTIVE WORK"; position: absolute; top: -15px; left: 20px; background: #000000; padding: 0 10px; color: #ffff00; font-weight: bold; border: 1px solid #ffff00; }
+        .equation { text-align: center; font-size: 1.4em; font-weight: bold; color: #ffff00; margin: 15px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px; border: 1px solid #ffff00; }
+        .equation-breakdown { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #00ff00; }
+        .symbol-meaning { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin: 5px 0; }
+        .symbol { color: #ffff00; font-weight: bold; font-size: 1.2em; }
+        .meaning { color: #ffffff; }
+        .interactive-demo { background: linear-gradient(135deg, #ffff00, #2d2d00); padding: 25px; border-radius: 15px; margin: 20px 0; border: 3px solid #ff0000; text-align: center; color: #000000; font-weight: bold; }
+        .slider-container { margin: 15px 0; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 2px solid #000000; }
+        .slider { width: 100%; height: 10px; background: #333333; outline: none; border-radius: 4px; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .result-card { background: linear-gradient(135deg, #ff0000, #000000); color: #ffff00; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 8px 25px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .detective-visual { text-align: center; font-size: 2.5em; margin: 20px 0; animation: bounce 2s infinite; }
+        .convolution-demo { background: linear-gradient(135deg, #ff0000, #330000); color: #ffffff; padding: 20px; border-radius: 15px; margin: 15px 0; border: 2px solid #ffff00; }
+        .filter-demo { background: linear-gradient(135deg, #00ff00, #003300); color: #000000; padding: 20px; border-radius: 15px; margin: 15px 0; border: 2px solid #ffff00; font-weight: bold; }
+        .code-playground { background: #000000; color: #00ff00; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Courier New', monospace; border-left: 5px solid #ffff00; border: 2px solid #333333; }
+        .highlight { background: #ffff00; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #000000; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .comparison-table th, .comparison-table td { border: 2px solid #ffff00; padding: 15px; text-align: center; }
+        .comparison-table th { background: #ff0000; color: #ffff00; font-weight: bold; }
+        .comparison-table tr:nth-child(even) { background: #2d2d2d; color: #ffffff; }
+        .comparison-table tr:nth-child(odd) { background: #1a1a1a; color: #ffffff; }
+        .step-by-step { counter-reset: step-counter; }
+        .step { counter-increment: step-counter; margin: 15px 0; padding: 20px; background: rgba(0, 255, 0, 0.1); border-radius: 10px; border-left: 5px solid #00ff00; border: 2px solid #00ff00; }
+        .step::before { content: "Step " counter(step-counter) ": "; font-weight: bold; color: #ffff00; font-size: 1.2em; }
+        .advanced-concept { background: linear-gradient(135deg, #000000, #ff0000); color: #ffffff; padding: 20px; border-radius: 15px; margin: 20px 0; border: 3px solid #ffff00; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        .matrix-visual { background: #000000; color: #00ff00; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: 'Courier New', monospace; border: 2px solid #ffff00; text-align: center; }
+        .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 200px; margin: 10px auto; }
+        .filter-cell { background: #ffff00; color: #000000; padding: 10px; text-align: center; font-weight: bold; border: 1px solid #000000; }
+        .feature-map { background: #2d2d2d; color: #00ff00; padding: 15px; border-radius: 8px; margin: 10px 0; border: 2px solid #00ff00; }
+        .cnn-architecture { display: flex; align-items: center; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .layer-block { background: #ff0000; color: #ffff00; padding: 15px 20px; margin: 5px; border-radius: 10px; border: 2px solid #ffff00; font-weight: bold; text-align: center; }
+        .arrow { color: #00ff00; font-size: 2em; margin: 0 10px; }
+        /* Fix for inline styles */
+        .pixel-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-width: 300px; margin: 10px auto; }
+        .pixel-cell { background: #ffff00; color: #000000; padding: 5px; font-size: 0.8em; }
+        .full-width-select { width: 100%; padding: 8px; border-radius: 5px; }
+        .filter-grid-center { margin: 20px auto; }
+        /* Feature map visualization styles */
+        .feature-map-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 1px; max-width: 200px; margin: 10px auto; }
+        .feature-cell-0 { background: #000; color: #0f0; padding: 3px; font-size: 0.7em; }
+        .feature-cell-1 { background: #333; color: #0f0; padding: 3px; font-size: 0.7em; }
+        .feature-cell-2 { background: #666; color: #ff0; padding: 3px; font-size: 0.7em; }
+        .feature-cell-3 { background: #999; color: #000; padding: 3px; font-size: 0.7em; }
+        .feature-cell-4 { background: #ccc; color: #000; padding: 3px; font-size: 0.7em; }
+        .feature-cell-5 { background: #fff; color: #000; padding: 3px; font-size: 0.7em; }
+        .graduation-certificate { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">60:00</div>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 The Vision Detective Academy</h1>
+            <div class="subtitle">Master CNN Fundamentals: From Pixel Detective to Vision Expert!</div>
+        </div>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="nav">
+            <a href="#intro">Detective Academy</a>
+            <a href="#convolution">Convolution Magic</a>
+            <a href="#filters">Filter Detective Tools</a>
+            <a href="#featuremaps">Feature Map Evidence</a>
+            <a href="#architecture">Complete Investigation</a>
+            <a href="#advanced">Master Detective Secrets</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🕵️ Welcome to the Vision Detective Academy!</h2>
+            <div class="story-box">
+                <h3>🔍 Meet Detective Alex: The Ultimate Vision Investigator</h3>
+                <p>Welcome to the most exciting detective academy in the AI world! 🎯 Detective Alex runs the <strong>Vision Detective Academy</strong> where AI detectives learn to "see" and understand images like humans do!</p>
+                <div class="detective-visual">🕵️➡️👁️➡️🧠➡️✨</div>
+                <p>But here's the mystery - how can a computer look at millions of tiny colored dots (pixels) and somehow know it's looking at a cat, a car, or a person? 🤔</p>
+                <p>Detective Alex discovered the secret: <span class="highlight">Convolutional Neural Networks (CNNs)</span> - special AI detectives that can find clues in images just like Sherlock Holmes finds clues at crime scenes!</p>
+            </div>
+
+            <div class="simple-explanation">
+                A <strong>Convolutional Neural Network (CNN)</strong> is like a super detective that examines images piece by piece, looking for important clues (edges, shapes, patterns) and gradually building up an understanding of what's in the picture. Think of it as having X-ray vision that can see through to the important parts!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🔍 Detective Vision Simulator</h3>
+                <div class="slider-container">
+                    <label>Detective Magnification Level: <span id="magnificationVal">1</span>x</label>
+                    <input type="range" class="slider" id="magnificationSlider" min="1" max="10" value="1" aria-label="Detective Magnification Level" title="Adjust detective magnification level">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Vision Detail: <span id="visionDetail">Basic</span></div>
+                    <div class="result-card">Clues Found: <span id="cluesFound">3</span></div>
+                    <div class="result-card">Investigation Level: <span id="investigationLevel">Rookie</span></div>
+                </div>
+                <div id="magnification-explanation" class="result-card">Adjust magnification to see how CNNs examine images at different detail levels!</div>
+            </div>
+
+            <div class="matrix-visual">
+                <h3>🔢 How Images Look to Computers</h3>
+                <p>To us: 😺 (cute cat!)</p>
+                <p>To computers: A grid of numbers representing colors!</p>
+                <div class="pixel-grid">
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">240</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">200</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">180</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">220</div>
+                </div>
+                <p>Each number represents how bright that pixel is! (0=black, 255=white)</p>
+            </div>
+        </div>
+
+        <div class="section" id="convolution">
+            <h2>🔍 Convolution: The Detective's Magnifying Glass</h2>
+            <div class="story-box">
+                <h3>🔎 Detective Alex's Secret Investigation Tool</h3>
+                <p>Detective Alex has a magical magnifying glass called <strong>Convolution</strong>! This isn't an ordinary magnifying glass - it can slide across any image and detect specific clues like edges, corners, or patterns! 🕵️‍♀️</p>
+                <div class="detective-visual">🔍➡️📸➡️🔍➡️✨</div>
+                <p>The amazing thing is that this magnifying glass can be programmed to look for different types of clues. One setting finds vertical lines, another finds horizontal lines, and another finds curves!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 The Convolution Operation: Mathematical Magic</h3>
+                <div class="equation">Output[i,j] = Σ Σ (Input[i+m,j+n] × Filter[m,n])</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Output[i,j]</div>
+                        <div class="meaning">= The clue Detective Alex found at position (i,j)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Input[i+m,j+n]</div>
+                        <div class="meaning">= Pixel values in the image under the magnifying glass</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Filter[m,n]</div>
+                        <div class="meaning">= The detective's magnifying glass settings</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Σ Σ</div>
+                        <div class="meaning">= Add up all the multiplications (double summation)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="simple-explanation">
+                <strong>Convolution</strong> is like laying Detective Alex's magnifying glass on the image and doing math! For each position, you multiply each part of the image under the glass by the corresponding setting on the glass, then add everything up. The result tells you how much of that clue (like "vertical edge") is at that spot!
+            </div>
+
+            <div class="convolution-demo">
+                <h3>🔍 Convolution in Action: Step-by-Step Investigation</h3>
+                <div class="step-by-step">
+                    <div class="step">
+                        <strong>Place the Magnifying Glass</strong><br>
+                        Detective Alex places her 3×3 magnifying glass on the top-left corner of the image
+                    </div>
+                    <div class="step">
+                        <strong>Multiply and Add</strong><br>
+                        Multiply each pixel under the glass by the corresponding filter value, then add them all up
+                    </div>
+                    <div class="step">
+                        <strong>Record the Clue</strong><br>
+                        Write down the result - this number tells us how strong the clue is at this position
+                    </div>
+                    <div class="step">
+                        <strong>Slide the Glass</strong><br>
+                        Move the magnifying glass one position to the right and repeat the process
+                    </div>
+                    <div class="step">
+                        <strong>Complete the Investigation</strong><br>
+                        Continue sliding across the entire image until every position has been investigated
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎮 Convolution Calculator</h3>
+                <div class="slider-container">
+                    <label>Filter Strength: <span id="filterStrengthVal">1</span></label>
+                    <input type="range" class="slider" id="filterStrengthSlider" min="0.1" max="2" step="0.1" value="1" aria-label="Filter Strength" title="Adjust filter strength level">
+                </div>
+                <div class="slider-container">
+                    <label for="imageAreaSelect">Image Area:</label>
+                    <select id="imageAreaSelect" class="full-width-select" title="Select image area to analyze">
+                        <option value="normal">Normal Area</option>
+                        <option value="edge">Strong Edge</option>
+                        <option value="smooth">Smooth Area</option>
+                    </select>
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Convolution Result: <span id="convResult">15</span></div>
+                    <div class="result-card">Clue Strength: <span id="clueStrength">Medium</span></div>
+                    <div class="result-card">Detective Rating: <span id="detectiveRating">Good find!</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="filters">
+            <h2>🛠️ Filters: Detective Alex's Specialized Tools</h2>
+            <div class="story-box">
+                <h3>🧰 The Detective's Toolkit</h3>
+                <p>Detective Alex has an amazing toolkit with different specialized magnifying glasses, each designed to find specific types of clues! Each <strong>filter</strong> is like a different detective tool that's an expert at finding one particular thing! 🔧</p>
+                <div class="detective-visual">🔍➕🔍➕🔍➡️🧰</div>
+                <p>Just like real detectives have fingerprint powder, UV lights, and magnifying glasses for different jobs, CNN filters are specialized for finding edges, corners, textures, and patterns!</p>
+            </div>
+
+            <div class="filter-demo">
+                <h3>🔍 Detective Alex's Filter Collection</h3>
+                <div class="comparison-table">
+                    <tr><th>Filter Name</th><th>Detective Purpose</th><th>What It Finds</th><th>Filter Values</th></tr>
+                    <tr>
+                        <td><strong>Vertical Edge Detector</strong></td>
+                        <td>Find vertical lines</td>
+                        <td>Door frames, poles, walls</td>
+                        <td>[-1, 0, 1]<br>[-1, 0, 1]<br>[-1, 0, 1]</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Horizontal Edge Detector</strong></td>
+                        <td>Find horizontal lines</td>
+                        <td>Tables, horizon, floors</td>
+                        <td>[-1, -1, -1]<br>[0, 0, 0]<br>[1, 1, 1]</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Corner Detector</strong></td>
+                        <td>Find corners and intersections</td>
+                        <td>Building corners, box edges</td>
+                        <td>[0, -1, 0]<br>[-1, 4, -1]<br>[0, -1, 0]</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Blur Filter</strong></td>
+                        <td>Smooth out details</td>
+                        <td>General shapes, reduce noise</td>
+                        <td>[1, 1, 1]<br>[1, 1, 1]<br>[1, 1, 1] ÷ 9</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="simple-explanation">
+                Each <strong>filter</strong> is a small grid of numbers (usually 3×3 or 5×5) that tells the convolution operation exactly what to look for. Positive numbers mean "I want this!", negative numbers mean "I don't want this!", and zero means "I don't care about this spot."
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🛠️ Filter Workshop</h3>
+                <div class="slider-container">
+                    <label for="filterTypeSelect">Filter Type:</label>
+                    <select id="filterTypeSelect" class="full-width-select" title="Select filter type to apply">
+                        <option value="vertical">Vertical Edge Detector</option>
+                        <option value="horizontal">Horizontal Edge Detector</option>
+                        <option value="corner">Corner Detector</option>
+                        <option value="blur">Blur Filter</option>
+                    </select>
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Filter Purpose: <span id="filterPurpose">Finds vertical lines</span></div>
+                    <div class="result-card">Best For: <span id="filterBestFor">Walls, poles, doors</span></div>
+                    <div class="result-card">Complexity: <span id="filterComplexity">Basic</span></div>
+                </div>
+                <div id="current-filter" class="filter-grid filter-grid-center">
+                    <div class="filter-cell">-1</div>
+                    <div class="filter-cell">0</div>
+                    <div class="filter-cell">1</div>
+                    <div class="filter-cell">-1</div>
+                    <div class="filter-cell">0</div>
+                    <div class="filter-cell">1</div>
+                    <div class="filter-cell">-1</div>
+                    <div class="filter-cell">0</div>
+                    <div class="filter-cell">1</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="featuremaps">
+            <h2>🗺️ Feature Maps: Detective Alex's Evidence Board</h2>
+            <div class="story-box">
+                <h3>📋 The Evidence Collection</h3>
+                <p>After Detective Alex slides her magnifying glass across the entire image, she creates <strong>Feature Maps</strong> - special evidence boards that show where she found each type of clue! 🔍</p>
+                <div class="detective-visual">🔍➡️📋➡️🗺️➡️📊</div>
+                <p>Each feature map is like a detective's evidence board showing "Here's where I found vertical edges!", "Here's where I found corners!", etc. The brighter the spot on the map, the stronger that clue was found there!</p>
+            </div>
+
+            <div class="simple-explanation">
+                A <strong>Feature Map</strong> is the result you get after applying one filter to an entire image. If you have 32 different filters, you'll get 32 different feature maps - each one showing where that particular type of pattern or feature was detected in the image.
+            </div>
+
+            <div class="feature-map">
+                <h3>🗺️ Feature Map Visualization</h3>
+                <p><strong>Original Image:</strong> 28×28 pixels (like a handwritten digit)</p>
+                <p><strong>Filter Size:</strong> 3×3 pixels</p>
+                <p><strong>Resulting Feature Map:</strong> 26×26 pixels</p>
+                <div class="matrix-visual">
+                    <p>Feature Map Example (showing edge detection results):</p>
+                    <div class="feature-map-grid">
+                        <div class="feature-cell-0">0</div>
+                        <div class="feature-cell-1">15</div>
+                        <div class="feature-cell-2">85</div>
+                        <div class="feature-cell-3">120</div>
+                        <div class="feature-cell-4">200</div>
+                        <div class="feature-cell-5">255</div>
+                        <div class="feature-cell-2">90</div>
+                        <div class="feature-cell-0">0</div>
+                    </div>
+                    <p><small>Higher numbers = stronger feature detected!</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="architecture">
+            <h2>🏗️ Complete Investigation: CNN Architecture</h2>
+            <div class="story-box">
+                <h3>🏛️ The Full Detective Academy Structure</h3>
+                <p>Now Detective Alex reveals the complete <strong>CNN Architecture</strong> - the entire detective academy workflow from rookie detectives to master investigators! 🎓</p>
+                <div class="detective-visual">🕵️➡️🔍➡️📋➡️🧠➡️🎯</div>
+                <p>A complete CNN investigation involves multiple layers of detectives, each specializing in different aspects of image analysis, working together to solve the ultimate mystery: "What's in this image?"</p>
+            </div>
+
+            <div class="cnn-architecture">
+                <div class="layer-block">Input Image<br>28×28×1</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">Conv Layer 1<br>32 filters</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">ReLU<br>Activation</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">MaxPool<br>2×2</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">Conv Layer 2<br>64 filters</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">ReLU<br>Activation</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">MaxPool<br>2×2</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">Flatten</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">Dense Layer<br>128 neurons</div>
+                <div class="arrow">➡️</div>
+                <div class="layer-block">Output<br>10 classes</div>
+            </div>
+
+            <div class="simple-explanation">
+                The <strong>CNN Architecture</strong> is like an assembly line of detectives! First, simple detectives find basic clues (edges), then more experienced detectives combine these clues to find shapes, and finally master detectives make the final decision about what object they're looking at.
+            </div>
+        </div>
+
+        <div class="section" id="advanced">
+            <h2>🎓 Master Detective Secrets</h2>
+            <div class="story-box">
+                <h3>🏆 Advanced Detective Techniques</h3>
+                <p>Congratulations! You've graduated from Detective Alex's Vision Academy! 🎉 Now let's learn the advanced secrets that separate rookie detectives from master investigators!</p>
+                <div class="detective-visual">🕵️➡️🎓➡️🏆➡️🌟</div>
+                <p>These advanced techniques help CNNs see like human experts, understanding not just what's in an image, but where it is, how it relates to other objects, and even what might happen next!</p>
+            </div>
+
+            <div class="advanced-concept">
+                <h3>🔥 Advanced CNN Techniques</h3>
+                <div class="comparison-table">
+                    <tr><th>Technique</th><th>What It Does</th><th>Detective Analogy</th></tr>
+                    <tr>
+                        <td><strong>Batch Normalization</strong></td>
+                        <td>Keeps learning stable</td>
+                        <td>Like giving all detectives the same training manual</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Dropout</strong></td>
+                        <td>Prevents over-reliance on specific features</td>
+                        <td>Like training detectives to work even when some clues are missing</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Transfer Learning</strong></td>
+                        <td>Uses pre-trained knowledge</td>
+                        <td>Like hiring experienced detectives instead of training from scratch</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Data Augmentation</strong></td>
+                        <td>Creates more training examples</td>
+                        <td>Like showing detectives the same clue from different angles</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="code-playground">
+                <h3>💻 Master Detective's CNN Code</h3>
+<pre># Detective Alex's Complete CNN Architecture
+import tensorflow as tf
+from tensorflow.keras import layers, models
+
+def create_detective_cnn():
+    """
+    Detective Alex's Master CNN Architecture
+    Designed for image classification mysteries!
+    """
+    
+    print("🏗️ Building the Vision Detective Academy...")
+    
+    model = models.Sequential([
+        # First Investigation Layer - Basic Clue Detection
+        layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+        layers.BatchNormalization(),  # Keep detectives organized
+        layers.MaxPooling2D((2, 2)),   # Focus on strongest clues
+        
+        # Second Investigation Layer - Pattern Recognition
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        
+        # Third Investigation Layer - Complex Feature Detection
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.Dropout(0.25),  # Train detectives to be resilient
+        
+        # Evidence Processing Department
+        layers.Flatten(),
+        layers.Dense(64, activation='relu'),
+        layers.Dropout(0.5),
+        
+        # Final Decision Making
+        layers.Dense(10, activation='softmax')  # 10 possible suspects
+    ])
+    
+    print("✅ Detective Academy construction complete!")
+    return model
+
+# Create and compile the model
+detective_model = create_detective_cnn()
+
+# Compile with detective-optimized settings
+detective_model.compile(
+    optimizer='adam',           # Smart learning algorithm
+    loss='categorical_crossentropy',  # Measure investigation accuracy
+    metrics=['accuracy']        # Track success rate
+)
+
+# Show the academy structure
+print("\n🏛️ Detective Academy Architecture:")
+detective_model.summary()
+
+print("\n🎯 Detective Alex says:")
+print("This CNN can now investigate images and identify objects")
+print("with the precision of a master detective!")
+print("Ready to solve image classification mysteries! 🕵️‍♀️")</pre>
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🎓 Graduation Certificate</h3>
+                <div class="result-grid">
+                    <div class="result-card">🏆 Status: <span>CNN Master Detective</span></div>
+                    <div class="result-card">🎯 Skills Learned: <span>Vision AI Fundamentals</span></div>
+                    <div class="result-card">🔍 Specialization: <span>Convolutional Neural Networks</span></div>
+                    <div class="result-card">⭐ Next Level: <span>Advanced Computer Vision</span></div>
+                </div>
+                <div class="advanced-concept graduation-certificate">
+                    <h3>🌟 Congratulations! 🌟</h3>
+                    <p>You have successfully completed Detective Alex's Vision Academy!</p>
+                    <p>You now understand how CNNs work as AI detectives that can "see" and understand images.</p>
+                    <p><strong>Keep investigating and keep learning! 🕵️‍♀️🎓</strong></p>
+                </div>
+            </div>
+
+    <script>
+        // Interactive functionality for the detective academy
+        function updateMagnification() {
+            const magnification = document.getElementById('magnificationSlider').value;
+            document.getElementById('magnificationVal').textContent = magnification;
+            
+            const visionDetail = magnification <= 3 ? 'Basic' : magnification <= 7 ? 'Enhanced' : 'Expert';
+            const cluesFound = Math.floor(magnification * 2) + 1;
+            const investigationLevel = magnification <= 3 ? 'Rookie' : magnification <= 7 ? 'Detective' : 'Master Detective';
+            
+            document.getElementById('visionDetail').textContent = visionDetail;
+            document.getElementById('cluesFound').textContent = cluesFound;
+            document.getElementById('investigationLevel').textContent = investigationLevel;
+        }
+
+        function updateFilterStrength() {
+            const strength = document.getElementById('filterStrengthSlider').value;
+            document.getElementById('filterStrengthVal').textContent = strength;
+            
+            const result = Math.floor(strength * 15);
+            const clueStrength = strength <= 0.7 ? 'Weak' : strength <= 1.3 ? 'Medium' : 'Strong';
+            const rating = strength <= 0.7 ? 'Keep investigating!' : strength <= 1.3 ? 'Good find!' : 'Excellent detection!';
+            
+            document.getElementById('convResult').textContent = result;
+            document.getElementById('clueStrength').textContent = clueStrength;
+            document.getElementById('detectiveRating').textContent = rating;
+        }
+
+        function updateImageArea() {
+            const area = document.getElementById('imageAreaSelect').value;
+            let result, clueStrength, rating;
+            
+            switch(area) {
+                case 'edge':
+                    result = 45; clueStrength = 'Very Strong'; rating = 'Major clue found!';
+                    break;
+                case 'smooth':
+                    result = 5; clueStrength = 'Very Weak'; rating = 'No significant clues';
+                    break;
+                default:
+                    result = 15; clueStrength = 'Medium'; rating = 'Good find!';
+            }
+            
+            document.getElementById('convResult').textContent = result;
+            document.getElementById('clueStrength').textContent = clueStrength;
+            document.getElementById('detectiveRating').textContent = rating;
+        }
+
+        function updateFilterType() {
+            const filterType = document.getElementById('filterTypeSelect').value;
+            const filterCells = document.querySelectorAll('#current-filter .filter-cell');
+            
+            let purpose, bestFor, complexity, values;
+            
+            switch(filterType) {
+                case 'horizontal':
+                    purpose = 'Finds horizontal lines';
+                    bestFor = 'Tables, horizon, floors';
+                    complexity = 'Basic';
+                    values = ['-1', '-1', '-1', '0', '0', '0', '1', '1', '1'];
+                    break;
+                case 'corner':
+                    purpose = 'Finds corners and intersections';
+                    bestFor = 'Building corners, box edges';
+                    complexity = 'Intermediate';
+                    values = ['0', '-1', '0', '-1', '4', '-1', '0', '-1', '0'];
+                    break;
+                case 'blur':
+                    purpose = 'Smooths out details';
+                    bestFor = 'General shapes, reduce noise';
+                    complexity = 'Simple';
+                    values = ['1', '1', '1', '1', '1', '1', '1', '1', '1'];
+                    break;
+                default: // vertical
+                    purpose = 'Finds vertical lines';
+                    bestFor = 'Walls, poles, doors';
+                    complexity = 'Basic';
+                    values = ['-1', '0', '1', '-1', '0', '1', '-1', '0', '1'];
+            }
+            
+            document.getElementById('filterPurpose').textContent = purpose;
+            document.getElementById('filterBestFor').textContent = bestFor;
+            document.getElementById('filterComplexity').textContent = complexity;
+            
+            filterCells.forEach((cell, index) => {
+                cell.textContent = values[index];
+            });
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const magnificationSlider = document.getElementById('magnificationSlider');
+            if (magnificationSlider) {
+                magnificationSlider.addEventListener('input', updateMagnification);
+            }
+
+            const filterStrengthSlider = document.getElementById('filterStrengthSlider');
+            if (filterStrengthSlider) {
+                filterStrengthSlider.addEventListener('input', updateFilterStrength);
+            }
+
+            const imageAreaSelect = document.getElementById('imageAreaSelect');
+            if (imageAreaSelect) {
+                imageAreaSelect.addEventListener('change', updateImageArea);
+            }
+
+            const filterTypeSelect = document.getElementById('filterTypeSelect');
+            if (filterTypeSelect) {
+                filterTypeSelect.addEventListener('change', updateFilterType);
+            }
+
+            // Timer functionality
+            let timeLeft = 3600; // 60 minutes in seconds
+            const timer = document.getElementById('timer');
+            
+            function updateTimer() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft > 0) {
+                    timeLeft--;
+                } else {
+                    timer.textContent = "Time's up! 🎓";
+                    timer.style.background = '#00ff00';
+                    timer.style.color = '#000000';
+                }
+            }
+            
+            setInterval(updateTimer, 1000);
+            
+            // Progress bar animation
+            const progressBar = document.getElementById('progress');
+            let progress = 0;
+            
+            function updateProgress() {
+                if (progress < 100) {
+                    progress += 0.5;
+                    progressBar.style.width = progress + '%';
+                }
+            }
+            
+            setInterval(updateProgress, 100);
+        });
+    </script>
+</body>
+</html>

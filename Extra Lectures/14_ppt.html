@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convolution Operations - The Detective Story</title>
+    <style>
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        .slide-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            min-height: 600px;
+        }
+        .slide-container.active {
+            display: block;
+        }
+        .slide-header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .slide-number {
+            background: #333;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        h1 {
+            margin: 10px 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        h2 {
+            color: #FF6B6B;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #4ECDC4;
+            padding-bottom: 10px;
+        }
+        .story-box {
+            background: linear-gradient(135deg, #FFE5B4, #FFCC70);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #FF6B6B;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+        .math-box {
+            background: linear-gradient(135deg, #E8F5E8, #B8E6B8);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #4ECDC4;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+        .simple-explanation {
+            background: linear-gradient(135deg, #F0E6FF, #D1C4E9);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #9C27B0;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .grid-cell {
+            background: #4ECDC4;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .kernel-cell {
+            background: #FF6B6B;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 2px;
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 20px;
+        }
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .nav-btn {
+            background: #FF6B6B;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            background: #FF5252;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .equation {
+            background: #FFF3E0;
+            border: 2px solid #FF9800;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #E65100;
+        }
+        .highlight {
+            background: #FFEB3B;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .detective-icon {
+            font-size: 3em;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .step-box {
+            background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+            border-left: 5px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .key-point {
+            background: #FFCDD2;
+            border: 2px solid #F44336;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #C62828;
+        }
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: #FF6B6B;
+            transition: width 0.3s ease;
+            z-index: 1001;
+        }
+        .slide-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    <div class="slide-counter" id="slideCounter">1 / 20</div>
+
+    <!-- Slide 1: Title -->
+    <div class="slide-container active">
+        <div class="slide-header">
+            <div class="slide-number">Slide 1 of 20</div>
+            <h1>🕵️ The Detective's Guide to Convolution</h1>
+            <p style="font-size: 1.2em;">How computers learn to see patterns like a super detective!</p>
+        </div>
+        <div class="detective-icon">🕵️‍♂️🔍📱</div>
+        <div class="story-box">
+            <h2>Meet Detective Alex!</h2>
+            <p>Detective Alex has a special magnifying glass that helps solve mysteries by finding patterns in pictures. Just like how Alex uses this special tool, computers use something called <strong>CONVOLUTION</strong> to find patterns in images!</p>
+        </div>
+        <div class="key-point">
+            <strong>Today's Mission:</strong> Learn how computers become super detectives and spot patterns in pictures using mathematical magic! 🪄
+        </div>
+    </div>
+
+    <!-- Slide 2: What is Convolution? -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 2 of 20</div>
+            <h1>🤔 What is Convolution?</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex's First Case</h2>
+            <p>Imagine you're looking for your lost keys in a messy room. You use a flashlight to check different spots, moving it around systematically. <strong>Convolution</strong> is like that flashlight - it's a way to examine every part of an image to find specific patterns!</p>
+        </div>
+        <div class="simple-explanation">
+            <strong>In Simple Words:</strong> Convolution = Moving a special pattern detector across an image to find interesting features, like edges, corners, or textures.
+        </div>
+        <div class="math-box">
+            <h3>The Basic Idea:</h3>
+            <p>🔍 <strong>Step 1:</strong> Take a small pattern detector (called a <span class="highlight">filter</span>)</p>
+            <p>🔄 <strong>Step 2:</strong> Slide it across the entire image</p>
+            <p>✨ <strong>Step 3:</strong> At each position, check how well the pattern matches</p>
+            <p>📊 <strong>Step 4:</strong> Create a new image showing where patterns were found</p>
+        </div>
+    </div>
+
+    <!-- Slide 3: The Detective's Tools -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 3 of 20</div>
+            <h1>🛠️ Detective Alex's Special Tools</h1>
+        </div>
+        <div class="story-box">
+            <p>Just like Detective Alex has different tools for different mysteries, convolution uses special tools too!</p>
+        </div>
+        <div class="step-box">
+            <h3>🖼️ 1. INPUT IMAGE</h3>
+            <p><strong>Like:</strong> The crime scene photo that Alex needs to examine</p>
+            <p><strong>Actually:</strong> The original image we want to analyze (like a photo of a cat)</p>
+        </div>
+        <div class="step-box">
+            <h3>🔍 2. KERNEL/FILTER</h3>
+            <p><strong>Like:</strong> Alex's special magnifying glass that looks for specific clues</p>
+            <p><strong>Actually:</strong> A small grid of numbers that detects patterns (like edges or corners)</p>
+        </div>
+        <div class="step-box">
+            <h3>📋 3. FEATURE MAP</h3>
+            <p><strong>Like:</strong> Alex's notebook where all discovered clues are recorded</p>
+            <p><strong>Actually:</strong> The result image showing where patterns were found</p>
+        </div>
+    </div>
+
+    <!-- Slide 4: Understanding Kernels -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 4 of 20</div>
+            <h1>🔍 What is a Kernel?</h1>
+        </div>
+        <div class="story-box">
+            <h2>Alex's Different Magnifying Glasses</h2>
+            <p>Detective Alex has different magnifying glasses for different jobs:
+            <br>🔍 <strong>Edge Detector Glass:</strong> Finds sharp boundaries
+            <br>🔍 <strong>Corner Finder Glass:</strong> Spots where lines meet
+            <br>🔍 <strong>Texture Scanner Glass:</strong> Identifies surface patterns</p>
+        </div>
+        <div class="simple-explanation">
+            <strong>Kernel = Filter = Detective's Magnifying Glass</strong><br>
+            It's a small grid of numbers that tells us what pattern to look for!
+        </div>
+        <div class="visual-grid">
+            <div style="text-align: center;">
+                <h3>Edge Detection Kernel</h3>
+                <div style="display: inline-block; background: #FF6B6B; padding: 10px; border-radius: 10px;">
+                    <div class="kernel-cell">-1</div>
+                    <div class="kernel-cell">0</div>
+                    <div class="kernel-cell">+1</div>
+                </div>
+                <p><em>Finds vertical lines</em></p>
+            </div>
+        </div>
+        <div class="key-point">
+            <strong>Remember:</strong> Different kernels find different patterns, just like different tools help solve different mysteries!
+        </div>
+    </div>
+
+    <!-- Slide 5: How Convolution Works - Step by Step -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 5 of 20</div>
+            <h1>⚙️ How Does Convolution Work?</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex's Investigation Method</h2>
+            <p>Alex doesn't randomly search the crime scene. There's a systematic method:
+            <br>1️⃣ Start at the top-left corner
+            <br>2️⃣ Examine a small area carefully
+            <br>3️⃣ Move one step to the right
+            <br>4️⃣ Repeat until the entire scene is checked</p>
+        </div>
+        <div class="step-box">
+            <h3>🎯 Step 1: Position the Kernel</h3>
+            <p>Place your 3×3 magnifying glass over a 3×3 area of the image</p>
+        </div>
+        <div class="step-box">
+            <h3>🔢 Step 2: Multiply & Add</h3>
+            <p>Multiply each number in the kernel with the corresponding pixel value, then add all results together</p>
+        </div>
+        <div class="step-box">
+            <h3>📝 Step 3: Record the Result</h3>
+            <p>Write down this single number in your detective notebook (feature map)</p>
+        </div>
+        <div class="step-box">
+            <h3>🔄 Step 4: Move and Repeat</h3>
+            <p>Slide the kernel one position and repeat the process</p>
+        </div>
+    </div>
+
+    <!-- Slide 6: The Mathematics Made Simple -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 6 of 20</div>
+            <h1>🧮 The Math Behind the Magic</h1>
+        </div>
+        <div class="story-box">
+            <p>Don't worry! The math is just like calculating your grocery bill - multiply prices by quantities, then add everything up!</p>
+        </div>
+        <div class="equation">
+            Output = Σ (Image_pixel × Kernel_value)
+        </div>
+        <div class="simple-explanation">
+            <strong>Translation:</strong> "Add up all the results when you multiply each image spot with its matching kernel number"
+        </div>
+        <div class="math-box">
+            <h3>🛒 Grocery Store Example:</h3>
+            <p>If you buy:</p>
+            <p>• 3 apples at $2 each = 3 × 2 = 6</p>
+            <p>• 2 bananas at $1 each = 2 × 1 = 2</p>
+            <p>• 1 orange at $3 each = 1 × 3 = 3</p>
+            <p><strong>Total bill = 6 + 2 + 3 = 11 dollars</strong></p>
+            <br>
+            <p><strong>Convolution works the same way!</strong> Instead of groceries, we multiply image numbers with kernel numbers!</p>
+        </div>
+    </div>
+
+    <!-- Slide 7: Real Example with Numbers -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 7 of 20</div>
+            <h1>🔢 Let's See Real Numbers!</h1>
+        </div>
+        <div class="story-box">
+            <p>Detective Alex is examining a 3×3 section of a photograph. Let's see the actual detective work!</p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0;">
+            <div style="text-align: center;">
+                <h3>🖼️ Image Section</h3>
+                <div style="background: #E3F2FD; padding: 10px; border-radius: 10px;">
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">1</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">2</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">3</div><br>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">4</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">5</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">6</div><br>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">7</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">8</div>
+                    <div class="grid-cell" style="background: #2196F3; margin: 2px; width: 40px; height: 40px; line-height: 20px;">9</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <h3>🔍 Kernel</h3>
+                <div style="background: #FFEBEE; padding: 10px; border-radius: 10px;">
+                    <div class="kernel-cell">1</div>
+                    <div class="kernel-cell">0</div>
+                    <div class="kernel-cell">1</div><br>
+                    <div class="kernel-cell">0</div>
+                    <div class="kernel-cell">1</div>
+                    <div class="kernel-cell">0</div><br>
+                    <div class="kernel-cell">1</div>
+                    <div class="kernel-cell">0</div>
+                    <div class="kernel-cell">1</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <h3>✨ Calculation</h3>
+                <div style="background: #E8F5E8; padding: 10px; border-radius: 10px; text-align: left;">
+                    <p>1×1 + 2×0 + 3×1 = 4</p>
+                    <p>4×0 + 5×1 + 6×0 = 5</p>
+                    <p>7×1 + 8×0 + 9×1 = 16</p>
+                    <hr>
+                    <p><strong>Result = 4+5+16 = 25</strong></p>
+                </div>
+            </div>
+        </div>
+        <div class="key-point">
+            Detective Alex found a pattern strength of <strong>25</strong> at this location!
+        </div>
+    </div>
+
+    <!-- Slide 8: Stride - The Detective's Step Size -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 8 of 20</div>
+            <h1>👣 Stride: How Big Steps Does Alex Take?</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex's Walking Style</h2>
+            <p>Sometimes Alex takes small careful steps (stride = 1), examining every tiny detail. Other times, Alex takes bigger steps (stride = 2) to cover ground faster when looking for obvious clues.</p>
+        </div>
+        <div class="step-box">
+            <h3>🐌 Stride = 1 (Small Steps)</h3>
+            <p><strong>Like:</strong> Examining every inch of the crime scene</p>
+            <p><strong>Result:</strong> Very detailed analysis, lots of output</p>
+            <p><strong>Use When:</strong> You need to catch every tiny detail</p>
+        </div>
+        <div class="step-box">
+            <h3>🦘 Stride = 2 (Big Jumps)</h3>
+            <p><strong>Like:</strong> Quick sweep to find obvious evidence</p>
+            <p><strong>Result:</strong> Faster processing, smaller output</p>
+            <p><strong>Use When:</strong> You want to reduce image size quickly</p>
+        </div>
+        <div class="equation">
+            Stride = How many pixels to skip when moving the kernel
+        </div>
+        <div class="simple-explanation">
+            <strong>Remember:</strong> Bigger stride = faster work but less detail. Smaller stride = more detail but takes longer!
+        </div>
+    </div>
+
+    <!-- Slide 9: Padding - Protecting the Edges -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 9 of 20</div>
+            <h1>🛡️ Padding: Protecting the Crime Scene Edges</h1>
+        </div>
+        <div class="story-box">
+            <h2>The Edge Problem</h2>
+            <p>Detective Alex faces a problem: What happens at the edges of the crime scene? The magnifying glass hangs over the edge and can't examine properly! The solution? Add a protective border around the scene.</p>
+        </div>
+        <div class="visual-grid">
+            <div style="text-align: center;">
+                <h3>🚫 Without Padding</h3>
+                <div style="background: #FFCDD2; padding: 15px; border-radius: 10px;">
+                    <p>Original: 5×5 image</p>
+                    <p>After convolution: 3×3 result</p>
+                    <p><em>Lost information at edges!</em></p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <h3>✅ With Padding</h3>
+                <div style="background: #C8E6C9; padding: 15px; border-radius: 10px;">
+                    <p>Add border: 7×7 image</p>
+                    <p>After convolution: 5×5 result</p>
+                    <p><em>Same size as original!</em></p>
+                </div>
+            </div>
+        </div>
+        <div class="math-box">
+            <h3>Types of Padding:</h3>
+            <p>🔲 <strong>Zero Padding:</strong> Fill border with zeros (most common)</p>
+            <p>🔄 <strong>Reflect Padding:</strong> Mirror the edge pixels</p>
+            <p>📏 <strong>Same Padding:</strong> Keep output same size as input</p>
+            <p>🎯 <strong>Valid Padding:</strong> No padding, smaller output</p>
+        </div>
+    </div>
+
+    <!-- Slide 10: Feature Maps - The Detective's Notebook -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 10 of 20</div>
+            <h1>📓 Feature Maps: Alex's Evidence Collection</h1>
+        </div>
+        <div class="story-box">
+            <p>After examining the entire crime scene, Detective Alex has a notebook full of findings. Each page shows different types of evidence found - this is exactly what a <strong>Feature Map</strong> is!</p>
+        </div>
+        <div class="step-box">
+            <h3>🖼️ Original Image = Crime Scene</h3>
+            <p>The original photo Alex needs to investigate</p>
+        </div>
+        <div class="step-box">
+            <h3>🔍 Apply Kernel = Investigation</h3>
+            <p>Alex uses the magnifying glass to examine every area</p>
+        </div>
+        <div class="step-box">
+            <h3>📋 Feature Map = Evidence Report</h3>
+            <p>The final report showing where patterns were found and how strong they were</p>
+        </div>
+        <div class="simple-explanation">
+            <strong>Key Insight:</strong> Feature maps highlight what's important in the image. High numbers mean "strong pattern found here!" Low numbers mean "nothing interesting here."
+        </div>
+        <div class="key-point">
+            <strong>Cool Fact:</strong> One kernel creates one feature map. Use 10 different kernels, get 10 different feature maps showing 10 different patterns!
+        </div>
+    </div>
+
+    <!-- Slide 11: Multiple Kernels - Team of Detectives -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 11 of 20</div>
+            <h1>👥 Multiple Kernels: Detective Team Assembly</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex Gets Helpers!</h2>
+            <p>For complex cases, Detective Alex calls in specialists:
+            <br>🕵️ <strong>Detective Edge:</strong> Finds all the boundaries
+            <br>🕵️ <strong>Detective Corner:</strong> Spots where lines meet  
+            <br>🕵️ <strong>Detective Texture:</strong> Identifies surface patterns
+            <br>🕵️ <strong>Detective Blur:</strong> Smooths out noise</p>
+        </div>
+        <div class="visual-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div style="text-align: center;">
+                <h3>🔍 Edge Detector</h3>
+                <div style="background: #FF6B6B; padding: 10px; border-radius: 10px; color: white;">
+                    <div class="kernel-cell" style="background: #D32F2F;">-1</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">-1</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">-1</div><br>
+                    <div class="kernel-cell" style="background: #D32F2F;">0</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">0</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">0</div><br>
+                    <div class="kernel-cell" style="background: #D32F2F;">1</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">1</div>
+                    <div class="kernel-cell" style="background: #D32F2F;">1</div>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <h3>🌟 Blur Filter</h3>
+                <div style="background: #4ECDC4; padding: 10px; border-radius: 10px; color: white;">
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div><br>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div><br>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                    <div class="kernel-cell" style="background: #26A69A;">1</div>
+                </div>
+            </div>
+        </div>
+        <div class="key-point">
+            <strong>Power of Teamwork:</strong> Each detective finds different clues. Together, they solve the complete mystery!
+        </div>
+    </div>
+
+    <!-- Slide 12: 1D vs 2D Convolution -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 12 of 20</div>
+            <h1>📏 1D vs 2D: Different Types of Investigations</h1>
+        </div>
+        <div class="story-box">
+            <p>Detective Alex handles different types of cases requiring different investigation methods!</p>
+        </div>
+        <div class="step-box">
+            <h3>📊 1D Convolution (Like Checking a Timeline)</h3>
+            <p><strong>Example:</strong> Analyzing a sound wave or stock prices over time</p>
+            <p><strong>Kernel:</strong> A line of numbers [1, 2, 1]</p>
+            <p><strong>Movement:</strong> Slide left to right only</p>
+            <p><strong>Use Case:</strong> Speech recognition, time series analysis</p>
+        </div>
+        <div class="step-box">
+            <h3>🖼️ 2D Convolution (Like Examining a Photo)</h3>
+            <p><strong>Example:</strong> Analyzing an image for patterns</p>
+            <p><strong>Kernel:</strong> A grid of numbers (3×3, 5×5, etc.)</p>
+            <p><strong>Movement:</strong> Slide in all directions (up, down, left, right)</p>
+            <p><strong>Use Case:</strong> Image recognition, computer vision</p>
+        </div>
+        <div class="simple-explanation">
+            <strong>Easy Memory Trick:</strong>
+            <br>• 1D = One Direction (like reading a book left to right)
+            <br>• 2D = Two Directions (like examining a map up-down AND left-right)
+        </div>
+    </div>
+
+    <!-- Slide 13: Activation Functions - The Evidence Filter -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 13 of 20</div>
+            <h1>⚡ Activation Functions: The Evidence Filter</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex's Decision Rules</h2>
+            <p>After gathering evidence, Detective Alex needs to decide: "Is this clue important enough to act on?" This decision-making process is called an <strong>Activation Function</strong>!</p>
+        </div>
+        <div class="step-box">
+            <h3>🚨 ReLU Function (Most Popular)</h3>
+            <p><strong>Rule:</strong> "If evidence is positive (useful), keep it. If negative (useless), throw it away."</p>
+            <p><strong>Math:</strong> If number ≥ 0, keep it. If number < 0, make it 0.</p>
+            <p><strong>Like:</strong> Only collecting clues that point toward the suspect</p>
+        </div>
+        <div class="step-box">
+            <h3>📊 Sigmoid Function</h3>
+            <p><strong>Rule:</strong> "Convert all evidence strength to a probability between 0% and 100%"</p>
+            <p><strong>Like:</strong> Rating each clue: "How confident am I this is important?"</p>
+        </div>
+        <div class="equation">
+            ReLU(x) = max(0, x)
+        </div>
+        <div class="simple-explanation">
+            <strong>Translation:</strong> "Keep the number if it's positive, otherwise make it zero"
+        </div>
+    </div>
+
+    <!-- Slide 14: Pooling - Summarizing Evidence -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 14 of 20</div>
+            <h1>🏊 Pooling: Summarizing the Evidence</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex Makes a Summary Report</h2>
+            <p>After gathering tons of evidence, Alex needs to create a shorter summary for the boss. Instead of reporting every tiny detail, Alex picks the most important points. This is <strong>Pooling</strong>!</p>
+        </div>
+        <div class="step-box">
+            <h3>🏆 Max Pooling (Most Popular)</h3>
+            <p><strong>Rule:</strong> "In each area, report only the strongest evidence"</p>
+            <p><strong>Example:</strong> In a 2×2 area with values [1, 3, 2, 4], report only 4</p>
+            <p><strong>Like:</strong> "The strongest clue in this room was..."</p>
+        </div>
+        <div class="step-box">
+            <h3>📊 Average Pooling</h3>
+            <p><strong>Rule:</strong> "In each area, report the average strength of evidence"</p>
+            <p><strong>Example:</strong> In a 2×2 area with values [1, 3, 2, 4], report 2.5</p>
+            <p><strong>Like:</strong> "The typical clue strength in this room was..."</p>
+        </div>
+        <div class="key-point">
+            <strong>Why Pool?</strong> Makes the data smaller and easier to handle, while keeping the most important information!
+        </div>
+    </div>
+
+    <!-- Slide 15: Real-World Applications -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 15 of 20</div>
+            <h1>🌍 Real-World Detective Work</h1>
+        </div>
+        <div class="story-box">
+            <p>Detective Alex's convolution skills are used everywhere in the real world! Let's see where this detective work happens:</p>
+        </div>
+        <div class="visual-grid" style="grid-template-columns: repeat(2, 1fr);">
+            <div class="step-box">
+                <h3>📱 Face Recognition</h3>
+                <p>Your phone recognizes your face using convolution to find eye patterns, nose shapes, and mouth curves!</p>
+            </div>
+            <div class="step-box">
+                <h3>🚗 Self-Driving Cars</h3>
+                <p>Cars detect roads, traffic signs, and other vehicles by finding their patterns in camera images!</p>
+            </div>
+            <div class="step-box">
+                <h3>🏥 Medical Imaging</h3>
+                <p>Doctors use AI to spot diseases in X-rays and MRI scans by detecting abnormal patterns!</p>
+            </div>
+            <div class="step-box">
+                <h3>🌾 Crop Monitoring</h3>
+                <p>Farmers use satellites with convolution to detect healthy vs. unhealthy crops from space!</p>
+            </div>
+            <div class="step-box">
+                <h3>🎮 Gaming</h3>
+                <p>Video games use convolution for realistic graphics and character movement recognition!</p>
+            </div>
+            <div class="step-box">
+                <h3>🔍 Security</h3>
+                <p>Security cameras automatically detect suspicious activities and alert guards!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 16: Common Problems and Solutions -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 16 of 20</div>
+            <h1>🚫 Common Mysteries Alex Faces</h1>
+        </div>
+        <div class="story-box">
+            <p>Even the best detectives face challenges! Here are common problems Detective Alex encounters and how to solve them:</p>
+        </div>
+        <div class="step-box">
+            <h3>❌ Problem: Vanishing Gradients</h3>
+            <p><strong>Like:</strong> Important clues getting weaker as they pass through many detectives</p>
+            <p><strong>Solution:</strong> Use skip connections (direct communication between detectives)</p>
+        </div>
+        <div class="step-box">
+            <h3>❌ Problem: Overfitting</h3>
+            <p><strong>Like:</strong> Alex memorizing this one crime scene perfectly but failing on new cases</p>
+            <p><strong>Solution:</strong> Use dropout (randomly ignore some clues during training)</p>
+        </div>
+        <div class="step-box">
+            <h3>❌ Problem: Too Much Computing Power Needed</h3>
+            <p><strong>Like:</strong> Investigation taking too long and costing too much</p>
+            <p><strong>Solution:</strong> Use smaller kernels, more efficient architectures</p>
+        </div>
+        <div class="key-point">
+            <strong>Detective Wisdom:</strong> Every problem has a solution. The key is understanding what's going wrong first!
+        </div>
+    </div>
+
+    <!-- Slide 17: Building Your First CNN -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 17 of 20</div>
+            <h1>🏗️ Building Your Detective Agency</h1>
+        </div>
+        <div class="story-box">
+            <h2>Detective Alex Builds a Team</h2>
+            <p>Now let's build a complete detective agency (CNN - Convolutional Neural Network) step by step!</p>
+        </div>
+        <div class="step-box">
+            <h3>🏢 Layer 1: Input Layer</h3>
+            <p><strong>Job:</strong> Receive the crime scene photo</p>
+            <p><strong>Example:</strong> 32×32 color image (like a small photo)</p>
+        </div>
+        <div class="step-box">
+            <h3>🔍 Layer 2: Convolution Layer</h3>
+            <p><strong>Job:</strong> Find basic patterns (edges, corners)</p>
+            <p><strong>Example:</strong> Use 32 different 3×3 kernels</p>
+        </div>
+        <div class="step-box">
+            <h3>⚡ Layer 3: Activation Layer (ReLU)</h3>
+            <p><strong>Job:</strong> Keep only useful evidence</p>
+            <p><strong>Rule:</strong> Throw away negative numbers</p>
+        </div>
+        <div class="step-box">
+            <h3>🏊 Layer 4: Pooling Layer</h3>
+            <p><strong>Job:</strong> Summarize findings</p>
+            <p><strong>Result:</strong> Smaller but more focused evidence</p>
+        </div>
+        <div class="step-box">
+            <h3>🔄 Repeat Layers 2-4</h3>
+            <p><strong>Job:</strong> Find more complex patterns</p>
+            <p><strong>Example:</strong> First layer finds edges, second finds shapes, third finds objects</p>
+        </div>
+    </div>
+
+    <!-- Slide 18: Parameter Calculation -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 18 of 20</div>
+            <h1>🧮 Counting Alex's Tools</h1>
+        </div>
+        <div class="story-box">
+            <p>Detective Alex needs to know exactly how many tools are in the detective kit. Let's count the <strong>parameters</strong> (numbers that the computer needs to learn)!</p>
+        </div>
+        <div class="equation">
+            Parameters = (Kernel_Height × Kernel_Width × Input_Channels + 1) × Number_of_Kernels
+        </div>
+        <div class="simple-explanation">
+            <strong>Translation:</strong> "Count all the numbers in each magnifying glass, add 1 for each magnifying glass (bias), then multiply by how many magnifying glasses you have"
+        </div>
+        <div class="math-box">
+            <h3>🔢 Example Calculation:</h3>
+            <p><strong>Kernel Size:</strong> 3×3</p>
+            <p><strong>Input Channels:</strong> 3 (Red, Green, Blue)</p>
+            <p><strong>Number of Kernels:</strong> 64</p>
+            <br>
+            <p><strong>Step 1:</strong> Numbers per kernel = 3×3×3 = 27</p>
+            <p><strong>Step 2:</strong> Add bias = 27 + 1 = 28</p>
+            <p><strong>Step 3:</strong> Total = 28 × 64 = 1,792 parameters</p>
+        </div>
+        <div class="key-point">
+            <strong>Why This Matters:</strong> More parameters = more detective tools = better pattern detection, but also more training time!
+        </div>
+    </div>
+
+    <!-- Slide 19: Output Size Calculation -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 19 of 20</div>
+            <h1>📐 Measuring the Evidence Report Size</h1>
+        </div>
+        <div class="story-box">
+            <p>Detective Alex needs to predict how big the evidence report (output) will be before starting the investigation!</p>
+        </div>
+        <div class="equation">
+            Output_Size = (Input_Size - Kernel_Size + 2×Padding) ÷ Stride + 1
+        </div>
+        <div class="simple-explanation">
+            <strong>Translation:</strong> "Take the crime scene size, subtract the magnifying glass size, add padding space, divide by step size, then add 1"
+        </div>
+        <div class="math-box">
+            <h3>📊 Example Calculation:</h3>
+            <p><strong>Input Image:</strong> 32×32</p>
+            <p><strong>Kernel Size:</strong> 3×3</p>
+            <p><strong>Padding:</strong> 1</p>
+            <p><strong>Stride:</strong> 1</p>
+            <br>
+            <p><strong>Calculation:</strong></p>
+            <p>Output = (32 - 3 + 2×1) ÷ 1 + 1</p>
+            <p>Output = (32 - 3 + 2) ÷ 1 + 1</p>
+            <p>Output = 31 ÷ 1 + 1 = 32</p>
+            <br>
+            <p><strong>Result:</strong> 32×32 output (same size as input!)</p>
+        </div>
+        <div class="key-point">
+            <strong>Pro Tip:</strong> Use padding = (kernel_size - 1) ÷ 2 and stride = 1 to keep the same size!
+        </div>
+    </div>
+
+    <!-- Slide 20: Summary and Next Steps -->
+    <div class="slide-container">
+        <div class="slide-header">
+            <div class="slide-number">Slide 20 of 20</div>
+            <h1>🎓 Detective Alex Graduates!</h1>
+        </div>
+        <div class="detective-icon">🎉🕵️‍♂️🎉</div>
+        <div class="story-box">
+            <h2>What We Learned Today:</h2>
+            <p>Congratulations! You've learned how computers become super detectives using convolution operations!</p>
+        </div>
+        <div class="step-box">
+            <h3>🔍 Key Concepts Mastered:</h3>
+            <p>✅ <strong>Convolution:</strong> Moving a pattern detector across images</p>
+            <p>✅ <strong>Kernels/Filters:</strong> The detective's magnifying glasses</p>
+            <p>✅ <strong>Feature Maps:</strong> The evidence reports</p>
+            <p>✅ <strong>Stride & Padding:</strong> How to move and protect edges</p>
+            <p>✅ <strong>Pooling:</strong> Summarizing important findings</p>
+        </div>
+        <div class="key-point">
+            <h3>🚀 Next Detective Missions:</h3>
+            <p>• Learn about different CNN architectures (LeNet, AlexNet, ResNet)</p>
+            <p>• Explore advanced techniques (Transfer Learning, Data Augmentation)</p>
+            <p>• Build your own image classifier</p>
+            <p>• Understand object detection and segmentation</p>
+        </div>
+        <div class="simple-explanation">
+            <strong>Remember:</strong> Every expert was once a beginner. You now have the foundation to understand how AI sees and interprets the world around us! 🌟
+        </div>
+        <div style="text-align: center; margin-top: 30px;">
+            <h2>🎯 Mission Accomplished!</h2>
+            <p style="font-size: 1.2em; color: #FF6B6B;"><strong>You're now ready to solve computer vision mysteries!</strong></p>
+        </div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+        <button class="nav-btn" onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide-container');
+        const totalSlides = slides.length;
+
+        function updateSlideDisplay() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update slide counter
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlideDisplay();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlideDisplay();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'ArrowRight' || event.key === ' ') {
+                nextSlide();
+            } else if (event.key === 'ArrowLeft') {
+                previousSlide();
+            }
+        });
+
+        // Initialize
+        updateSlideDisplay();
+    </script>
+</body>
+</html>

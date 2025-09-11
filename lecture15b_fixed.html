@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecture 15B: Interactive Pooling & Subsampling Lab</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --accent-color: #3b82f6;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --info-color: #06b6d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 12px 24px;
+            display: inline-block;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: white;
+            border-radius: 20px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+
+        .section-header {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 24px 30px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-content {
+            padding: 30px;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .canvas-wrapper {
+            text-align: center;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .canvas-wrapper:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+        }
+
+        .canvas-wrapper h4 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .pooling-grid {
+            display: inline-block;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .grid-row {
+            display: flex;
+        }
+
+        .grid-cell {
+            width: 40px;
+            height: 40px;
+            border: 1px solid #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .grid-cell.highlight {
+            background: #fbbf24 !important;
+            color: #92400e;
+            transform: scale(1.05);
+            z-index: 2;
+            position: relative;
+        }
+
+        .arrow {
+            font-size: 2rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            margin: 0 20px;
+        }
+
+        .formula-box {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-left: 4px solid var(--success-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-left: 4px solid var(--warning-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .result-box h3 {
+            color: #92400e;
+            margin-bottom: 12px;
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #cffafe, #a7f3d0);
+            border-left: 4px solid var(--info-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+
+        .info-panel h3 {
+            color: #0c4a6e;
+            margin-bottom: 12px;
+        }
+
+        .info-panel ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-panel li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .info-panel li:last-child {
+            border-bottom: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin: 24px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            white-space: nowrap;
+        }
+
+        .control-group input[type="range"] {
+            width: 120px;
+        }
+
+        .control-group span {
+            font-weight: 600;
+            color: var(--secondary-color);
+            min-width: 40px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(107, 114, 128, 0.3);
+        }
+
+        .comparison-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .comparison-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 24px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+        }
+
+        .comparison-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 16px;
+        }
+
+        .size-indicator {
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            background: white;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--hover-shadow);
+            color: var(--secondary-color);
+        }
+
+        canvas {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+
+        canvas:hover {
+            border-color: var(--accent-color);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .canvas-container {
+                flex-direction: column;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+                margin: 15px 0;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+        }
+
+        /* Animation Effects */
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .pulse-animation {
+            animation: pulse 1s ease-in-out infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="breadcrumb">
+                <i class="fas fa-home"></i> Deep Learning Course → Lecture 15 Part B
+            </div>
+            <h1><i class="fas fa-compress-alt"></i> Interactive Pooling & Subsampling Lab</h1>
+            <p class="subtitle">Hands-on exploration of spatial dimension reduction techniques</p>
+        </div>
+
+        <!-- Lab 1: Understanding Max Pooling -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-mountain"></i>
+                    Lab 1: Max Pooling - Finding the Peaks
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Max pooling selects the maximum value from each region, preserving the strongest features like edges and textures.
+                </p>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>🔢 Input Feature Map (4×4)</h4>
+                        <div class="pooling-grid" id="maxPoolInput">
+                            <div class="grid-row">
+                                <div class="grid-cell">3.2</div>
+                                <div class="grid-cell">8.1</div>
+                                <div class="grid-cell">2.4</div>
+                                <div class="grid-cell">6.7</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">5.9</div>
+                                <div class="grid-cell">4.3</div>
+                                <div class="grid-cell">9.1</div>
+                                <div class="grid-cell">1.8</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">7.2</div>
+                                <div class="grid-cell">3.6</div>
+                                <div class="grid-cell">5.5</div>
+                                <div class="grid-cell">8.9</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">2.1</div>
+                                <div class="grid-cell">6.8</div>
+                                <div class="grid-cell">4.2</div>
+                                <div class="grid-cell">7.3</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="canvas-wrapper">
+                        <h4>⛰️ Max Pooled Output (2×2)</h4>
+                        <div class="pooling-grid" id="maxPoolOutput">
+                            <div class="grid-row">
+                                <div class="grid-cell" style="background: #dcfce7;">8.1</div>
+                                <div class="grid-cell" style="background: #dcfce7;">9.1</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell" style="background: #dcfce7;">7.2</div>
+                                <div class="grid-cell" style="background: #dcfce7;">8.9</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 8px;">
+                            Pool size: 2×2, Stride: 2
+                        </p>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <strong>Max Pooling Formula:</strong> Output[i,j] = max(region)<br>
+                    Preserves strongest activations (edges, corners, textures)
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="animateMaxPooling()">
+                        <i class="fas fa-play"></i> Animate Process
+                    </button>
+                    <button class="btn" onclick="generateRandomInputs()">
+                        <i class="fas fa-dice"></i> Random Values
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab 2: Average Pooling -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-balance-scale"></i>
+                    Lab 2: Average Pooling - The Democratic Approach
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Average pooling takes the mean of all values in each region, providing smooth, balanced feature representation.
+                </p>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>📊 Input Feature Map (4×4)</h4>
+                        <div class="pooling-grid" id="avgPoolInput">
+                            <div class="grid-row">
+                                <div class="grid-cell">2.0</div>
+                                <div class="grid-cell">4.0</div>
+                                <div class="grid-cell">1.0</div>
+                                <div class="grid-cell">7.0</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">6.0</div>
+                                <div class="grid-cell">8.0</div>
+                                <div class="grid-cell">3.0</div>
+                                <div class="grid-cell">5.0</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">1.0</div>
+                                <div class="grid-cell">9.0</div>
+                                <div class="grid-cell">2.0</div>
+                                <div class="grid-cell">6.0</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell">3.0</div>
+                                <div class="grid-cell">7.0</div>
+                                <div class="grid-cell">4.0</div>
+                                <div class="grid-cell">8.0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <span class="arrow">→</span>
+
+                    <div class="canvas-wrapper">
+                        <h4>📊 Average Pooled Output (2×2)</h4>
+                        <div class="pooling-grid" id="avgPoolOutput">
+                            <div class="grid-row">
+                                <div class="grid-cell" style="background: #fef3c7;">5.0</div>
+                                <div class="grid-cell" style="background: #fef3c7;">4.0</div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-cell" style="background: #fef3c7;">5.0</div>
+                                <div class="grid-cell" style="background: #fef3c7;">5.0</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #6b7280; margin-top: 8px;">
+                            Calculation: (2+4+6+8)/4 = 5.0
+                        </p>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <strong>Average Pooling Formula:</strong> Output[i,j] = (1/n) × Σ(region)<br>
+                    Where n = number of elements in pooling window
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="animateAvgPooling()">
+                        <i class="fas fa-calculator"></i> Show Calculation
+                    </button>
+                    <button class="btn" onclick="comparePoolingMethods()">
+                        <i class="fas fa-arrows-left-right"></i> Compare Methods
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab 3: Pooling Size and Stride -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-cog"></i>
+                    Lab 3: Interactive Pooling Parameters
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Experiment with different pooling sizes and strides to see their effect on output dimensions:
+                </p>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label><i class="fas fa-expand"></i> Pool Size:</label>
+                        <input type="range" id="poolSizeSlider" min="2" max="4" value="2" oninput="updatePooling()">
+                        <span id="poolSizeValue">2×2</span>
+                    </div>
+                    <div class="control-group">
+                        <label><i class="fas fa-step-forward"></i> Stride:</label>
+                        <input type="range" id="strideSlider" min="1" max="3" value="2" oninput="updatePooling()">
+                        <span id="strideValue">2</span>
+                    </div>
+                    <button class="btn" onclick="applyPoolingSettings()">
+                        <i class="fas fa-play"></i> Apply Settings
+                    </button>
+                </div>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-ruler"></i> Output Size Calculation</h3>
+                    <div id="poolSizeCalculation" style="font-size: 1.1rem; font-family: 'Fira Code', monospace;">
+                        Input: 8×8, Pool: 2×2, Stride: 2<br>
+                        Output = (8 - 2) / 2 + 1 = <strong>4×4</strong><br>
+                        <em>Data reduction: 75%</em>
+                    </div>
+                </div>
+
+                <div class="canvas-container">
+                    <canvas id="poolingVisualization" width="400" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab 4: Global Pooling -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-globe"></i>
+                    Lab 4: Global Pooling - Ultimate Compression
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    Global pooling reduces entire feature maps to single values - maximum compression for classification:
+                </p>
+
+                <div class="comparison-container">
+                    <div class="comparison-card">
+                        <h3>🌍 Global Max Pooling</h3>
+                        <canvas id="globalMaxCanvas" width="120" height="120"></canvas>
+                        <div style="margin: 12px 0; padding: 8px; background: #ecfdf5; border-radius: 6px;">
+                            <strong>Result: 9.8</strong><br>
+                            <small>Maximum value from entire map</small>
+                        </div>
+                        <button class="btn btn-secondary" onclick="performGlobalPooling('max')">
+                            Global Max
+                        </button>
+                    </div>
+
+                    <div class="comparison-card">
+                        <h3>📊 Global Average Pooling</h3>
+                        <canvas id="globalAvgCanvas" width="120" height="120"></canvas>
+                        <div style="margin: 12px 0; padding: 8px; background: #fef3c7; border-radius: 6px;">
+                            <strong>Result: 5.2</strong><br>
+                            <small>Average of all values</small>
+                        </div>
+                        <button class="btn btn-secondary" onclick="performGlobalPooling('avg')">
+                            Global Avg
+                        </button>
+                    </div>
+                </div>
+
+                <div class="formula-box">
+                    <strong>Global Pooling Benefits:</strong><br>
+                    • Massive parameter reduction (H×W → 1)<br>
+                    • Natural regularization<br>
+                    • Handles variable input sizes<br>
+                    • Perfect for classification final layers
+                </div>
+            </div>
+        </div>
+
+        <!-- Lab 5: Pooling Effects Comparison -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Lab 5: Pooling Effects on Information
+                </h2>
+            </div>
+            <div class="section-content">
+                <p style="margin-bottom: 24px; font-size: 1.1rem; color: #4b5563;">
+                    See how different pooling methods affect information preservation and feature detection:
+                </p>
+
+                <div class="canvas-container">
+                    <div class="canvas-wrapper">
+                        <h4>Original Feature Map</h4>
+                        <canvas id="originalFeatureMap" width="160" height="160"></canvas>
+                        <div class="size-indicator">8×8 = 64 values</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <h4>Max Pooling (2×2)</h4>
+                        <canvas id="maxPooledResult" width="80" height="80"></canvas>
+                        <div class="size-indicator">4×4 = 16 values<br>Preserves peaks</div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <h4>Average Pooling (2×2)</h4>
+                        <canvas id="avgPooledResult" width="80" height="80"></canvas>
+                        <div class="size-indicator">4×4 = 16 values<br>Smooth transitions</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="generateRandomFeatureMap()">
+                        <i class="fas fa-dice"></i> Random Map
+                    </button>
+                    <button class="btn" onclick="animatePoolingComparison()">
+                        <i class="fas fa-play-circle"></i> Animate Comparison
+                    </button>
+                </div>
+
+                <div class="info-panel">
+                    <h3><i class="fas fa-lightbulb"></i> Key Insights</h3>
+                    <ul>
+                        <li><strong>Max Pooling:</strong> Preserves strongest features (edges, corners)</li>
+                        <li><strong>Average Pooling:</strong> Smooths features, reduces noise</li>
+                        <li><strong>Global Pooling:</strong> Ultimate compression for final layers</li>
+                        <li><strong>Size Selection:</strong> Larger pools = more compression, less detail</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="lecture15.html" class="nav-btn">
+                <i class="fas fa-arrow-left"></i> Part A: Pooling Concepts
+            </a>
+            <a href="index.html" class="nav-btn">
+                <i class="fas fa-home"></i> Course Home
+            </a>
+            <a href="lecture16.html" class="nav-btn">
+                Next: CNN Architectures <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let animationInProgress = false;
+
+        // Initialize when page loads
+        window.onload = function () {
+            setupPoolingGrids();
+            generateFeatureMap();
+            createGlobalPoolingData();
+            drawPoolingVisualization();
+        };
+
+        function setupPoolingGrids() {
+            // Max pooling data is already in HTML
+            updatePoolSizeCalculation();
+        }
+
+        function animateMaxPooling() {
+            if (animationInProgress) return;
+            animationInProgress = true;
+
+            const inputCells = document.querySelectorAll('#maxPoolInput .grid-cell');
+            const outputCells = document.querySelectorAll('#maxPoolOutput .grid-cell');
+
+            // Clear previous highlights
+            inputCells.forEach(cell => cell.classList.remove('highlight'));
+
+            // Animate each 2x2 region
+            const regions = [
+                [0, 1, 4, 5], // Top-left
+                [2, 3, 6, 7], // Top-right
+                [8, 9, 12, 13], // Bottom-left
+                [10, 11, 14, 15] // Bottom-right
+            ];
+
+            let regionIndex = 0;
+
+            function animateRegion() {
+                if (regionIndex >= regions.length) {
+                    animationInProgress = false;
+                    return;
+                }
+
+                // Highlight current region
+                const currentRegion = regions[regionIndex];
+                currentRegion.forEach(index => {
+                    inputCells[index].classList.add('highlight');
+                });
+
+                // Highlight corresponding output
+                outputCells[regionIndex].style.background = '#dcfce7';
+                outputCells[regionIndex].style.transform = 'scale(1.1)';
+
+                setTimeout(() => {
+                    // Remove highlights
+                    currentRegion.forEach(index => {
+                        inputCells[index].classList.remove('highlight');
+                    });
+                    outputCells[regionIndex].style.transform = 'scale(1)';
+
+                    regionIndex++;
+                    animateRegion();
+                }, 1500);
+            }
+
+            animateRegion();
+        }
+
+        function animateAvgPooling() {
+            if (animationInProgress) return;
+            animationInProgress = true;
+
+            const inputCells = document.querySelectorAll('#avgPoolInput .grid-cell');
+            const outputCells = document.querySelectorAll('#avgPoolOutput .grid-cell');
+
+            // Clear previous highlights
+            inputCells.forEach(cell => cell.classList.remove('highlight'));
+
+            // Animate each 2x2 region for average pooling
+            const regions = [
+                [0, 1, 4, 5], // Top-left: (2+4+6+8)/4 = 5.0
+                [2, 3, 6, 7], // Top-right: (1+7+3+5)/4 = 4.0
+                [8, 9, 12, 13], // Bottom-left: (1+9+3+7)/4 = 5.0
+                [10, 11, 14, 15] // Bottom-right: (2+6+4+8)/4 = 5.0
+            ];
+
+            let regionIndex = 0;
+
+            function animateRegion() {
+                if (regionIndex >= regions.length) {
+                    animationInProgress = false;
+                    return;
+                }
+
+                // Highlight current region
+                const currentRegion = regions[regionIndex];
+                currentRegion.forEach(index => {
+                    inputCells[index].classList.add('highlight');
+                });
+
+                // Highlight corresponding output
+                outputCells[regionIndex].style.background = '#fef3c7';
+                outputCells[regionIndex].style.transform = 'scale(1.1)';
+
+                setTimeout(() => {
+                    // Remove highlights
+                    currentRegion.forEach(index => {
+                        inputCells[index].classList.remove('highlight');
+                    });
+                    outputCells[regionIndex].style.transform = 'scale(1)';
+
+                    regionIndex++;
+                    animateRegion();
+                }, 1500);
+            }
+
+            animateRegion();
+        }
+
+        function comparePoolingMethods() {
+            // Toggle between max and average pooling displays
+            const maxSection = document.querySelector('.section:nth-child(2)');
+            const avgSection = document.querySelector('.section:nth-child(3)');
+
+            if (maxSection.style.opacity === '0.5') {
+                maxSection.style.opacity = '1';
+                avgSection.style.opacity = '0.5';
+            } else {
+                maxSection.style.opacity = '0.5';
+                avgSection.style.opacity = '1';
+            }
+
+            setTimeout(() => {
+                maxSection.style.opacity = '1';
+                avgSection.style.opacity = '1';
+            }, 3000);
+        }
+
+        function generateRandomInputs() {
+            const maxInputCells = document.querySelectorAll('#maxPoolInput .grid-cell');
+            const avgInputCells = document.querySelectorAll('#avgPoolInput .grid-cell');
+
+            // Generate random values for max pooling
+            maxInputCells.forEach(cell => {
+                const value = (Math.random() * 10).toFixed(1);
+                cell.textContent = value;
+            });
+
+            // Generate random values for average pooling
+            avgInputCells.forEach(cell => {
+                const value = (Math.random() * 10).toFixed(1);
+                cell.textContent = value;
+            });
+
+            // Recalculate outputs
+            calculateMaxPoolingOutput();
+            calculateAvgPoolingOutput();
+        }
+
+        function calculateMaxPoolingOutput() {
+            const inputCells = document.querySelectorAll('#maxPoolInput .grid-cell');
+            const outputCells = document.querySelectorAll('#maxPoolOutput .grid-cell');
+            
+            const regions = [
+                [0, 1, 4, 5],
+                [2, 3, 6, 7],
+                [8, 9, 12, 13],
+                [10, 11, 14, 15]
+            ];
+
+            regions.forEach((region, index) => {
+                const values = region.map(i => parseFloat(inputCells[i].textContent));
+                const maxValue = Math.max(...values);
+                outputCells[index].textContent = maxValue.toFixed(1);
+            });
+        }
+
+        function calculateAvgPoolingOutput() {
+            const inputCells = document.querySelectorAll('#avgPoolInput .grid-cell');
+            const outputCells = document.querySelectorAll('#avgPoolOutput .grid-cell');
+            
+            const regions = [
+                [0, 1, 4, 5],
+                [2, 3, 6, 7],
+                [8, 9, 12, 13],
+                [10, 11, 14, 15]
+            ];
+
+            regions.forEach((region, index) => {
+                const values = region.map(i => parseFloat(inputCells[i].textContent));
+                const avgValue = values.reduce((a, b) => a + b, 0) / values.length;
+                outputCells[index].textContent = avgValue.toFixed(1);
+            });
+        }
+
+        function updatePooling() {
+            const poolSize = document.getElementById('poolSizeSlider').value;
+            const stride = document.getElementById('strideSlider').value;
+
+            document.getElementById('poolSizeValue').textContent = `${poolSize}×${poolSize}`;
+            document.getElementById('strideValue').textContent = stride;
+
+            updatePoolSizeCalculation();
+        }
+
+        function updatePoolSizeCalculation() {
+            const poolSize = parseInt(document.getElementById('poolSizeSlider')?.value || 2);
+            const stride = parseInt(document.getElementById('strideSlider')?.value || 2);
+            const inputSize = 8;
+
+            const outputSize = Math.floor((inputSize - poolSize) / stride) + 1;
+            const reduction = Math.round((1 - (outputSize * outputSize) / (inputSize * inputSize)) * 100);
+
+            const calc = document.getElementById('poolSizeCalculation');
+            if (calc) {
+                calc.innerHTML = `
+                    Input: ${inputSize}×${inputSize}, Pool: ${poolSize}×${poolSize}, Stride: ${stride}<br>
+                    Output = (${inputSize} - ${poolSize}) / ${stride} + 1 = <strong>${outputSize}×${outputSize}</strong><br>
+                    <em>Data reduction: ${reduction}%</em>
+                `;
+            }
+        }
+
+        function applyPoolingSettings() {
+            updatePoolSizeCalculation();
+            drawPoolingVisualization();
+        }
+
+        function drawPoolingVisualization() {
+            const canvas = document.getElementById('poolingVisualization');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const poolSize = parseInt(document.getElementById('poolSizeSlider')?.value || 2);
+            const stride = parseInt(document.getElementById('strideSlider')?.value || 2);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw input grid
+            const cellSize = 20;
+            const inputSize = 8;
+            const startX = 50;
+            const startY = 50;
+
+            // Draw input grid cells
+            ctx.strokeStyle = '#ccc';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < inputSize; i++) {
+                for (let j = 0; j < inputSize; j++) {
+                    ctx.strokeRect(startX + j * cellSize, startY + i * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Draw pooling windows
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 2;
+            
+            for (let i = 0; i <= inputSize - poolSize; i += stride) {
+                for (let j = 0; j <= inputSize - poolSize; j += stride) {
+                    ctx.strokeRect(
+                        startX + j * cellSize, 
+                        startY + i * cellSize, 
+                        poolSize * cellSize, 
+                        poolSize * cellSize
+                    );
+                }
+            }
+
+            // Draw arrow
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(startX + inputSize * cellSize + 20, startY + (inputSize * cellSize) / 2);
+            ctx.lineTo(startX + inputSize * cellSize + 50, startY + (inputSize * cellSize) / 2);
+            ctx.stroke();
+
+            // Draw arrow head
+            ctx.beginPath();
+            ctx.moveTo(startX + inputSize * cellSize + 45, startY + (inputSize * cellSize) / 2 - 5);
+            ctx.lineTo(startX + inputSize * cellSize + 50, startY + (inputSize * cellSize) / 2);
+            ctx.lineTo(startX + inputSize * cellSize + 45, startY + (inputSize * cellSize) / 2 + 5);
+            ctx.stroke();
+
+            // Draw output grid
+            const outputSize = Math.floor((inputSize - poolSize) / stride) + 1;
+            const outputStartX = startX + inputSize * cellSize + 70;
+            const outputStartY = startY + (inputSize * cellSize - outputSize * cellSize) / 2;
+
+            ctx.fillStyle = '#dcfce7';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < outputSize; i++) {
+                for (let j = 0; j < outputSize; j++) {
+                    ctx.fillRect(outputStartX + j * cellSize, outputStartY + i * cellSize, cellSize, cellSize);
+                    ctx.strokeRect(outputStartX + j * cellSize, outputStartY + i * cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Add labels
+            ctx.fillStyle = '#000';
+            ctx.font = '14px sans-serif';
+            ctx.fillText('Input', startX, startY - 10);
+            ctx.fillText('Output', outputStartX, outputStartY - 10);
+        }
+
+        function generateFeatureMap() {
+            const canvas = document.getElementById('originalFeatureMap');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const size = 8;
+            const cellSize = 20;
+
+            // Generate random feature map data
+            window.featureMapData = [];
+            for (let i = 0; i < size; i++) {
+                window.featureMapData[i] = [];
+                for (let j = 0; j < size; j++) {
+                    window.featureMapData[i][j] = Math.random() * 10;
+                }
+            }
+
+            drawFeatureMap(ctx, window.featureMapData, cellSize);
+            generatePooledResults();
+        }
+
+        function generatePooledResults() {
+            // Generate max pooled result
+            const maxCanvas = document.getElementById('maxPooledResult');
+            const avgCanvas = document.getElementById('avgPooledResult');
+            
+            if (!maxCanvas || !avgCanvas || !window.featureMapData) return;
+
+            const maxCtx = maxCanvas.getContext('2d');
+            const avgCtx = avgCanvas.getContext('2d');
+            const cellSize = 20;
+
+            // Create pooled data
+            const maxPooled = [];
+            const avgPooled = [];
+            const poolSize = 2;
+
+            for (let i = 0; i < 4; i++) {
+                maxPooled[i] = [];
+                avgPooled[i] = [];
+                for (let j = 0; j < 4; j++) {
+                    const values = [];
+                    for (let di = 0; di < poolSize; di++) {
+                        for (let dj = 0; dj < poolSize; dj++) {
+                            values.push(window.featureMapData[i * poolSize + di][j * poolSize + dj]);
+                        }
+                    }
+                    maxPooled[i][j] = Math.max(...values);
+                    avgPooled[i][j] = values.reduce((a, b) => a + b, 0) / values.length;
+                }
+            }
+
+            drawFeatureMap(maxCtx, maxPooled, cellSize);
+            drawFeatureMap(avgCtx, avgPooled, cellSize);
+        }
+
+        function drawFeatureMap(ctx, data, cellSize) {
+            const size = data.length;
+            ctx.clearRect(0, 0, size * cellSize, size * cellSize);
+
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const value = data[i][j];
+                    const intensity = Math.floor((value / 10) * 255);
+                    ctx.fillStyle = `rgb(${255 - intensity}, ${255 - intensity}, 255)`;
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                    ctx.strokeStyle = '#ccc';
+                    ctx.strokeRect(j * cellSize, i * cellSize, cellSize, cellSize);
+
+                    // Add value text
+                    ctx.fillStyle = intensity > 127 ? '#fff' : '#000';
+                    ctx.font = '10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(
+                        value.toFixed(1), 
+                        j * cellSize + cellSize / 2, 
+                        i * cellSize + cellSize / 2 + 3
+                    );
+                }
+            }
+        }
+
+        function generateRandomFeatureMap() {
+            generateFeatureMap();
+        }
+
+        function animatePoolingComparison() {
+            if (animationInProgress) return;
+            animationInProgress = true;
+
+            const canvases = [
+                document.getElementById('originalFeatureMap'),
+                document.getElementById('maxPooledResult'),
+                document.getElementById('avgPooledResult')
+            ];
+
+            let current = 0;
+
+            function highlightNext() {
+                // Reset all
+                canvases.forEach(canvas => {
+                    if (canvas) canvas.style.border = '2px solid #ccc';
+                });
+
+                // Highlight current
+                if (canvases[current]) {
+                    canvases[current].style.border = '3px solid #3b82f6';
+                }
+
+                current = (current + 1) % canvases.length;
+
+                if (current === 0) {
+                    setTimeout(() => {
+                        canvases.forEach(canvas => {
+                            if (canvas) canvas.style.border = '2px solid #ccc';
+                        });
+                        animationInProgress = false;
+                    }, 1000);
+                } else {
+                    setTimeout(highlightNext, 1500);
+                }
+            }
+
+            highlightNext();
+        }
+
+        function createGlobalPoolingData() {
+            const maxCanvas = document.getElementById('globalMaxCanvas');
+            const avgCanvas = document.getElementById('globalAvgCanvas');
+            
+            if (!maxCanvas || !avgCanvas) return;
+
+            // Create sample 6x6 feature map for global pooling demo
+            window.globalData = [];
+            for (let i = 0; i < 6; i++) {
+                window.globalData[i] = [];
+                for (let j = 0; j < 6; j++) {
+                    window.globalData[i][j] = Math.random() * 10;
+                }
+            }
+
+            drawGlobalPoolingMap(maxCanvas, window.globalData);
+            drawGlobalPoolingMap(avgCanvas, window.globalData);
+        }
+
+        function drawGlobalPoolingMap(canvas, data) {
+            const ctx = canvas.getContext('2d');
+            const size = data.length;
+            const cellSize = canvas.width / size;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const value = data[i][j];
+                    const intensity = Math.floor((value / 10) * 255);
+                    ctx.fillStyle = `rgb(${255 - intensity}, ${255 - intensity}, 255)`;
+                    ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                    ctx.strokeStyle = '#ccc';
+                    ctx.strokeRect(j * cellSize, i * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+
+        function performGlobalPooling(type) {
+            if (!window.globalData) return;
+
+            const allValues = window.globalData.flat();
+            let result;
+
+            if (type === 'max') {
+                result = Math.max(...allValues);
+            } else {
+                result = allValues.reduce((a, b) => a + b, 0) / allValues.length;
+            }
+
+            // Update display
+            const canvas = document.getElementById(type === 'max' ? 'globalMaxCanvas' : 'globalAvgCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Flash effect
+            ctx.fillStyle = type === 'max' ? '#10b981' : '#f59e0b';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            setTimeout(() => {
+                drawGlobalPoolingMap(canvas, window.globalData);
+                
+                // Update result display
+                const resultDiv = canvas.parentNode.querySelector('div');
+                if (resultDiv) {
+                    resultDiv.innerHTML = `
+                        <strong>Result: ${result.toFixed(1)}</strong><br>
+                        <small>${type === 'max' ? 'Maximum value from entire map' : 'Average of all values'}</small>
+                    `;
+                }
+            }, 500);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vision Detective Academy: CNN Fundamentals</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Comic Sans MS", cursive; line-height: 1.6; color: #ffffff; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #000000 100%); padding: 10px; }
+        .container { max-width: 1200px; margin: 0 auto; background: #1a1a1a; border-radius: 20px; box-shadow: 0 20px 60px rgba(255,255,0,0.3); overflow: hidden; border: 3px solid #ffff00; }
+        .header { background: linear-gradient(45deg, #000000, #ff0000, #ffff00, #00ff00, #000000); color: #ffffff; padding: 30px; text-align: center; position: relative; border-bottom: 4px solid #ffff00; }
+        .header::before { content: "🔍👁️🧠 "; font-size: 3em; position: absolute; top: 10px; left: 20px; opacity: 0.6; }
+        h1 { font-size: 3em; margin-bottom: 10px; text-shadow: 3px 3px 6px rgba(0,0,0,0.8); animation: detectiveGlow 3s infinite; color: #ffff00; }
+        @keyframes detectiveGlow { 0% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } 50% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 40px #00ff00; } 100% { text-shadow: 3px 3px 6px rgba(0,0,0,0.8), 0 0 20px #ffff00; } }
+        .subtitle { font-size: 1.3em; opacity: 0.9; font-weight: normal; color: #00ff00; }
+        .timer { position: fixed; top: 20px; right: 20px; background: #ff0000; color: #ffff00; padding: 15px 20px; border-radius: 30px; font-weight: bold; z-index: 1000; box-shadow: 0 5px 15px rgba(255,0,0,0.5); border: 2px solid #ffff00; }
+        .progress-bar { width: 100%; height: 10px; background: #333333; position: relative; overflow: hidden; border: 2px solid #ffff00; }
+        .progress { height: 100%; background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00); width: 0%; transition: width 0.5s ease; }
+        .nav { background: #2d2d2d; padding: 20px; text-align: center; border-bottom: 3px solid #ffff00; }
+        .nav a { display: inline-block; margin: 5px 10px; padding: 12px 20px; background: #000000; color: #ffff00; text-decoration: none; border-radius: 25px; transition: all 0.3s; font-weight: bold; border: 2px solid #ffff00; }
+        .nav a:hover { transform: translateY(-3px) scale(1.05); background: #ffff00; color: #000000; box-shadow: 0 5px 15px rgba(255,255,0,0.5); }
+        .section { padding: 30px; border-bottom: 2px solid #333333; }
+        h2 { color: #ffff00; font-size: 2.2em; margin-bottom: 20px; border-bottom: 4px solid #00ff00; padding-bottom: 10px; display: flex; align-items: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); }
+        h3 { color: #00ff00; font-size: 1.6em; margin: 20px 0 15px 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        .story-box { background: linear-gradient(135deg, #ff0000, #000000); color: #ffffff; padding: 25px; border-radius: 15px; margin: 20px 0; box-shadow: 0 10px 30px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .simple-explanation { background: linear-gradient(135deg, #00ff00, #2d5a2d); padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 6px solid #ffff00; color: #000000; font-weight: bold; }
+        .simple-explanation::before { content: "👶 Simple Words: "; font-weight: bold; color: #ff0000; font-size: 1.1em; }
+        .math-container { background: #000000; color: #00ff00; padding: 25px; border-radius: 15px; margin: 20px 0; font-family: 'Courier New', monospace; border: 3px solid #ffff00; position: relative; }
+        .math-container::before { content: "🧮 MATH DETECTIVE WORK"; position: absolute; top: -15px; left: 20px; background: #000000; padding: 0 10px; color: #ffff00; font-weight: bold; border: 1px solid #ffff00; }
+        .equation { text-align: center; font-size: 1.4em; font-weight: bold; color: #ffff00; margin: 15px 0; padding: 10px; background: rgba(255,255,0,0.1); border-radius: 8px; border: 1px solid #ffff00; }
+        .equation-breakdown { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 10px 0; border: 1px solid #00ff00; }
+        .symbol-meaning { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: center; margin: 5px 0; }
+        .symbol { color: #ffff00; font-weight: bold; font-size: 1.2em; }
+        .meaning { color: #ffffff; }
+        .interactive-demo { background: linear-gradient(135deg, #ffff00, #2d2d00); padding: 25px; border-radius: 15px; margin: 20px 0; border: 3px solid #ff0000; text-align: center; color: #000000; font-weight: bold; }
+        .slider-container { margin: 15px 0; padding: 15px; background: #ffffff; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 2px solid #000000; }
+        .slider { width: 100%; height: 10px; background: #333333; outline: none; border-radius: 4px; cursor: pointer; }
+        .result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0; }
+        .result-card { background: linear-gradient(135deg, #ff0000, #000000); color: #ffff00; padding: 20px; border-radius: 12px; text-align: center; font-weight: bold; box-shadow: 0 8px 25px rgba(255,0,0,0.4); border: 2px solid #ffff00; }
+        .detective-visual { text-align: center; font-size: 2.5em; margin: 20px 0; animation: bounce 2s infinite; }
+        .convolution-demo { background: linear-gradient(135deg, #ff0000, #330000); color: #ffffff; padding: 20px; border-radius: 15px; margin: 15px 0; border: 2px solid #ffff00; }
+        .filter-demo { background: linear-gradient(135deg, #00ff00, #003300); color: #000000; padding: 20px; border-radius: 15px; margin: 15px 0; border: 2px solid #ffff00; font-weight: bold; }
+        .code-playground { background: #000000; color: #00ff00; padding: 20px; border-radius: 12px; margin: 15px 0; font-family: 'Courier New', monospace; border-left: 5px solid #ffff00; border: 2px solid #333333; }
+        .highlight { background: #ffff00; padding: 3px 8px; border-radius: 4px; font-weight: bold; color: #000000; }
+        .comparison-table { width: 100%; border-collapse: collapse; margin: 20px 0; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .comparison-table th, .comparison-table td { border: 2px solid #ffff00; padding: 15px; text-align: center; }
+        .comparison-table th { background: #ff0000; color: #ffff00; font-weight: bold; }
+        .comparison-table tr:nth-child(even) { background: #2d2d2d; color: #ffffff; }
+        .comparison-table tr:nth-child(odd) { background: #1a1a1a; color: #ffffff; }
+        .step-by-step { counter-reset: step-counter; }
+        .step { counter-increment: step-counter; margin: 15px 0; padding: 20px; background: rgba(0, 255, 0, 0.1); border-radius: 10px; border-left: 5px solid #00ff00; border: 2px solid #00ff00; }
+        .step::before { content: "Step " counter(step-counter) ": "; font-weight: bold; color: #ffff00; font-size: 1.2em; }
+        .advanced-concept { background: linear-gradient(135deg, #000000, #ff0000); color: #ffffff; padding: 20px; border-radius: 15px; margin: 20px 0; border: 3px solid #ffff00; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 1s ease-out; }
+        .matrix-visual { background: #000000; color: #00ff00; padding: 15px; border-radius: 8px; margin: 15px 0; font-family: 'Courier New', monospace; border: 2px solid #ffff00; text-align: center; }
+        .filter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 200px; margin: 10px auto; }
+        .filter-cell { background: #ffff00; color: #000000; padding: 10px; text-align: center; font-weight: bold; border: 1px solid #000000; }
+        .feature-map { background: #2d2d2d; color: #00ff00; padding: 15px; border-radius: 8px; margin: 10px 0; border: 2px solid #00ff00; }
+        .cnn-architecture { display: flex; align-items: center; justify-content: center; margin: 20px 0; flex-wrap: wrap; }
+        .layer-block { background: #ff0000; color: #ffff00; padding: 15px 20px; margin: 5px; border-radius: 10px; border: 2px solid #ffff00; font-weight: bold; text-align: center; }
+        .arrow { color: #00ff00; font-size: 2em; margin: 0 10px; }
+        /* Fix for inline styles */
+        .pixel-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-width: 300px; margin: 10px auto; }
+        .pixel-cell { background: #ffff00; color: #000000; padding: 5px; font-size: 0.8em; }
+        .full-width-select { width: 100%; padding: 8px; border-radius: 5px; }
+        .filter-grid-center { margin: 20px auto; }
+    </style>
+</head>
+<body>
+    <div class="timer" id="timer">60:00</div>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 The Vision Detective Academy</h1>
+            <div class="subtitle">Master CNN Fundamentals: From Pixel Detective to Vision Expert!</div>
+        </div>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div class="nav">
+            <a href="#intro">Detective Academy</a>
+            <a href="#convolution">Convolution Magic</a>
+            <a href="#filters">Filter Detective Tools</a>
+            <a href="#featuremaps">Feature Map Evidence</a>
+            <a href="#architecture">Complete Investigation</a>
+            <a href="#advanced">Master Detective Secrets</a>
+        </div>
+
+        <div class="section" id="intro">
+            <h2>🕵️ Welcome to the Vision Detective Academy!</h2>
+            <div class="story-box">
+                <h3>🔍 Meet Detective Alex: The Ultimate Vision Investigator</h3>
+                <p>Welcome to the most exciting detective academy in the AI world! 🎯 Detective Alex runs the <strong>Vision Detective Academy</strong> where AI detectives learn to "see" and understand images like humans do!</p>
+                <div class="detective-visual">🕵️➡️👁️➡️🧠➡️✨</div>
+                <p>But here's the mystery - how can a computer look at millions of tiny colored dots (pixels) and somehow know it's looking at a cat, a car, or a person? 🤔</p>
+                <p>Detective Alex discovered the secret: <span class="highlight">Convolutional Neural Networks (CNNs)</span> - special AI detectives that can find clues in images just like Sherlock Holmes finds clues at crime scenes!</p>
+            </div>
+
+            <div class="simple-explanation">
+                A <strong>Convolutional Neural Network (CNN)</strong> is like a super detective that examines images piece by piece, looking for important clues (edges, shapes, patterns) and gradually building up an understanding of what's in the picture. Think of it as having X-ray vision that can see through to the important parts!
+            </div>
+
+            <div class="interactive-demo">
+                <h3>🔍 Detective Vision Simulator</h3>
+                <div class="slider-container">
+                    <label>Detective Magnification Level: <span id="magnificationVal">1</span>x</label>
+                    <input type="range" class="slider" id="magnificationSlider" min="1" max="10" value="1" aria-label="Detective Magnification Level" title="Adjust detective magnification level">
+                </div>
+                <div class="result-grid">
+                    <div class="result-card">Vision Detail: <span id="visionDetail">Basic</span></div>
+                    <div class="result-card">Clues Found: <span id="cluesFound">3</span></div>
+                    <div class="result-card">Investigation Level: <span id="investigationLevel">Rookie</span></div>
+                </div>
+                <div id="magnification-explanation" class="result-card">Adjust magnification to see how CNNs examine images at different detail levels!</div>
+            </div>
+
+            <div class="matrix-visual">
+                <h3>🔢 How Images Look to Computers</h3>
+                <p>To us: 😺 (cute cat!)</p>
+                <p>To computers: A grid of numbers representing colors!</p>
+                <div class="pixel-grid">
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">240</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">200</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">180</div>
+                    <div class="pixel-cell">255</div>
+                    <div class="pixel-cell">220</div>
+                </div>
+                <p>Each number represents how bright that pixel is! (0=black, 255=white)</p>
+            </div>
+        </div>
+
+        <div class="section" id="convolution">
+            <h2>🔍 Convolution: The Detective's Magnifying Glass</h2>
+            <div class="story-box">
+                <h3>🔎 Detective Alex's Secret Investigation Tool</h3>
+                <p>Detective Alex has a magical magnifying glass called <strong>Convolution</strong>! This isn't an ordinary magnifying glass - it can slide across any image and detect specific clues like edges, corners, or patterns! 🕵️‍♀️</p>
+                <div class="detective-visual">🔍➡️📸➡️🔍➡️✨</div>
+                <p>The amazing thing is that this magnifying glass can be programmed to look for different types of clues. One setting finds vertical lines, another finds horizontal lines, and another finds curves!</p>
+            </div>
+
+            <div class="math-container">
+                <h3>🔢 The Convolution Operation: Mathematical Magic</h3>
+                <div class="equation">Output[i,j] = Σ Σ (Input[i+m,j+n] × Filter[m,n])</div>
+                <div class="equation-breakdown">
+                    <div class="symbol-meaning">
+                        <div class="symbol">Output[i,j]</div>
+                        <div class="meaning">= The clue Detective Alex found at position (i,j)</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Input[i+m,j+n]</div>
+                        <div class="meaning">= Pixel values in the image under the magnifying glass</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Filter[m,n]</div>
+                        <div class="meaning">= The detective's magnifying glass settings</div>
+                    </div>
+                    <div class="symbol-meaning">
+                        <div class="symbol">Σ Σ</div>
+                        <div class="meaning">= Add up all the multiplications (double summation)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Interactive functionality for the detective academy
+        function updateMagnification() {
+            const magnification = document.getElementById('magnificationSlider').value;
+            document.getElementById('magnificationVal').textContent = magnification;
+            
+            const visionDetail = magnification <= 3 ? 'Basic' : magnification <= 7 ? 'Enhanced' : 'Expert';
+            const cluesFound = Math.floor(magnification * 2) + 1;
+            const investigationLevel = magnification <= 3 ? 'Rookie' : magnification <= 7 ? 'Detective' : 'Master Detective';
+            
+            document.getElementById('visionDetail').textContent = visionDetail;
+            document.getElementById('cluesFound').textContent = cluesFound;
+            document.getElementById('investigationLevel').textContent = investigationLevel;
+        }
+
+        // Initialize event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const magnificationSlider = document.getElementById('magnificationSlider');
+            if (magnificationSlider) {
+                magnificationSlider.addEventListener('input', updateMagnification);
+            }
+        });
+    </script>
+</body>
+</html>
